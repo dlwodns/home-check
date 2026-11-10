@@ -1,0 +1,71 @@
+{
+  "_note": "docs/SOURCES.md에서 뽑은 근거 목록. SOURCES.md를 고치면 이 파일도 같이 고친다(tests/content.test.ts가 둘이 같은지 검사).",
+  "sources": [
+    {
+      "id": "S1",
+      "title": "중개보조원은 자신이 보조원이라고 미리 알려야 한다",
+      "status": "check",
+      "official_url": "https://www.law.go.kr/법령/공인중개사법"
+    },
+    {
+      "id": "S2",
+      "title": "중개보조원은 계약서 작성 · 확인설명을 할 수 없다",
+      "status": "check",
+      "official_url": "https://www.law.go.kr/법령/공인중개사법"
+    },
+    {
+      "id": "S3",
+      "title": "등록된 중개사무소와 소속 인원은 온라인으로 조회할 수 있다",
+      "status": "check",
+      "official_url": "https://www.nsdi.go.kr"
+    },
+    {
+      "id": "S4",
+      "title": "주택 임대차 중개보수 상한",
+      "status": "check",
+      "official_url": "https://www.law.go.kr/법령/공인중개사법시행규칙"
+    },
+    {
+      "id": "S5",
+      "title": "집주인은 계약할 때 선순위 임대차 정보와 납세증명서를 보여 줘야 한다",
+      "status": "check",
+      "official_url": "https://www.law.go.kr/법령/주택임대차보호법"
+    },
+    {
+      "id": "S6",
+      "title": "확정일자 부여현황(앞선 세입자 보증금) 열람",
+      "status": "check",
+      "official_url": "https://www.law.go.kr/법령/주택임대차보호법"
+    },
+    {
+      "id": "S7",
+      "title": "다가구 원룸은 \"앞선 세입자 보증금 합계\"를 따로 확인해야 한다",
+      "status": "check",
+      "official_url": null
+    },
+    {
+      "id": "S8",
+      "title": "\"근저당 + 보증금이 집값의 70% 이하면 비교적 안전\"",
+      "status": "not_legal",
+      "official_url": null
+    },
+    {
+      "id": "S9",
+      "title": "전입신고는 이사 후 14일 이내",
+      "status": "check",
+      "official_url": "https://www.law.go.kr/법령/주민등록법"
+    },
+    {
+      "id": "S10",
+      "title": "HUG 안심전세 앱",
+      "status": "check",
+      "official_url": "https://www.khug.or.kr"
+    },
+    {
+      "id": "S11",
+      "title": "직거래 시 확인",
+      "status": "check",
+      "official_url": null
+    }
+  ]
+}
