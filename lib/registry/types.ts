@@ -29,6 +29,12 @@ export interface RegistryRead {
   last_ownership_transfer: string | null;
 }
 
+/** 읽기 결과 + 못 읽은 것에 대한 안내 (화면에서 "직접 입력해 주세요"로 보여 줌) */
+export interface ReadResult {
+  read: RegistryRead;
+  warnings: string[];
+}
+
 /** 사용자가 직접 넣는 값 (expected.json의 inputs, 금액 단위 원) */
 export interface CheckInputs {
   market_price: number;

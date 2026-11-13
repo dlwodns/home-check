@@ -1,5 +1,5 @@
 // 가짜 샘플 등기부등본 3종과 정답표(samples/expected.json)가 서로 맞는지 검사한다.
-// 읽기(11/11) · 판정(11/12) 테스트는 아래 todo 자리에 채운다.
+// 읽기 테스트는 tests/read.test.ts, 판정 테스트는 아래 todo 자리에 채운다.
 import { existsSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import expected from "@/samples/expected.json";
@@ -47,6 +47,6 @@ describe("샘플 정답표", () => {
 });
 
 describe("F2 등기부등본 점검", () => {
-  it.todo("규칙 기반 읽기: 샘플 3종에서 읽은 값이 정답표 read와 같다 (11/11)");
+  // 규칙 기반 읽기 테스트는 tests/read.test.ts (11/13 완료)
   it.todo("판정: 샘플 3종의 판정 · 이유가 정답표 expected와 같다 (11/12)");
 });
