@@ -108,6 +108,14 @@
         "S10"
       ]
     },
+    "prior_deposits_unknown": {
+      "level": "caution",
+      "title": "먼저 들어온 세입자들의 보증금을 몰라서, 빚 비율이 실제보다 낮게 보일 수 있어요",
+      "sources": [
+        "S6",
+        "S7"
+      ]
+    },
     "past_lease_registration": {
       "level": "info",
       "title": "예전에 보증금 문제로 임차권등기가 있었다가 지워진 기록이 있어요",

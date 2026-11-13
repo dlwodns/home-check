@@ -130,6 +130,15 @@ describe("빚 비율", () => {
   });
 });
 
+describe("앞선 세입자 보증금을 모를 때", () => {
+  it("0으로 치고 끝내지 않고 주의 + '실제보다 낮게 보일 수 있음'", () => {
+    const r = judge(readB({ active_mortgages: [] }), { market_price: 1000, prior_deposits: null, my_deposit: 100, contract_party: "김도윤" }, AS_OF);
+    expect(r.ratio).toBe(10);
+    expect(r.flags).toContain("prior_deposits_unknown");
+    expect(r.verdict).toBe("caution");
+  });
+});
+
 describe("최근 소유권 이전 (참고, 6개월)", () => {
   it.each([
     ["2026-05-13", true],

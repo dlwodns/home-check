@@ -17,6 +17,23 @@ describe("근거 목록", () => {
     expect(sources.map(({ id, status }) => ({ id, status }))).toEqual(fromMd);
   });
 
+  it("모든 근거는 사용자가 눌러서 확인할 곳(공식 링크 · 참고 자료)이 있거나, 법정 기준이 아님을 밝힌다", () => {
+    for (const s of sources) {
+      expect(Boolean(s.official_url) || s.refs.length > 0 || s.status === "not_legal", s.id).toBe(true);
+      expect(s.summary.trim(), s.id).not.toBe("");
+    }
+  });
+
+  it("SOURCES.md의 참고 자료 링크와 data/sources.json의 refs가 같다", () => {
+    const md = readFileSync("docs/SOURCES.md", "utf-8");
+    for (const s of sources) {
+      const block = md.split(/\n(?=## S\d+\. )/).find((b) => b.startsWith(`## ${s.id}. `)) ?? "";
+      const line = block.split("\n").find((l) => l.startsWith("- **참고 자료**")) ?? "";
+      const urls = [...line.matchAll(/\]\((https?:\/\/[^)]+)\)/g)].map((m) => m[1]);
+      expect(s.refs.map((r) => r.url), s.id).toEqual(urls);
+    }
+  });
+
   it("체크리스트 · 용어가 다는 근거 번호는 모두 근거 목록에 있다", () => {
     const used = [...allItems.flatMap((i) => i.sources), ...terms.flatMap((t) => t.sources)];
     const missing = used.filter((id) => !sourceIds.has(id));

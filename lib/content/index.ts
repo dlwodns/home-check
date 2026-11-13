@@ -12,6 +12,10 @@ export interface Source {
   title: string;
   status: SourceStatus;
   official_url: string | null;
+  /** SOURCES.md '내용' 한 줄 */
+  summary: string;
+  /** SOURCES.md '참고 자료' 링크 */
+  refs: { label: string; url: string }[];
 }
 
 export interface ChecklistItem {

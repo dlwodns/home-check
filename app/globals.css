@@ -4,7 +4,8 @@
   --text: #1c1c1e;
   --muted: #6b6b73;
   --border: #e2e2e6;
-  --accent: #2f9e44;
+  --accent: #1f7a4d;
+  --on-accent: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -15,6 +16,7 @@
     --muted: #9a9aa3;
     --border: #2e2e34;
     --accent: #51cf66;
+    --on-accent: #0b1f12;
   }
 }
 
@@ -38,3 +40,130 @@ body {
 .muted {
   color: var(--muted);
 }
+
+/* ── 공통 입력 · 버튼 ── */
+:root {
+  --danger: #b42318;
+  --danger-bg: #fdecea;
+  --caution: #9a4a00;
+  --caution-bg: #fff4e5;
+  --safe: #1f7a4d;
+  --safe-bg: #e8f3ec;
+  --info: #1d4e89;
+  --info-bg: #eaf1fb;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --danger: #ff8a80;
+    --danger-bg: #3a1d1b;
+    --caution: #ffb74d;
+    --caution-bg: #3a2c17;
+    --safe: #69db7c;
+    --safe-bg: #17301f;
+    --info: #90caf9;
+    --info-bg: #182a3f;
+  }
+}
+.small { font-size: 13px; }
+h2 { font-size: 17px; margin: 0 0 12px; }
+h3 { font-size: 15px; margin: 0 0 8px; }
+input, textarea {
+  width: 100%;
+  font: inherit;
+  font-size: 16px; /* 16px 미만이면 아이폰이 확대해 버림 */
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+textarea { resize: vertical; min-height: 140px; }
+button { font: inherit; cursor: pointer; }
+button.primary {
+  width: 100%;
+  min-height: 52px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 17px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+button.ghost, button.chip {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: transparent;
+  color: var(--text);
+}
+a { color: var(--accent); }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ── 점검 화면 ── */
+.check { padding-top: 12px; padding-bottom: 40px; display: flex; flex-direction: column; gap: 14px; }
+.topbar { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.back { display: inline-flex; width: 44px; height: 44px; align-items: center; justify-content: center; text-decoration: none; font-size: 20px; color: var(--text); }
+.privacy { margin: 0; font-size: 13px; color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
+.field label, .field-label { font-size: 14px; font-weight: 600; }
+.hint { margin: 0; font-size: 12px; color: var(--muted); }
+.samples { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+.errors { border-color: var(--danger); background: var(--danger-bg); }
+.errors ul, .warn ul { margin: 0; padding-left: 18px; }
+.warn { border-color: var(--caution); background: var(--caution-bg); }
+.error-text { color: var(--danger); font-size: 14px; }
+.disclaimer { text-align: center; font-size: 12px; color: var(--muted); }
+
+.verdict { display: flex; gap: 14px; align-items: center; padding: 18px; border-radius: 14px; margin-bottom: 12px; }
+.verdict p { margin: 2px 0 0; }
+.verdict-icon { flex: none; width: 44px; height: 44px; border-radius: 22px; display: flex; align-items: center; justify-content: center; font-weight: 800; color: #fff; }
+.verdict-label { font-size: 22px; }
+.verdict-safe { background: var(--safe-bg); } .verdict-safe .verdict-icon { background: var(--safe); } .verdict-safe .verdict-label { color: var(--safe); }
+.verdict-caution { background: var(--caution-bg); } .verdict-caution .verdict-icon { background: var(--caution); } .verdict-caution .verdict-label { color: var(--caution); }
+.verdict-danger { background: var(--danger-bg); } .verdict-danger .verdict-icon { background: var(--danger); } .verdict-danger .verdict-label { color: var(--danger); }
+
+.ratio p { margin: 0 0 8px; }
+.bar { position: relative; height: 12px; background: var(--border); border-radius: 6px; }
+.bar-fill { height: 12px; border-radius: 6px; }
+.bar-safe { background: var(--safe); } .bar-caution { background: var(--caution); } .bar-danger { background: var(--danger); }
+.bar-mark { position: absolute; top: -3px; width: 2px; height: 18px; background: var(--text); }
+.bar-labels { position: relative; height: 18px; font-size: 11px; margin-bottom: 4px; }
+.bar-labels span { position: absolute; transform: translateX(-50%); }
+
+.flags { list-style: none; margin: 12px 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.flag { border-radius: 12px; padding: 12px 14px; border: 1px solid var(--border); background: var(--surface); }
+.flag-level { display: inline-block; font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 10px; color: #fff; }
+.flag-danger { border-color: var(--danger); } .flag-danger .flag-level { background: var(--danger); }
+.flag-caution { border-color: var(--caution); } .flag-caution .flag-level { background: var(--caution); }
+.flag-info .flag-level { background: var(--info); }
+.flag-safe { border-color: var(--safe); color: var(--safe); }
+.flag-title { margin: 6px 0 4px; font-weight: 600; }
+.flag-sources { margin: 0; font-size: 12px; color: var(--muted); }
+.flag-sources em { font-style: normal; }
+
+.editor summary { cursor: pointer; font-weight: 700; min-height: 32px; }
+.row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; margin-bottom: 8px; }
+.confirm { display: flex; gap: 8px; align-items: center; margin: 12px 0 4px; font-size: 14px; }
+.confirm input { width: 20px; height: 20px; }
+
+/* ── 처음 화면 ── */
+.cta { display: flex; align-items: center; justify-content: center; min-height: 52px; border-radius: 12px; background: var(--accent); color: var(--on-accent); font-weight: 700; text-decoration: none; margin-top: 16px; }
+@media (prefers-color-scheme: dark) {
+  /* 다크 모드의 밝은 위험 · 주의 색 위에는 어두운 글자 (흰 글자는 대비가 부족) */
+  .flag-level, .verdict-icon { color: #111; }
+}
+
+/* ── 근거 목록 ── */
+.sources { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.sources h2 { margin: 4px 0 6px; }
+.sources li:target { outline: 3px solid var(--accent); }
+.source-head { margin: 0; display: flex; gap: 8px; align-items: center; }
+.badge { font-size: 12px; font-weight: 700; padding: 2px 8px; border-radius: 10px; }
+.badge-confirmed { background: var(--safe-bg); color: var(--safe); }
+.badge-check { background: var(--caution-bg); color: var(--caution); }
+.badge-not_legal { background: var(--info-bg); color: var(--info); }
+.links { margin: 6px 0 0; padding-left: 18px; font-size: 14px; }
+.links li { margin: 4px 0; overflow-wrap: anywhere; }

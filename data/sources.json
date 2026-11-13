@@ -1,101 +1,235 @@
 {
-  "_note": "docs/SOURCES.md에서 뽑은 근거 목록. SOURCES.md를 고치면 이 파일도 같이 고친다(tests/content.test.ts가 둘이 같은지 검사).",
+  "_note": "docs/SOURCES.md에서 뽑은 근거 목록. SOURCES.md를 고치면 이 파일도 같이 고친다(tests/content.test.ts가 둘이 같은지 검사). refs는 SOURCES.md의 '참고 자료' 링크.",
   "sources": [
     {
       "id": "S1",
       "title": "중개보조원은 자신이 보조원이라고 미리 알려야 한다",
       "status": "check",
-      "official_url": "https://www.law.go.kr/법령/공인중개사법"
+      "official_url": "https://www.law.go.kr/법령/공인중개사법",
+      "refs": [
+        {
+          "label": "집품 블로그",
+          "url": "https://zippoom.com/%EB%B8%94%EB%A1%9C%EA%B7%B8/%EC%A4%91%EA%B0%9C%EB%B3%B4%EC%A1%B0%EC%9B%90-%EA%B3%B5%EC%9D%B8%EC%A4%91%EA%B0%9C%EC%82%AC-%EC%B0%A8%EC%9D%B4%EC%A0%90-%EA%B3%A0%EC%A7%80%EC%9D%98%EB%AC%B4-%EC%A0%9C%EB%8F%84/206"
+        },
+        {
+          "label": "비즈워치 2023-04-25",
+          "url": "https://news.bizwatch.co.kr/article/real_estate/2023/04/25/0030"
+        }
+      ],
+      "summary": "중개보조원은 의뢰인에게 본인이 중개보조원이라는 사실을 미리 알려야 함. 위반 시 500만 원 이하 과태료. 2023년 신설, 2023-10-19 시행으로 소개됨"
     },
     {
       "id": "S2",
       "title": "중개보조원은 계약서 작성 · 확인설명을 할 수 없다",
       "status": "check",
-      "official_url": "https://www.law.go.kr/법령/공인중개사법"
+      "official_url": "https://www.law.go.kr/법령/공인중개사법",
+      "refs": [
+        {
+          "label": "세이프홈즈",
+          "url": "https://safehomes.kr/insights/ap-276-중개보조원과-공인중개사-구별-없이-계약하면-안-되는-중요한-이유"
+        }
+      ],
+      "summary": "중개보조원의 업무는 현장 안내 · 일반 서무 등 단순 보조. 계약서 작성이나 권리관계 설명은 공인중개사가 해야 함"
     },
     {
       "id": "S3",
       "title": "등록된 중개사무소와 소속 인원은 온라인으로 조회할 수 있다",
       "status": "check",
-      "official_url": "https://www.nsdi.go.kr"
+      "official_url": "https://www.nsdi.go.kr",
+      "refs": [
+        {
+          "label": "강동구청 보도자료",
+          "url": "https://gangdong.go.kr/web/newportal/press/6375"
+        }
+      ],
+      "summary": "국가공간정보포털 '부동산중개업 조회'에서 상호, 대표자, 영업 상태(영업 중 · 업무정지 · 휴업), 소속 공인중개사 · 중개보조원 명단 확인. 서울은 서울부동산정보광장에서도 조회"
     },
     {
       "id": "S4",
       "title": "주택 임대차 중개보수 상한",
       "status": "check",
-      "official_url": "https://www.law.go.kr/법령/공인중개사법시행규칙"
+      "official_url": "https://www.law.go.kr/법령/공인중개사법시행규칙",
+      "refs": [
+        {
+          "label": "braindetox 정리",
+          "url": "https://braindetox.kr/posts/brokerage_fee_eligibility.html"
+        },
+        {
+          "label": "복덕빵 계산 예시",
+          "url": "https://bokduckbbang.com/blog/%EB%B3%B4%EC%A6%9D%EA%B8%88%EC%9D%B4-%EC%86%8C%EC%95%A1%EC%9D%B8-%EC%9B%94%EC%84%B8-%EA%B3%84%EC%95%BD%EC%9D%84-%EB%A7%BA%EA%B8%B0-%EC%A0%84-%EC%A4%91%EA%B0%9C%EB%B3%B4%EC%88%98-%EC%82%B0%EC%A0%95-%EC%8B%9C-%EC%A0%81%EC%9A%A9%EB%90%98%EB%8A%94-%ED%99%98%EC%82%B0%EB%B3%B4%EC%A6%9D%EA%B8%88-%EA%B3%B5%EC%8B%9D%EB%B3%B4%EC%A6%9D%EA%B8%88%EC%9B%94%EC%84%B8x100%EA%B3%BC-5%EC%B2%9C%EB%A7%8C-%EC%9B%90-%EB%AF%B8%EB%A7%8C%EC%9D%BC-%EB%95%8C%EC%9D%98-%EA%B0%90%EC%95%A1-%EA%B8%B0%EC%A4%80%EC%9D%84-%ED%99%95%EC%9D%B8%ED%95%98%EC%97%AC-%EC%A0%81%EC%A0%95-%EC%88%98%EC%88%98%EB%A3%8C%EB%A5%BC-%EA%B3%84%EC%82%B0%ED%95%98%EB%8A%94-%EB%B0%A9%EB%B2%95/"
+        }
+      ],
+      "summary": "주택 임대차 중개보수는 거래금액 구간별 상한요율 · 한도액 안에서 협의하며, 월세는 보증금 + 월세 × 100(5천만 원 미만이면 × 70)을 거래금액으로 본다. 상한은 시 · 도 조례가 정함"
     },
     {
       "id": "S5",
       "title": "집주인은 계약할 때 선순위 임대차 정보와 납세증명서를 보여 줘야 한다",
       "status": "check",
-      "official_url": "https://www.law.go.kr/법령/주택임대차보호법"
+      "official_url": "https://www.law.go.kr/법령/주택임대차보호법",
+      "refs": [
+        {
+          "label": "로팩트",
+          "url": "https://www.lawfact.co.kr/news_proc/news_contents.jsp?ncd=3584"
+        }
+      ],
+      "summary": "2023년 신설. 임대인은 계약 체결 시 선순위 확정일자 부여일, 차임 · 보증금 등 임대차 정보와 납세증명서를 임차인에게 제시해야 함. 법무부는 표준계약서에 \"미리 알리지 않은 선순위 정보 · 세금 체납이 확인되면 위약금 없이 해제할 수 있다\"는 특약을 권고"
     },
     {
       "id": "S6",
       "title": "확정일자 부여현황(앞선 세입자 보증금) 열람",
       "status": "check",
-      "official_url": "https://www.law.go.kr/법령/주택임대차보호법"
+      "official_url": "https://www.law.go.kr/법령/주택임대차보호법",
+      "refs": [
+        {
+          "label": "세이프홈즈: 확정일자 부여현황 열람 요청",
+          "url": "https://safehomes.kr/insights/kn-20260708-1316-전세계약-전-임대인에게-확정일자-부여현황-열람-요청하기"
+        }
+      ],
+      "summary": "확정일자 정보는 개인정보라 계약 전에는 집주인 동의를 받아야 열람 가능. 계약한 임차인은 계약서 · 신분증으로 열람 가능하다는 설명이 있음"
     },
     {
       "id": "S7",
       "title": "다가구 원룸은 \"앞선 세입자 보증금 합계\"를 따로 확인해야 한다",
       "status": "check",
-      "official_url": null
+      "official_url": null,
+      "refs": [
+        {
+          "label": "세이프홈즈: 선순위보증금 확인 방법",
+          "url": "https://safehomes.kr/insights/ap-183-선순위보증금-확인하는-방법-계산법-주민센터-다가구주택-전입세대-열람-확정일자-부여-현황-확인"
+        }
+      ],
+      "summary": "다가구주택은 건물 전체가 하나의 등기라 다른 세입자들의 보증금이 등기부등본에 나오지 않음. 주민센터의 전입세대 열람 + 확정일자 부여현황으로 규모를 파악. 집주인이 말한 금액과 실제 합계가 크게 달랐던 사례가 소개됨"
     },
     {
       "id": "S8",
       "title": "\"근저당 + 보증금이 집값의 70% 이하면 비교적 안전\"",
       "status": "not_legal",
-      "official_url": null
+      "official_url": null,
+      "refs": [
+        {
+          "label": "세이프홈즈: 근저당권 위험 계산",
+          "url": "https://safehomes.kr/insights/kn-20260709-1465-근저당권-위험-계산-근저당권전세보증금-vs-시세"
+        },
+        {
+          "label": "카카오뱅크 브런치",
+          "url": "https://brunch.co.kr/@kakaobank/808"
+        }
+      ],
+      "summary": "(채권최고액 + 앞선 보증금 + 내 보증금) ÷ 집 시세. 70% 이하 비교적 안전, 70–80% 주의, 80% 이상 위험으로 보는 설명이 많음. 경매 낙찰가가 시세의 70–80% 선이라는 점이 근거로 쓰임. 국토교통부 공식 기준 문서는 찾지 못함"
     },
     {
       "id": "S9",
       "title": "전입신고는 이사 후 14일 이내",
       "status": "check",
-      "official_url": "https://www.law.go.kr/법령/주민등록법"
+      "official_url": "https://www.law.go.kr/법령/주민등록법",
+      "refs": [],
+      "summary": "거주지를 옮기면 14일 이내에 전입신고. 전입신고 + 확정일자가 보증금을 지키는 핵심(대항력 · 우선변제권)"
     },
     {
       "id": "S10",
       "title": "HUG 안심전세 앱",
       "status": "check",
-      "official_url": "https://www.khug.or.kr"
+      "official_url": "https://www.khug.or.kr",
+      "refs": [
+        {
+          "label": "다음 2026-07-21",
+          "url": "https://v.daum.net/v/20260721183150452"
+        },
+        {
+          "label": "더체크",
+          "url": "https://thecheck.co.kr/?p=2875"
+        }
+      ],
+      "summary": "주소로 위험도(안전 · 주의 · 위험) 진단, 집주인 보증사고 · 체납 이력, 시세, 중개사 조회, 등기 변동 알림. 2026년 민간 플랫폼(직방 · 다방 등)에 위험도 정보 개방 보도"
     },
     {
       "id": "S11",
       "title": "직거래 시 확인",
       "status": "check",
-      "official_url": null
+      "official_url": null,
+      "refs": [
+        {
+          "label": "매일신문 2024",
+          "url": "https://www.imaeil.com/page/view/2024022620282717829"
+        }
+      ],
+      "summary": "계약 상대가 등기부등본상 소유자와 같은지 신분증으로 확인, 보증금은 소유자 본인 명의 계좌로, 대리인이면 위임장 · 인감증명서 확인. 경찰도 직거래 사기 사건에서 소유자 · 계약자 일치 확인을 당부"
     },
     {
       "id": "S12",
       "title": "갑구에 있으면 위험한 기록: 압류 · 가압류 · 가처분 · 가등기 · 경매개시결정",
       "status": "check",
-      "official_url": "https://www.iros.go.kr"
+      "official_url": "https://www.iros.go.kr",
+      "refs": [
+        {
+          "label": "세이프홈즈: 등기부등본에 들어가면 안 되는 단어 7가지",
+          "url": "https://safehomes.kr/insights/ap-279-%EC%A0%84%EC%84%B8-%EA%B3%84%EC%95%BD-%EC%8B%9C-%EB%93%B1%EA%B8%B0%EB%B6%80%EB%93%B1%EB%B3%B8%EC%97%90-%EB%93%A4%EC%96%B4%EA%B0%80%EB%A9%B4-%EC%95%88%EB%90%98%EB%8A%94-%EB%8B%A8%EC%96%B4-7%EA%B0%80%EC%A7%80"
+        },
+        {
+          "label": "위키독스: 등기부등본 7가지 체크포인트",
+          "url": "https://wikidocs.net/blog/@knarchive/20156/"
+        }
+      ],
+      "summary": "갑구(소유권에 관한 사항)에 말소되지 않은 압류 · 가압류 · 가처분 · 가등기 · 경매개시결정이 있으면 소유권 분쟁이나 경매로 이어질 수 있는 신호. 잔금일 전 말소를 조건으로 하거나, 말소가 어려운 권리(가처분 · 경매)는 계약을 보류하라는 안내가 공통적임"
     },
     {
       "id": "S13",
       "title": "신탁등기가 있는 집",
       "status": "check",
-      "official_url": "https://www.law.go.kr/법령/신탁법"
+      "official_url": "https://www.law.go.kr/법령/신탁법",
+      "refs": [
+        {
+          "label": "세이프홈즈: 신탁등기 있는 집",
+          "url": "https://safehomes.kr/insights/kn-20260611-541-신탁등기-있는-집-전세-들어가도-괜찮을까"
+        },
+        {
+          "label": "법률사무소 칼럼",
+          "url": "https://albup.co.kr/lawyers/son-su-hyeok/articles/jeonse-trust-registered-house-checklist/"
+        }
+      ],
+      "summary": "신탁등기가 있으면 등기부상 소유자는 신탁회사(수탁자)이고, 임대 권한은 등기부가 아니라 신탁원부에 나옴. 수탁자 동의 없이 원래 집주인(위탁자)과 계약하면 보증금을 보호받기 어렵다는 설명이 많음. 신탁원부 발급, 수탁자 서면 동의서, 보증금 입금 계좌 확인을 권함"
     },
     {
       "id": "S14",
       "title": "임차권등기(임차권등기명령)가 남아 있는 집",
       "status": "confirmed",
-      "official_url": "https://www.law.go.kr/법령/주택임대차보호법"
+      "official_url": "https://www.law.go.kr/법령/주택임대차보호법",
+      "refs": [
+        {
+          "label": "복덕빵: 말소된 임차권등기명령 기록 찾기",
+          "url": "https://bokduckbbang.com/blog/%EC%9E%84%EB%8C%80%EC%B0%A8-%EA%B3%84%EC%95%BD-%EC%A0%84-%EB%93%B1%EA%B8%B0%EB%B6%80-%EC%9D%84%EA%B5%AC%EC%97%90%EC%84%9C-%EB%A7%90%EC%86%8C%EB%90%9C-%EC%9E%84%EC%B0%A8%EA%B6%8C%EB%93%B1%EA%B8%B0%EB%AA%85%EB%A0%B9-%EA%B8%B0%EB%A1%9D%EC%9D%84-%EC%B0%BE%EC%95%84%EB%82%B4-%EA%B3%BC%EA%B1%B0-%EB%B3%B4%EC%A6%9D%EA%B8%88-%EB%AF%B8%EB%B0%98%ED%99%98-%EC%9D%B4%EB%A0%A5%EC%9D%84-%ED%8C%8C%EC%95%85%ED%95%98%EB%8A%94-%EB%B2%95/"
+        },
+        {
+          "label": "korea.legal: 임차권등기명령",
+          "url": "https://korea.legal/wiki/%ec%9e%84%ec%b0%a8%ea%b6%8c%eb%93%b1%ea%b8%b0%eb%aa%85%eb%a0%b9/"
+        }
+      ],
+      "summary": "이전 세입자가 계약이 끝났는데 보증금을 돌려받지 못해 법원 명령으로 올린 기록. 말소되지 않고 남아 있으면 보증금 문제가 해결되지 않은 것이라 계약을 피하는 것이 원칙이고, 이런 집에 새로 들어가면 소액임차인 최우선변제를 받지 못한다는 설명이 있음(주택임대차보호법 제3조의3 제6항으로 인용). 말소된 기록은 과거에 보증금 문제가 있었다는 참고 신호"
     },
     {
       "id": "S15",
       "title": "소액임차인 최우선변제금 (2023-02-21 개정 기준)",
       "status": "confirmed",
-      "official_url": "https://www.law.go.kr/법령/주택임대차보호법시행령"
+      "official_url": "https://www.law.go.kr/법령/주택임대차보호법시행령",
+      "refs": [
+        {
+          "label": "korea.legal: 시행령 제10조",
+          "url": "https://korea.legal/wiki/%ec%a3%bc%ed%83%9d%ec%9e%84%eb%8c%80%ec%b0%a8%eb%b3%b4%ed%98%b8%eb%b2%95-%ec%8b%9c%ed%96%89%eb%a0%b9-%ec%a0%9c10%ec%a1%b0/"
+        },
+        {
+          "label": "법무부 자료",
+          "url": "https://www.moj.go.kr/bbs/moj/182/450334/download.do"
+        }
+      ],
+      "summary": "보증금이 아래 금액 이하인 소액임차인은 집이 경매로 넘어가도 아래 금액까지 다른 담보물권자보다 먼저 돌려받을 수 있음. 기준은 계약일이 아니라 선순위 담보물권(근저당 등) 설정일이라, 2023-02-21 전에 설정된 근저당이 있으면 예전 기준이 적용됨"
     },
     {
       "id": "S16",
       "title": "최근 6개월 안에 집주인이 바뀌었으면 참고",
       "status": "not_legal",
-      "official_url": null
+      "official_url": null,
+      "refs": [],
+      "summary": "계약 직전에 소유자가 바뀐 집은 이전 소유자가 집주인인 척 계약하는 수법(샘플 C)이 있어 참고로 알려 줌. 6개월은 홈체크가 정한 참고 기간이며 공식 근거를 찾지 못함. 그래서 판정 등급(안전 · 주의 · 위험)을 바꾸지 않고 참고 안내로만 보여 줌"
     }
   ]
 }

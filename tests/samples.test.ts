@@ -33,7 +33,7 @@ describe("샘플 정답표", () => {
 
     it("비율은 (근저당 + 앞선 보증금 + 내 보증금) ÷ 시세를 소수 한 자리로 반올림한 값이다", () => {
       const { market_price, prior_deposits, my_deposit } = s.inputs;
-      const ratio = ((s.expected.mortgage_total + prior_deposits + my_deposit) / market_price!) * 100;
+      const ratio = ((s.expected.mortgage_total + prior_deposits! + my_deposit) / market_price!) * 100;
       expect(Math.round(ratio * 10) / 10).toBe(s.expected.ratio);
     });
 

@@ -55,7 +55,8 @@ export interface ReadResult {
 export interface CheckInputs {
   /** 건물 시세. 모르면 null */
   market_price: number | null;
-  prior_deposits: number;
+  /** 앞선 세입자 보증금 합계. 모르면 null (0으로 치지 않는다) */
+  prior_deposits: number | null;
   my_deposit: number;
   /** 계약하러 올 사람 이름. 모르면 "" */
   contract_party: string;
@@ -79,6 +80,7 @@ export type FlagCode =
   | "ratio_danger"
   | "ratio_caution"
   | "ratio_unknown"
+  | "prior_deposits_unknown"
   | "past_lease_registration"
   | "recent_transfer";
 

@@ -54,9 +54,10 @@ export function judge(
   const mortgage_total = read.active_mortgages.reduce((sum, m) => sum + m.max_claim, 0);
 
   const { market_price, prior_deposits, my_deposit } = inputs;
+  // 앞선 보증금을 모르면 0으로 계산하되(최소값), prior_deposits_unknown으로 '실제보다 낮게 보일 수 있음'을 알린다
   const ratio =
     market_price && market_price > 0
-      ? Math.round(((mortgage_total + prior_deposits + my_deposit) / market_price) * 1000) / 10
+      ? Math.round(((mortgage_total + (prior_deposits ?? 0) + my_deposit) / market_price) * 1000) / 10
       : null;
 
   const flags = new Set<FlagCode>(ownerFlags(read, inputs.contract_party));
@@ -64,6 +65,7 @@ export function judge(
   for (const r of read.risk_records) flags.add(RISK_FLAG[r.type]);
   if (read.seizures.length) flags.add("seizure");
 
+  if (prior_deposits === null) flags.add("prior_deposits_unknown");
   if (ratio === null) flags.add("ratio_unknown");
   else if (ratio >= rules.ratio.danger_from) flags.add("ratio_danger");
   else if (ratio >= rules.ratio.caution_from) flags.add("ratio_caution");
