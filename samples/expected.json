@@ -2,11 +2,30 @@
   "_note": "테스트용 가짜 등기부등본의 정답표. 2주차 판정 규칙 · AI 읽기 자동 테스트에서 그대로 씀. 금액 단위는 원.",
   "rules": {
     "ratio": "(유효한 근저당 채권최고액 합계 + 앞선 세입자 보증금 + 내 보증금) ÷ 건물 시세 × 100",
-    "ratio_levels": { "safe_below": 70, "caution_from": 70, "danger_from": 80 },
+    "ratio_levels": {
+      "safe_below": 70,
+      "caution_from": 70,
+      "danger_from": 80
+    },
     "ratio_note": "70 · 80은 법정 기준이 아닌 참고선 (SOURCES S8)",
-    "danger_flags": ["계약 상대 ≠ 등기부상 현재 소유자", "압류 또는 가압류 있음", "비율 80 이상"],
-    "info_flags": ["최근 6개월 안에 소유권 이전"],
-    "erased": "말소된 근저당은 합계에서 뺀다"
+    "danger_flags": [
+      "계약 상대 ≠ 등기부상 현재 소유자",
+      "압류 · 가압류",
+      "가처분",
+      "가등기",
+      "경매개시결정",
+      "신탁",
+      "말소되지 않은 임차권등기",
+      "비율 80 이상"
+    ],
+    "info_flags": [
+      "최근 6개월 안에 소유권 이전 (S16, 법정 기준 아님)",
+      "말소된 임차권등기 기록"
+    ],
+    "erased": "말소된 근저당은 합계에서 뺀다",
+    "judge_rules": "data/judge.json (기준값 · 이유 코드 · 문구 · 근거)",
+    "as_of": "2026-11-13",
+    "as_of_note": "최근 소유권 이전(참고)은 이 날짜 기준으로 계산한다"
   },
   "samples": [
     {
@@ -15,13 +34,31 @@
         "address": "가상시 한빛구 새내동 101-1",
         "building_type": "다가구주택",
         "current_owner": "이하늘",
+        "previous_owners": [],
         "active_mortgages": [],
-        "erased_mortgages": [{ "max_claim": 240000000, "creditor": "가나은행" }],
+        "erased_mortgages": [
+          {
+            "max_claim": 240000000,
+            "creditor": "가나은행"
+          }
+        ],
         "seizures": [],
+        "risk_records": [],
+        "erased_risk_records": [],
         "last_ownership_transfer": null
       },
-      "inputs": { "market_price": 800000000, "prior_deposits": 100000000, "my_deposit": 5000000, "contract_party": "이하늘" },
-      "expected": { "mortgage_total": 0, "ratio": 13.1, "verdict": "safe", "flags": [] }
+      "inputs": {
+        "market_price": 800000000,
+        "prior_deposits": 100000000,
+        "my_deposit": 5000000,
+        "contract_party": "이하늘"
+      },
+      "expected": {
+        "mortgage_total": 0,
+        "ratio": 13.1,
+        "verdict": "safe",
+        "flags": []
+      }
     },
     {
       "file": "B_caution.txt",
@@ -29,16 +66,37 @@
         "address": "가상시 한빛구 새내동 202-7",
         "building_type": "다가구주택",
         "current_owner": "김도윤",
+        "previous_owners": [],
         "active_mortgages": [
-          { "max_claim": 360000000, "creditor": "가나은행" },
-          { "max_claim": 125000000, "creditor": "다라저축은행" }
+          {
+            "max_claim": 360000000,
+            "creditor": "가나은행"
+          },
+          {
+            "max_claim": 125000000,
+            "creditor": "다라저축은행"
+          }
         ],
         "erased_mortgages": [],
         "seizures": [],
+        "risk_records": [],
+        "erased_risk_records": [],
         "last_ownership_transfer": null
       },
-      "inputs": { "market_price": 1000000000, "prior_deposits": 270000000, "my_deposit": 5000000, "contract_party": "김도윤" },
-      "expected": { "mortgage_total": 485000000, "ratio": 76.0, "verdict": "caution", "flags": ["비율 70 이상 80 미만"] }
+      "inputs": {
+        "market_price": 1000000000,
+        "prior_deposits": 270000000,
+        "my_deposit": 5000000,
+        "contract_party": "김도윤"
+      },
+      "expected": {
+        "mortgage_total": 485000000,
+        "ratio": 76.0,
+        "verdict": "caution",
+        "flags": [
+          "ratio_caution"
+        ]
+      }
     },
     {
       "file": "C_danger.txt",
@@ -46,17 +104,44 @@
         "address": "가상시 한빛구 새내동 303-3",
         "building_type": "다가구주택",
         "current_owner": "박서윤",
-        "active_mortgages": [{ "max_claim": 600000000, "creditor": "가나은행" }],
+        "previous_owners": [
+          "최민서"
+        ],
+        "active_mortgages": [
+          {
+            "max_claim": 600000000,
+            "creditor": "가나은행"
+          }
+        ],
         "erased_mortgages": [],
-        "seizures": [{ "type": "가압류", "amount": 45000000, "creditor": "마바캐피탈", "date": "2026-10-14" }],
+        "seizures": [
+          {
+            "type": "가압류",
+            "amount": 45000000,
+            "creditor": "마바캐피탈",
+            "date": "2026-10-14"
+          }
+        ],
+        "risk_records": [],
+        "erased_risk_records": [],
         "last_ownership_transfer": "2026-09-01"
       },
-      "inputs": { "market_price": 900000000, "prior_deposits": 300000000, "my_deposit": 10000000, "contract_party": "최민서" },
+      "inputs": {
+        "market_price": 900000000,
+        "prior_deposits": 300000000,
+        "my_deposit": 10000000,
+        "contract_party": "최민서"
+      },
       "expected": {
         "mortgage_total": 600000000,
         "ratio": 101.1,
         "verdict": "danger",
-        "flags": ["계약 상대 ≠ 현재 소유자 (계약 상대는 이전 소유자)", "가압류 있음", "비율 80 이상", "최근 6개월 안에 소유권 이전"]
+        "flags": [
+          "owner_mismatch_previous_owner",
+          "seizure",
+          "ratio_danger",
+          "recent_transfer"
+        ]
       }
     }
   ]

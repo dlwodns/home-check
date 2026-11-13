@@ -7,7 +7,7 @@
 // - 한 구역 안에서 줄 맨 앞에 순위번호(예: 1, 2, 1-1)가 오면 새 기록이 시작되고, 그렇지 않은 줄은 앞 기록에 이어 붙인다.
 // - 말소 기록("1번근저당권설정등기말소")은 해당 순위번호의 기록을 지운 것으로 처리한다.
 // - 못 읽은 것은 지어내지 않고 warnings에 남겨, 화면에서 사용자가 직접 입력하게 한다.
-import type { Mortgage, ReadResult, RegistryRead, Seizure } from "./types";
+import type { Mortgage, ReadResult, RegistryRead, RiskRecord, RiskType, Seizure } from "./types";
 
 const SECTION = {
   title: /【\s*표\s*제\s*부\s*】/,
@@ -100,29 +100,83 @@ function readTitle(section: string | null, whole: string, warnings: string[]) {
   return { address, building_type };
 }
 
+/** 말소되면 지울 수 있게 순위번호별로 위험 기록을 모은다. */
+class RiskBook {
+  private active = new Map<string, RiskRecord>();
+  readonly erased: RiskRecord[] = [];
+  add(rank: string, type: RiskType, text: string) {
+    this.active.set(rank, { type, date: firstDate(text) ?? "" });
+  }
+  /** 이 순위번호가 위험 기록이었으면 말소 목록으로 옮기고 true */
+  erase(rank: string): boolean {
+    const r = this.active.get(rank);
+    if (!r) return false;
+    this.erased.push(r);
+    this.active.delete(rank);
+    return true;
+  }
+  get list() {
+    return [...this.active.values()];
+  }
+}
+
+/** 임차권등기는 보통 을구에 오지만, 을구가 없으면 갑구에 오기도 한다. */
+const LEASE = /임차권/;
+
 function readGap(section: string | null, warnings: string[]) {
   let current_owner = "";
+  const previous_owners: string[] = [];
   let last_ownership_transfer: string | null = null;
   const seizures = new Map<string, Seizure>();
+  const risks = new RiskBook();
+
+  const setOwner = (name: string) => {
+    if (current_owner && current_owner !== name) previous_owners.push(current_owner);
+    current_owner = name;
+  };
 
   if (!section) {
     warnings.push("갑구(소유자 기록)를 찾지 못했어요. 집주인 이름을 직접 입력해 주세요.");
-    return { current_owner, last_ownership_transfer, seizures: [] as Seizure[] };
+    return { current_owner, previous_owners, last_ownership_transfer, seizures: [] as Seizure[], risks };
   }
 
   for (const e of splitEntries(section)) {
     const erased = erasedRank(e.text);
     if (erased) {
-      seizures.delete(erased);
+      if (!risks.erase(erased)) seizures.delete(erased);
+      continue;
+    }
+    // 순서가 중요하다: "소유권이전청구권가등기"는 소유권이전이 아니라 가등기, "가압류"는 "압류"를 포함한다.
+    if (/가등기/.test(e.text)) {
+      risks.add(e.rank, "가등기", e.text);
       continue;
     }
     if (/소유권(보존|이전)/.test(e.text)) {
-      // "소유자 김도윤 …" / "공유자 지분 2분의 1 이하늘 …" (공동 소유는 이름 앞에 지분이 온다)
-      const owners = [
-        ...e.text.matchAll(/(?:소유자|공유자)\s+(?:지분\s*\d+\s*분의\s*\d+\s+)?([가-힣A-Za-z()]+)/g),
-      ].map((m) => m[1]);
-      if (owners.length) current_owner = owners.join(", ");
+      if (/신탁/.test(e.text)) {
+        // 신탁: 등기부상 소유자가 신탁회사(수탁자)로 바뀐다 (SOURCES S13)
+        const trustee = wordAfter("수탁자", e.text);
+        if (trustee) setOwner(trustee);
+        risks.add(e.rank, "신탁", e.text);
+      } else {
+        // "소유자 김도윤 …" / "공유자 지분 2분의 1 이하늘 …" (공동 소유는 이름 앞에 지분이 온다)
+        const owners = [
+          ...e.text.matchAll(/(?:소유자|공유자)\s+(?:지분\s*\d+\s*분의\s*\d+\s+)?([가-힣A-Za-z()]+)/g),
+        ].map((m) => m[1]);
+        if (owners.length) setOwner(owners.join(", "));
+      }
       if (/소유권이전/.test(e.text)) last_ownership_transfer = firstDate(e.text);
+      continue;
+    }
+    if (/경매개시결정/.test(e.text)) {
+      risks.add(e.rank, "경매개시결정", e.text);
+      continue;
+    }
+    if (/가처분/.test(e.text)) {
+      risks.add(e.rank, "가처분", e.text);
+      continue;
+    }
+    if (LEASE.test(e.text)) {
+      risks.add(e.rank, "임차권등기", e.text);
       continue;
     }
     const type = /가압류/.test(e.text) ? "가압류" : /압류/.test(e.text) ? "압류" : null;
@@ -137,20 +191,22 @@ function readGap(section: string | null, warnings: string[]) {
   }
 
   if (!current_owner) warnings.push("현재 집주인 이름을 읽지 못했어요. 직접 입력해 주세요.");
-  return { current_owner, last_ownership_transfer, seizures: [...seizures.values()] };
+  return { current_owner, previous_owners, last_ownership_transfer, seizures: [...seizures.values()], risks };
 }
 
 function readEul(section: string | null, warnings: string[]) {
   const active = new Map<string, Mortgage>();
   const erased: Mortgage[] = [];
+  const risks = new RiskBook();
   if (!section) {
     // 을구가 아예 없는 등기부도 정상이다(빚 기록이 한 번도 없던 집).
-    return { active_mortgages: [] as Mortgage[], erased_mortgages: erased };
+    return { active_mortgages: [] as Mortgage[], erased_mortgages: erased, risks };
   }
 
   for (const e of splitEntries(section)) {
     const gone = erasedRank(e.text);
     if (gone) {
+      if (risks.erase(gone)) continue;
       const m = active.get(gone);
       if (m) {
         erased.push(m);
@@ -173,9 +229,11 @@ function readEul(section: string | null, warnings: string[]) {
       const m = active.get(changed[1]);
       const max_claim = amountAfter("채권최고액", e.text);
       if (m && max_claim !== null) m.max_claim = max_claim;
+      continue;
     }
+    if (LEASE.test(e.text)) risks.add(e.rank, "임차권등기", e.text);
   }
-  return { active_mortgages: [...active.values()], erased_mortgages: erased };
+  return { active_mortgages: [...active.values()], erased_mortgages: erased, risks };
 }
 
 /** 등기부등본 글자를 읽어 값과 경고를 돌려준다. */
@@ -187,10 +245,20 @@ export function readRegistry(raw: string): ReadResult {
     warnings.push("등기부등본 형식을 찾지 못했어요. 등기사항전부증명서 내용을 그대로 붙여 넣어 주세요.");
   }
 
+  const title = readTitle(sliceSection(text, SECTION.title), text, warnings);
+  const gap = readGap(sliceSection(text, SECTION.gap), warnings);
+  const eul = readEul(sliceSection(text, SECTION.eul), warnings);
+
   const read: RegistryRead = {
-    ...readTitle(sliceSection(text, SECTION.title), text, warnings),
-    ...readGap(sliceSection(text, SECTION.gap), warnings),
-    ...readEul(sliceSection(text, SECTION.eul), warnings),
+    ...title,
+    current_owner: gap.current_owner,
+    previous_owners: gap.previous_owners,
+    active_mortgages: eul.active_mortgages,
+    erased_mortgages: eul.erased_mortgages,
+    seizures: gap.seizures,
+    risk_records: [...gap.risks.list, ...eul.risks.list],
+    erased_risk_records: [...gap.risks.erased, ...eul.risks.erased],
+    last_ownership_transfer: gap.last_ownership_transfer,
   };
   return { read, warnings };
 }

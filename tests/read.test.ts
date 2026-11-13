@@ -97,3 +97,50 @@ describe("실제 서류에서 생길 수 있는 경우", () => {
     expect(r.read.active_mortgages).toEqual([]);
   });
 });
+
+describe("위험 기록 읽기 (SOURCES S12 · S13 · S14)", () => {
+  const A = load("A_safe.txt");
+  const addGap = (row: string) => A.replace("【 을 구 】", `${row}\n\n【 을 구 】`);
+  const addEul = (row: string) => A.replace("-- 이 하 여 백 --", `${row}\n\n-- 이 하 여 백 --`);
+
+  it("신탁: 소유자가 신탁회사로 바뀌고, 원래 집주인은 예전 소유자가 된다", () => {
+    const r = readRegistry(
+      addGap("2 | 소유권이전 | 2026년7월1일 제1002호 | 2026년7월1일 신탁 | 수탁자 가상부동산신탁 신탁원부 제2026-12호"),
+    ).read;
+    expect(r.current_owner).toBe("가상부동산신탁");
+    expect(r.previous_owners).toEqual(["이하늘"]);
+    expect(r.risk_records).toEqual([{ type: "신탁", date: "2026-07-01" }]);
+  });
+
+  it("가등기는 소유권이전이 아니다 (소유자가 바뀌지 않음)", () => {
+    const r = readRegistry(
+      addGap("2 | 소유권이전청구권가등기 | 2026년8월3일 제1003호 | 2026년8월2일 매매예약 | 가등기권자 박가상"),
+    ).read;
+    expect(r.current_owner).toBe("이하늘");
+    expect(r.last_ownership_transfer).toBeNull();
+    expect(r.risk_records).toEqual([{ type: "가등기", date: "2026-08-03" }]);
+  });
+
+  it("경매개시결정 · 가처분을 읽고, 압류로 잘못 읽지 않는다", () => {
+    const r = readRegistry(
+      addGap(
+        "2 | 임의경매개시결정 | 2026년9월9일 제1004호 | 2026년9월8일 가상지방법원의 임의경매개시결정(2026타경77) | 채권자 가나은행\n" +
+          "3 | 처분금지가처분 | 2026년9월10일 제1005호 | 2026년9월9일 가상지방법원의 가처분결정 | 채권자 홍가상",
+      ),
+    ).read;
+    expect(r.risk_records.map((x) => x.type)).toEqual(["경매개시결정", "가처분"]);
+    expect(r.seizures).toEqual([]);
+  });
+
+  it("을구의 임차권등기가 남아 있으면 위험 기록, 말소되면 말소 목록으로", () => {
+    const lease = "3 | 주택임차권 | 2025년4월1일 제3004호 | 2025년3월20일 가상지방법원의 임차권등기명령(2025카임12) | 임차보증금 금50,000,000원 임차권자 정가상";
+    const kept = readRegistry(addEul(lease)).read;
+    expect(kept.risk_records).toEqual([{ type: "임차권등기", date: "2025-04-01" }]);
+
+    const gone = readRegistry(addEul(`${lease}\n4 | 3번임차권등기말소 | 2025년9월1일 제3005호 | 2025년8월30일 해제 |`)).read;
+    expect(gone.risk_records).toEqual([]);
+    expect(gone.erased_risk_records).toEqual([{ type: "임차권등기", date: "2025-04-01" }]);
+    // 임차권등기 말소가 근저당 말소 목록을 건드리지 않는다
+    expect(gone.erased_mortgages).toEqual(kept.erased_mortgages);
+  });
+});

@@ -66,6 +66,36 @@
       "title": "직거래 시 확인",
       "status": "check",
       "official_url": null
+    },
+    {
+      "id": "S12",
+      "title": "갑구에 있으면 위험한 기록: 압류 · 가압류 · 가처분 · 가등기 · 경매개시결정",
+      "status": "check",
+      "official_url": "https://www.iros.go.kr"
+    },
+    {
+      "id": "S13",
+      "title": "신탁등기가 있는 집",
+      "status": "check",
+      "official_url": "https://www.law.go.kr/법령/신탁법"
+    },
+    {
+      "id": "S14",
+      "title": "임차권등기(임차권등기명령)가 남아 있는 집",
+      "status": "check",
+      "official_url": "https://www.law.go.kr/법령/주택임대차보호법"
+    },
+    {
+      "id": "S15",
+      "title": "소액임차인 최우선변제금 (2023-02-21 개정 기준)",
+      "status": "check",
+      "official_url": "https://www.law.go.kr/법령/주택임대차보호법시행령"
+    },
+    {
+      "id": "S16",
+      "title": "최근 6개월 안에 집주인이 바뀌었으면 참고",
+      "status": "not_legal",
+      "official_url": null
     }
   ]
 }
