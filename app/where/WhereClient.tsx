@@ -8,7 +8,7 @@ import { useProgress } from "../ui/useProgress";
 
 const OPTIONS: { id: Branch; title: string; desc: string }[] = [
   { id: "broker", title: "공인중개사를 통해서", desc: "중개사무소, 직방 · 다방의 중개 매물" },
-  { id: "direct", title: "집주인과 직접 (직거래)", desc: "피터팬, 학교 커뮤니티, 지인 소개" },
+  { id: "direct", title: "집주인과 직접 (직거래)", desc: "피터팬 같은 직거래 카페, 커뮤니티, 지인 소개" },
   { id: "none", title: "아직 못 찾았어요", desc: "예산 정하기부터 같이 시작해요" },
 ];
 

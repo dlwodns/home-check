@@ -80,6 +80,28 @@ describe("6단계 목록", () => {
   });
 });
 
+describe("해 봤어요(경험자) 6단계 목록", () => {
+  it("등기부등본 바로 점검이 맨 위에 있고, 1–3단계는 '건너뛰어도 돼요', 4단계가 지금 할 차례", async () => {
+    seed({ mode: "experienced", branch: "broker" });
+    render(<StepsClient steps={steps} branches={branches} />);
+    expect(await screen.findByText(/해 봤다면 건너뛰어도 돼요/)).toBeTruthy();
+    expect(screen.getByRole("link", { name: "등기부등본 바로 점검하기" }).getAttribute("href")).toBe("/check");
+    expect(screen.getAllByText("건너뛰어도 돼요")).toHaveLength(3);
+    expect(screen.getByText("지금 할 차례").closest("a")?.getAttribute("href")).toBe("/steps/4");
+    expect(screen.getByText(/3단계 중 0단계 완료/)).toBeTruthy();
+  });
+
+  it("'처음이에요로 바꾸기'를 누르면 6단계 전체로 돌아간다", async () => {
+    seed({ mode: "experienced" });
+    const user = userEvent.setup();
+    render(<StepsClient steps={steps} branches={branches} />);
+    await user.click(await screen.findByText(/해 봤다면 건너뛰어도 돼요/));
+    await user.click(screen.getByRole("button", { name: "처음이에요로 바꾸기" }));
+    expect(saved().mode).toBe("first");
+    expect(screen.getByText(/6단계 중 0단계 완료/)).toBeTruthy();
+  });
+});
+
 describe("단계 화면", () => {
   const step4 = steps.find((s) => s.no === 4)!;
 
@@ -108,6 +130,11 @@ describe("단계 화면", () => {
     expect(term.getAttribute("aria-expanded")).toBe("true");
     expect(screen.getByRole("note").textContent).toContain("집 주인이 누구인지");
     expect(screen.getAllByRole("checkbox").every((c) => !(c as HTMLInputElement).checked)).toBe(true);
+  });
+
+  it("해당 없을 수 있는 항목에는 '건너뛰어도 돼요' 안내가 붙는다", () => {
+    render(<StepClient step={steps[0]} total={6} branches={branches} />);
+    expect(screen.getByRole("checkbox", { name: /기숙사 · 사택.*해당 없으면 건너뛰어도 돼요/ })).toBeTruthy();
   });
 
   it("React StrictMode(두 번 그리기)에서도 용어 밑줄이 살아 있다", () => {

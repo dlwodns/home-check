@@ -92,7 +92,7 @@ export function buildActions(read: RegistryRead, result: CheckResult): NextActio
 }
 
 /**
- * 부모님께 보낼 요약. 집주인 이름 · 주소 같은 다른 사람의 개인정보는 넣지 않는다.
+ * 가족 · 지인에게 보낼 요약. 집주인 이름 · 주소 같은 다른 사람의 개인정보는 넣지 않는다.
  * 참고 안내(info)는 빼고 위험 · 주의 이유와 할 일 3개까지만 넣어 짧게 유지한다.
  */
 function parentSummary(result: CheckResult, todos: string[]): string {

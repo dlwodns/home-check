@@ -39,6 +39,7 @@ export default function Checklist({
               {/* 용어 버튼이 들어가므로 label 대신 aria-labelledby로 이름을 붙인다 */}
               <span id={`${inputId}-text`} className="check-text">
                 <TermText segments={segments[idx][0]} />
+                {item.optional && <span className="optional"> (해당 없으면 건너뛰어도 돼요)</span>}
               </span>
             </div>
             <details className="why">

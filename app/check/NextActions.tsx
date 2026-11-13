@@ -101,8 +101,8 @@ export default function NextActions({ actions }: { actions: Actions }) {
       </div>
 
       <div className="card parent">
-        <h3>부모님께 보내기</h3>
-        <p className="small muted">집주인 이름 · 주소는 넣지 않았어요.</p>
+        <h3>가족 · 지인에게 보내기</h3>
+        <p className="small muted">보증금을 함께 마련한 가족이나 믿을 만한 사람에게 보여 주세요. 집주인 이름 · 주소는 넣지 않았어요.</p>
         <pre className="summary">{actions.parentSummary}</pre>
         <div className="row-buttons">
           <CopyButton text={actions.parentSummary} label="요약 복사" />

@@ -25,6 +25,8 @@ export interface ChecklistItem {
   sources: string[];
   /** 이 항목에서 열리는 기능(예: F2 등기부등본 점검) */
   opens?: "F2";
+  /** 해당 없는 사람도 있는 항목: 체크하지 않아도 진행률에서 불리하지 않게 뺀다 */
+  optional?: boolean;
 }
 
 export interface Step {
@@ -33,6 +35,8 @@ export interface Step {
   title: string;
   summary: string;
   key?: boolean;
+  /** '해 봤어요'로 들어온 사람은 건너뛰어도 되는 단계 */
+  experienced_skip?: boolean;
   items: ChecklistItem[];
 }
 

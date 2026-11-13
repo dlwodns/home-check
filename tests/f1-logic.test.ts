@@ -84,7 +84,7 @@ describe("진행 계산", async () => {
     const s = stepStats(steps, branches, EMPTY_PROGRESS);
     expect(s.current).toBe(1);
     expect(s.done).toBe(0);
-    expect(s.total).toBe(steps.reduce((n, x) => n + x.items.length, 0));
+    expect(s.total).toBe(steps.reduce((n, x) => n + x.items.filter((i) => !i.optional).length, 0));
   });
 
   it("직거래를 고르면 4단계에 직거래 체크리스트가 더해진다", () => {
@@ -101,6 +101,24 @@ describe("진행 계산", async () => {
     const s = stepStats(steps, branches, { ...EMPTY_PROGRESS, checked });
     expect(s.current).toBe(3);
     expect(s.finishedSteps).toBe(2);
+  });
+
+  it("해당 없을 수 있는 항목(기숙사 · 사택, 가족과 상의)은 안 해도 진행에서 불리하지 않고, 하면 센다", () => {
+    const prepare = steps[0];
+    const required = prepare.items.filter((i) => !i.optional).map((i) => i.id);
+    expect(required.length).toBeLessThan(prepare.items.length);
+    const onlyRequired = stepStats(steps, branches, { ...EMPTY_PROGRESS, checked: all([["prepare", required]]) });
+    expect(onlyRequired.perStep[0].done).toBe(onlyRequired.perStep[0].total);
+    expect(onlyRequired.current).toBe(2);
+    const withOptional = stepStats(steps, branches, { ...EMPTY_PROGRESS, checked: all([["prepare", prepare.items.map((i) => i.id)]]) });
+    expect(withOptional.perStep[0].total).toBe(prepare.items.length);
+  });
+
+  it("'해 봤어요'면 1–3단계는 건너뛰기: 진행률에서 빠지고 4단계가 지금 할 차례", () => {
+    const s = stepStats(steps, branches, { ...EMPTY_PROGRESS, mode: "experienced" });
+    expect(s.perStep.filter((x) => x.skipped).map((x) => x.no)).toEqual([1, 2, 3]);
+    expect(s.activeSteps).toBe(3);
+    expect(s.current).toBe(4);
   });
 
   it("전부 하면 지금 할 차례가 없다(null)", () => {

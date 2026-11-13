@@ -8,7 +8,8 @@ import { useProgress } from "../ui/useProgress";
 const BRANCH_LABEL = { broker: "중개사를 통해서", direct: "직거래", none: "아직 방을 못 찾음" } as const;
 
 export default function StepsClient({ steps, branches }: { steps: Step[]; branches: Branch[] }) {
-  const { progress, loaded } = useProgress();
+  const { progress, update, loaded } = useProgress();
+  const experienced = progress.mode === "experienced";
   const stats = stepStats(steps, branches, progress);
   const branch = branchFor(progress, branches);
   const pct = stats.total ? Math.round((stats.done / stats.total) * 100) : 0;
@@ -28,12 +29,28 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
           <Link href="/where">{progress.branch ? "바꾸기" : "고르기"}</Link>
         </p>
         <p className="small muted" aria-live="polite">
-          6단계 중 {stats.finishedSteps}단계 완료 · 할 일 {stats.done}/{stats.total}
+          {stats.activeSteps}단계 중 {stats.finishedSteps}단계 완료 · 할 일 {stats.done}/{stats.total}
         </p>
         <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="전체 진행">
           <div className="bar-fill bar-safe" style={{ width: `${pct}%` }} />
         </div>
       </div>
+
+      <Link href="/check" className={`cta${experienced ? "" : " cta-soft"}`}>
+        등기부등본 바로 점검하기
+      </Link>
+
+      {experienced && (
+        <details className="card small">
+          <summary>1–3단계(준비 · 집 찾기 · 집 보러 가기)는 해 봤다면 건너뛰어도 돼요</summary>
+          <p>
+            필요하면 아래 목록에서 눌러 볼 수 있어요. 처음부터 하나씩 보고 싶다면{" "}
+            <button type="button" className="linklike" onClick={() => update((p) => ({ ...p, mode: "first" }))}>
+              처음이에요로 바꾸기
+            </button>
+          </p>
+        </details>
+      )}
 
       <ol className="steps">
         {steps.map((s, i) => {
@@ -41,17 +58,18 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
           const isCurrent = stats.current === s.no;
           const done = st.done === st.total;
           return (
-            <li key={s.id}>
+            <li key={s.id} className={st.skipped ? "skipped" : undefined}>
               <Link
                 href={`/steps/${s.no}`}
                 className={`step${isCurrent ? " step-current" : ""}${done ? " step-done" : ""}`}
                 aria-current={isCurrent ? "step" : undefined}
               >
                 <span className="step-no" aria-hidden="true">
-                  {done ? "✓" : s.no}
+                  {done && !st.skipped ? "✓" : s.no}
                 </span>
                 <span className="step-body">
                   {isCurrent && <span className="step-tag">지금 할 차례</span>}
+                  {st.skipped && <span className="step-tag muted">건너뛰어도 돼요</span>}
                   <strong>
                     {s.no}. {s.title}
                   </strong>

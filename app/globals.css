@@ -212,3 +212,9 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .summary { white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; font: inherit; font-size: 14px; line-height: 1.6; background: var(--bg); border-radius: 10px; padding: 12px; margin: 8px 0; }
 .row-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
 .sr-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ── 대상 넓히기(11/13): 선택 항목 · 경험자 ── */
+.optional { font-weight: 400; font-size: 13px; color: var(--muted); }
+.cta-soft { background: var(--surface); color: var(--accent); border: 1px solid var(--accent); margin-top: 0; }
+.steps li.skipped .step { opacity: 0.7; }
+.linklike { border: 0; background: none; padding: 0; color: var(--accent); text-decoration: underline; font: inherit; min-height: 24px; }
