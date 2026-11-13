@@ -41,7 +41,16 @@ function ownerFlags(read: RegistryRead, party: string): FlagCode[] {
   return ["owner_mismatch"];
 }
 
-export function judge(read: RegistryRead, inputs: CheckInputs, asOf: string): CheckResult {
+/**
+ * @param readWarnings readRegistry()가 돌려준 warnings. 하나라도 있으면 못 읽은 칸이 있다는 뜻이라
+ *   "안전"을 내지 않는다 (못 읽은 값을 0이나 '문제없음'으로 치지 않는다).
+ */
+export function judge(
+  read: RegistryRead,
+  inputs: CheckInputs,
+  asOf: string,
+  readWarnings: readonly string[] = [],
+): CheckResult {
   const mortgage_total = read.active_mortgages.reduce((sum, m) => sum + m.max_claim, 0);
 
   const { market_price, prior_deposits, my_deposit } = inputs;
@@ -51,6 +60,7 @@ export function judge(read: RegistryRead, inputs: CheckInputs, asOf: string): Ch
       : null;
 
   const flags = new Set<FlagCode>(ownerFlags(read, inputs.contract_party));
+  if (readWarnings.length) flags.add("read_incomplete");
   for (const r of read.risk_records) flags.add(RISK_FLAG[r.type]);
   if (read.seizures.length) flags.add("seizure");
 

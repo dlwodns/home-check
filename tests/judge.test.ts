@@ -27,8 +27,8 @@ const inputsB = (patch: Partial<CheckInputs> = {}): CheckInputs => ({ ...B.input
 
 describe("샘플 3종: 읽기 → 판정", () => {
   it.each(samples)("$file: 정답표 expected와 같다", (s) => {
-    const { read } = readRegistry(load(s.file));
-    expect(judge(read, s.inputs, AS_OF)).toEqual(s.expected);
+    const { read, warnings } = readRegistry(load(s.file));
+    expect(judge(read, s.inputs, AS_OF, warnings)).toEqual(s.expected);
   });
 });
 
@@ -76,6 +76,38 @@ describe("위험 기록", () => {
   });
 });
 
+describe("못 읽은 칸이 있으면 '안전'을 내지 않는다 (4주차 원칙: 빈 값을 0으로 치지 않기)", () => {
+  it("등기부등본이 아닌 글: 근저당 0건으로 보여도 안전이 아니라 주의 + 확인 필요", () => {
+    const { read, warnings } = readRegistry("안녕하세요 원룸 계약 문의드립니다");
+    const r = judge(read, { market_price: 800000000, prior_deposits: 0, my_deposit: 5000000, contract_party: "" }, AS_OF, warnings);
+    expect(warnings.length).toBeGreaterThan(0);
+    expect(r.flags).toContain("read_incomplete");
+    expect(r.verdict).not.toBe("safe");
+  });
+
+  it("갑구가 빠진 A(원래 안전) → 안전이 아니다", () => {
+    const A = samples.find((s) => s.file === "A_safe.txt")!;
+    const text = load("A_safe.txt").replace(/【 갑 구 】[\s\S]*?(?=【 을 구 】)/, "");
+    const { read, warnings } = readRegistry(text);
+    const r = judge(read, A.inputs, AS_OF, warnings);
+    expect(r.flags).toContain("read_incomplete");
+    expect(r.verdict).not.toBe("safe");
+  });
+
+  it("근저당 금액을 못 읽은 경우 → 안전이 아니다", () => {
+    const A = samples.find((s) => s.file === "A_safe.txt")!;
+    const text = load("A_safe.txt").replace("채권최고액 금240,000,000원", "채권최고액 (흐림)");
+    const { read, warnings } = readRegistry(text);
+    expect(judge(read, A.inputs, AS_OF, warnings).verdict).not.toBe("safe");
+  });
+
+  it("다 읽은 A는 그대로 안전", () => {
+    const A = samples.find((s) => s.file === "A_safe.txt")!;
+    const { read, warnings } = readRegistry(load("A_safe.txt"));
+    expect(judge(read, A.inputs, AS_OF, warnings).verdict).toBe("safe");
+  });
+});
+
 describe("빚 비율", () => {
   it("시세를 모르면 비율 없이 주의 + 시세를 넣어 달라는 안내", () => {
     const r = judge(readRegistry(load("A_safe.txt")).read, { ...samples[0].inputs, market_price: null }, AS_OF);
@@ -118,7 +150,9 @@ describe("판정 규칙 파일 (data/judge.json)", () => {
       const f = rules.flags[code];
       expect(["danger", "caution", "info"], code).toContain(f.level);
       expect(f.title.trim(), code).not.toBe("");
-      expect(f.sources.length, code).toBeGreaterThan(0);
+      // 근거 번호가 없으면 홈체크 자체 원칙(basis)이라도 적혀 있어야 한다
+      const basis = (f as { basis?: string }).basis ?? "";
+      expect(f.sources.length > 0 || basis.trim() !== "", code).toBe(true);
       for (const id of f.sources) expect(ids.has(id), `${code} → ${id}`).toBe(true);
     }
   });

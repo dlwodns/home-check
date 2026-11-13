@@ -1,9 +1,11 @@
 {
-  "_note": "F2 위험 판정 규칙. 기준값과 이유 문구는 코드가 아니라 이 파일에만 둔다. level: danger(위험) · caution(주의) · info(참고, 등급에 영향 없음). sources는 docs/SOURCES.md 번호.",
+  "_note": "F2 위험 판정 규칙. 기준값과 이유 문구는 코드가 아니라 이 파일에만 둔다. level: danger(위험) · caution(주의) · info(참고, 등급에 영향 없음). sources는 docs/SOURCES.md 번호. sources가 비어 있는 이유는 basis(홈체크 자체 원칙)에 적는다.",
   "ratio": {
     "caution_from": 70,
     "danger_from": 80,
-    "sources": ["S8"],
+    "sources": [
+      "S8"
+    ],
     "note": "(유효한 근저당 채권최고액 합계 + 앞선 세입자 보증금 + 내 보증금) ÷ 건물 시세 × 100, 소수 첫째 자리 반올림. 70 · 80은 법정 기준이 아닌 참고선"
   },
   "recent_transfer_months": 6,
@@ -11,77 +13,114 @@
     "owner_mismatch": {
       "level": "danger",
       "title": "계약할 사람과 집주인 이름이 달라요",
-      "sources": ["S11"]
+      "sources": [
+        "S11"
+      ]
     },
     "owner_mismatch_previous_owner": {
       "level": "danger",
       "title": "계약할 사람이 지금 집주인이 아니라 예전 집주인이에요",
-      "sources": ["S11"]
+      "sources": [
+        "S11"
+      ]
+    },
+    "read_incomplete": {
+      "level": "caution",
+      "title": "등기부등본을 다 읽지 못했어요. 못 읽은 칸을 확인하기 전에는 안전하다고 할 수 없어요",
+      "sources": [],
+      "basis": "홈체크 판정 원칙: 못 읽은 값을 0이나 '문제없음'으로 치지 않는다"
     },
     "co_owned": {
       "level": "caution",
       "title": "집주인이 여러 명(공동 소유)이에요",
-      "sources": ["S11"]
+      "sources": [
+        "S11"
+      ]
     },
     "owner_unchecked": {
       "level": "info",
       "title": "계약할 사람 이름을 넣으면 집주인과 같은지 확인해 드려요",
-      "sources": ["S11"]
+      "sources": [
+        "S11"
+      ]
     },
     "trust": {
       "level": "danger",
       "title": "신탁등기가 있어요 (실제 권한이 신탁회사에 있을 수 있어요)",
-      "sources": ["S13"]
+      "sources": [
+        "S13"
+      ]
     },
     "seizure": {
       "level": "danger",
       "title": "압류 · 가압류 기록이 있어요",
-      "sources": ["S12"]
+      "sources": [
+        "S12"
+      ]
     },
     "provisional_disposition": {
       "level": "danger",
       "title": "가처분 기록이 있어요",
-      "sources": ["S12"]
+      "sources": [
+        "S12"
+      ]
     },
     "provisional_registration": {
       "level": "danger",
       "title": "가등기 기록이 있어요",
-      "sources": ["S12"]
+      "sources": [
+        "S12"
+      ]
     },
     "auction": {
       "level": "danger",
       "title": "경매개시결정 기록이 있어요",
-      "sources": ["S12"]
+      "sources": [
+        "S12"
+      ]
     },
     "lease_registration": {
       "level": "danger",
       "title": "이전 세입자가 보증금을 못 받고 올린 임차권등기가 남아 있어요",
-      "sources": ["S14"]
+      "sources": [
+        "S14"
+      ]
     },
     "ratio_danger": {
       "level": "danger",
       "title": "빚과 보증금을 합치면 건물 시세의 80% 이상이에요",
-      "sources": ["S8"]
+      "sources": [
+        "S8"
+      ]
     },
     "ratio_caution": {
       "level": "caution",
       "title": "빚과 보증금을 합치면 건물 시세의 70% 이상이에요",
-      "sources": ["S8"]
+      "sources": [
+        "S8"
+      ]
     },
     "ratio_unknown": {
       "level": "caution",
       "title": "건물 시세를 몰라서 빚 비율을 계산하지 못했어요",
-      "sources": ["S8", "S10"]
+      "sources": [
+        "S8",
+        "S10"
+      ]
     },
     "past_lease_registration": {
       "level": "info",
       "title": "예전에 보증금 문제로 임차권등기가 있었다가 지워진 기록이 있어요",
-      "sources": ["S14"]
+      "sources": [
+        "S14"
+      ]
     },
     "recent_transfer": {
       "level": "info",
       "title": "최근 6개월 안에 집주인이 바뀌었어요",
-      "sources": ["S16"]
+      "sources": [
+        "S16"
+      ]
     }
   }
 }

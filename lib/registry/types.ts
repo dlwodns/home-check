@@ -67,6 +67,7 @@ export type Verdict = "safe" | "caution" | "danger";
 export type FlagCode =
   | "owner_mismatch"
   | "owner_mismatch_previous_owner"
+  | "read_incomplete"
   | "co_owned"
   | "owner_unchecked"
   | "trust"
