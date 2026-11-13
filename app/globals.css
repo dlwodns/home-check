@@ -167,3 +167,39 @@ a { color: var(--accent); }
 .badge-not_legal { background: var(--info-bg); color: var(--info); }
 .links { margin: 6px 0 0; padding-left: 18px; font-size: 14px; }
 .links li { margin: 4px 0; overflow-wrap: anywhere; }
+
+/* ── F1 길잡이 ── */
+.start { padding-top: 40px; padding-bottom: 32px; display: flex; flex-direction: column; gap: 16px; }
+.start h1 { font-size: 26px; line-height: 1.4; margin: 0; }
+.brand { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 800; margin: 0; }
+.brand-mark { width: 40px; height: 40px; border-radius: 12px; background: var(--accent); color: var(--on-accent); display: inline-flex; align-items: center; justify-content: center; }
+.title { font-size: 22px; margin: 4px 0; }
+.choices { display: flex; flex-direction: column; gap: 10px; }
+.choice { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; text-align: left; padding: 18px; min-height: 64px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); color: var(--text); }
+.choice span { font-size: 14px; color: var(--muted); }
+.choice-main { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.choice-main span { color: var(--on-accent); opacity: 0.9; }
+.choice-picked { border: 2px solid var(--accent); background: var(--safe-bg); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+.plain { margin: 0 0 10px; padding-left: 20px; }
+.steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.step { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); color: var(--text); text-decoration: none; min-height: 56px; }
+.step-body { display: flex; flex-direction: column; flex: 1; gap: 2px; }
+.step-no { flex: none; width: 28px; height: 28px; border-radius: 14px; border: 2px solid var(--border); display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; }
+.step-done .step-no { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.step-current { border: 2px solid var(--accent); background: var(--safe-bg); }
+.step-tag { font-size: 12px; font-weight: 700; color: var(--safe); }
+.checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.checklist > li { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.checklist > li.done .check-text { color: var(--muted); text-decoration: line-through; }
+.check-row { display: flex; gap: 12px; align-items: flex-start; }
+.check-row input { flex: none; width: 24px; height: 24px; margin-top: 2px; }
+.check-text { font-weight: 600; line-height: 1.5; }
+.why summary { cursor: pointer; font-size: 13px; color: var(--muted); margin-top: 8px; min-height: 28px; }
+.why p { margin: 6px 0; font-size: 14px; }
+.small-cta { min-height: 44px; margin-top: 10px; font-size: 15px; }
+.term { display: inline; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-decoration: underline dotted; text-underline-offset: 3px; cursor: pointer; }
+.term[aria-expanded="true"] { color: var(--accent); }
+.term-note { display: block; margin: 8px 0 2px; padding: 8px 10px; border-radius: 8px; background: var(--text); color: var(--surface); font-size: 13px; font-weight: 400; text-decoration: none; }
+.step-nav { display: flex; justify-content: space-between; padding: 8px 0; }
+.step-nav a { min-height: 44px; display: inline-flex; align-items: center; }
