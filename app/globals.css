@@ -203,3 +203,12 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .term-note { display: block; margin: 8px 0 2px; padding: 8px 10px; border-radius: 8px; background: var(--text); color: var(--surface); font-size: 13px; font-weight: 400; text-decoration: none; }
 .step-nav { display: flex; justify-content: space-between; padding: 8px 0; }
 .step-nav a { min-height: 44px; display: inline-flex; align-items: center; }
+
+/* ── F3 다음 행동 ── */
+.next { display: flex; flex-direction: column; gap: 12px; margin-top: 8px; }
+.bubbles { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
+.bubble { margin: 0 0 8px; padding: 10px 12px; background: var(--bg); border-radius: 4px 12px 12px 12px; font-size: 14px; line-height: 1.6; }
+.strong { font-weight: 700; margin: 0 0 6px; }
+.summary { white-space: pre-wrap; word-break: keep-all; overflow-wrap: anywhere; font: inherit; font-size: 14px; line-height: 1.6; background: var(--bg); border-radius: 10px; padding: 12px; margin: 8px 0; }
+.row-buttons { display: flex; flex-wrap: wrap; gap: 8px; }
+.sr-status { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }

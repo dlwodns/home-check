@@ -95,3 +95,37 @@ describe("등기부등본 점검 화면", () => {
     expect(verdictLabel()).toBe("위험");
   });
 });
+
+describe("다음 행동 카드", () => {
+  it("위험 샘플: 질문 · 할 일 · 특약 · 부모님 요약이 보이고, 질문을 복사할 수 있다", async () => {
+    const user = userEvent.setup();
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
+    render(<CheckClient samples={samples} />);
+    await user.click(screen.getByRole("button", { name: "위험 샘플" }));
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+
+    expect(screen.getByRole("heading", { name: "다음에 할 일" })).toBeTruthy();
+    expect(screen.getByText(/2026년 9월 1일에 집주인이 바뀌었더라고요/)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "계약서 특약에 이렇게 적어요" })).toBeTruthy();
+    const summary = document.querySelector(".summary")!.textContent!;
+    expect(summary).toContain("[홈체크] 등기부등본 점검 결과: 위험");
+    expect(summary).not.toContain("박서윤");
+
+    await user.click(screen.getAllByRole("button", { name: "복사" })[0]);
+    expect(writeText).toHaveBeenCalledWith(expect.stringContaining("지금 집주인분과 직접 계약하고 싶은데"));
+    expect(await screen.findAllByText("복사했어요")).toBeTruthy();
+  });
+
+  it("복사가 막힌 환경에서는 직접 복사하라는 안내", async () => {
+    const user = userEvent.setup();
+    Object.defineProperty(navigator, "clipboard", { value: { writeText: vi.fn().mockRejectedValue(new Error("no")) }, configurable: true });
+    const exec = vi.fn().mockReturnValue(false);
+    Object.defineProperty(document, "execCommand", { value: exec, configurable: true });
+    render(<CheckClient samples={samples} />);
+    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    await user.click(screen.getByRole("button", { name: "요약 복사" }));
+    expect(await screen.findByText(/복사하지 못했어요/)).toBeTruthy();
+  });
+});

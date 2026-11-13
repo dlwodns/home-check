@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useId, useState } from "react";
 import { formatWon, runCheck, todayKST, type CheckForm, type CheckOutcome, type FlagView } from "@/lib/registry/check";
 import type { Mortgage, RegistryRead } from "@/lib/registry/types";
+import { buildActions } from "@/lib/registry/actions";
+import NextActions from "./NextActions";
 
 export interface Sample {
   label: string;
@@ -206,6 +208,8 @@ function Result({
       </ul>
 
       <ReadEditor read={read} hasWarnings={warnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />
+
+      <NextActions actions={buildActions(read, result)} />
     </section>
   );
 }
