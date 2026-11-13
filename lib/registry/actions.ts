@@ -1,4 +1,4 @@
-// F3 다음 행동 카드: 판정 이유마다 정해 둔 문장 틀(data/actions.json)을 채워 질문 · 할 일 · 특약 · 부모님 요약을 만든다.
+// F3 다음 행동 카드: 판정 이유마다 정해 둔 문장 틀(data/actions.json)을 채워 질문 · 할 일 · 특약 · 가족 · 지인 요약을 만든다.
 // 외부 AI를 쓰지 않고, 같은 결과면 항상 같은 문장이 나온다.
 import data from "@/data/actions.json";
 import { findSource } from "@/lib/content";

@@ -1,5 +1,5 @@
 "use client";
-// F3 다음 행동 카드: 이렇게 물어보세요 · 이렇게 하세요 · 계약서 특약 · 부모님께 보내기(복사 · 공유).
+// F3 다음 행동 카드: 이렇게 물어보세요 · 이렇게 하세요 · 계약서 특약 · 가족 · 지인에게 보내기(복사 · 공유).
 import Link from "next/link";
 import { useState } from "react";
 import type { NextActions as Actions } from "@/lib/registry/actions";
