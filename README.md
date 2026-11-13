@@ -63,5 +63,6 @@ npm test                 # 자동 테스트 (Vitest)
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | (예정) Supabase 프로젝트 주소. 로그인 · 저장 기능을 붙일 때 필요합니다. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | (예정) Supabase 공개 키. 브라우저에서 쓰며 권한은 DB 보안 규칙으로 제한합니다. |
+| `DATA_GO_KR_API_KEY` | (예정, F6) 공공데이터포털 인증키. 동네 원룸 시세 조회에 씁니다. 서버에서만 읽습니다. |
 
 카카오 로그인 키는 Supabase 대시보드에만 등록하고 코드에는 넣지 않습니다.
