@@ -82,13 +82,13 @@
     {
       "id": "S14",
       "title": "임차권등기(임차권등기명령)가 남아 있는 집",
-      "status": "check",
+      "status": "confirmed",
       "official_url": "https://www.law.go.kr/법령/주택임대차보호법"
     },
     {
       "id": "S15",
       "title": "소액임차인 최우선변제금 (2023-02-21 개정 기준)",
-      "status": "check",
+      "status": "confirmed",
       "official_url": "https://www.law.go.kr/법령/주택임대차보호법시행령"
     },
     {

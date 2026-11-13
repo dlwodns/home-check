@@ -63,6 +63,7 @@ npm test                 # 자동 테스트 (Vitest)
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | (예정) Supabase 프로젝트 주소. 로그인 · 저장 기능을 붙일 때 필요합니다. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | (예정) Supabase 공개 키. 브라우저에서 쓰며 권한은 DB 보안 규칙으로 제한합니다. |
-| `DATA_GO_KR_API_KEY` | (예정, F6) 공공데이터포털 인증키. 동네 원룸 시세 조회에 씁니다. 서버에서만 읽습니다. |
+| `DATA_GO_KR_API_KEY` | (F6에서 사용 예정, 키 발급 · 동작 확인 완료) 공공데이터포털 인증키. 동네 원룸 시세 조회에 씁니다. 서버에서만 읽습니다. |
+| `LAW_API_OC` | 개발할 때만 씀. 국가법령정보 공동활용 Open API 인증값으로 근거 목록(docs/SOURCES.md)을 법령 원문과 대조합니다. 앱 실행에는 필요 없습니다. |
 
 카카오 로그인 키는 Supabase 대시보드에만 등록하고 코드에는 넣지 않습니다.
