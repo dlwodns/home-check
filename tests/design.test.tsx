@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // 11/18 디자인: "괜찮은 점" 계산, 신호등, 용어 말풍선(한 번에 하나 · Esc · 바깥 누르기 · 본 단어 옅게 · 처음 안내).
 import type { AnchorHTMLAttributes } from "react";
-import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { goodPoints, headline } from "@/lib/registry/goodPoints";
@@ -10,6 +10,7 @@ import TermText from "@/app/ui/TermText";
 import TermHint from "@/app/ui/TermHint";
 import TrafficLight from "@/app/ui/TrafficLight";
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
     <a href={href} {...rest}>
@@ -201,5 +202,26 @@ describe("용어 말풍선 세부 (11/16 합의)", () => {
     expect(screen.queryByText(/단어를 누르면 뜻이 나와요/)).toBeNull();
     act(() => setTermsOff(false));
     expect(screen.getByRole("button", { name: "근저당" })).toBeTruthy();
+  });
+});
+
+describe("앞선 세입자 보증금 확인 방법 (A3)", () => {
+  it("4단계에 안내가 붙고, 낼 서류 · 부탁 문장 복사 · 근거가 있다", async () => {
+    const { steps, branches } = await import("@/lib/content");
+    const { default: StepClient } = await import("@/app/steps/[no]/StepClient");
+    const step4 = steps.find((s) => s.items.some((i) => i.id === "prior_deposits"))!;
+    render(<StepClient step={step4} total={steps.length} branches={branches} />);
+    const guide = screen.getByText("앞선 세입자 보증금, 어떻게 확인해요?").closest("details")!;
+    for (const doc of ["임대차 정보제공 요청서", "집주인의 동의서", "인감증명서", "내 신분증"]) expect(guide.textContent).toContain(doc);
+    expect(guide.textContent).toContain("보여 줄 의무");
+    expect(screen.getByRole("button", { name: "부탁 문장 복사" })).toBeTruthy();
+    expect(within(guide as HTMLElement).getByRole("link", { name: "S6" }).getAttribute("href")).toBe("/sources#S6");
+  });
+
+  it("다른 단계에는 붙지 않는다", async () => {
+    const { steps, branches } = await import("@/lib/content");
+    const { default: StepClient } = await import("@/app/steps/[no]/StepClient");
+    render(<StepClient step={steps[0]} total={steps.length} branches={branches} />);
+    expect(screen.queryByText("앞선 세입자 보증금, 어떻게 확인해요?")).toBeNull();
   });
 });

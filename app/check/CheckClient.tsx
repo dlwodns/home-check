@@ -14,6 +14,7 @@ import NextActions from "./NextActions";
 import TrafficLight from "../ui/TrafficLight";
 import TermText from "../ui/TermText";
 import TermHint from "../ui/TermHint";
+import PriorDepositGuide from "../ui/PriorDepositGuide";
 import { MAX_PDF_BYTES, readPdfFile } from "./readPdf";
 
 export interface Sample {
@@ -186,7 +187,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         <div className="field">
           <label htmlFor={ids.prior}>먼저 들어온 세입자들의 보증금 합계 (만 원)</label>
           <input id={ids.prior} inputMode="numeric" value={form.priorDeposits} onChange={set("priorDeposits")} placeholder="모르면 비워 두세요" />
-          <p className="hint">다가구 원룸은 등기부등본에 안 나와요. 집주인 동의를 받아 주민센터에서 확인할 수 있어요.</p>
+          <p className="hint">다가구 원룸은 등기부등본에 안 나와요. 모르면 비워 두면 '모름'으로 따로 알려 드려요.</p>
+          <PriorDepositGuide />
         </div>
         <div className="field">
           <label htmlFor={ids.market}>이 건물 시세 (만 원)</label>

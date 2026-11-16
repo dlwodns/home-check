@@ -357,3 +357,9 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
 .confirm-email .primary { width: auto; flex: 1; }
 .account-email { font-size: 18px; overflow-wrap: anywhere; }
 .term-hint-actions { display: inline-flex; gap: 12px; flex-shrink: 0; }
+
+/* 앞선 세입자 보증금 안내 */
+.guide summary { cursor: pointer; font-weight: 700; color: var(--accent); min-height: 32px; }
+.guide-steps { margin: 10px 0; padding-left: 20px; display: flex; flex-direction: column; gap: 12px; line-height: 1.6; }
+.guide-steps .bubble { display: block; margin: 8px 0; }
+.guide-steps ul { margin: 6px 0 0; padding-left: 18px; }

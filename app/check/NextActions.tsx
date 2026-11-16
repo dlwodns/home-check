@@ -27,7 +27,7 @@ async function copyText(text: string): Promise<boolean> {
   }
 }
 
-function CopyButton({ text, label = "복사" }: { text: string; label?: string }) {
+export function CopyButton({ text, label = "복사" }: { text: string; label?: string }) {
   const [state, setState] = useState<"idle" | "done" | "fail">("idle");
   return (
     <>
