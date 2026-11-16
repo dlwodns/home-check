@@ -131,9 +131,10 @@ export interface PdfTextResult {
 /** pdf.js 모듈을 넘겨받아 PDF에서 글자를 뽑는다(브라우저 · 테스트에서 같은 함수를 쓰려고 모듈을 주입). */
 export async function extractPdfText(
   data: ArrayBuffer | Uint8Array,
-  pdfjs: { getDocument: (src: { data: Uint8Array }) => { promise: Promise<PdfDoc> } },
+  pdfjs: { getDocument: (src: { data: Uint8Array; isEvalSupported?: boolean }) => { promise: Promise<PdfDoc> } },
 ): Promise<PdfTextResult> {
-  const doc = await pdfjs.getDocument({ data: data instanceof Uint8Array ? data : new Uint8Array(data) }).promise;
+  // isEvalSupported: false — 글꼴 처리에 eval을 쓰지 않게(보안 정책 CSP와 맞춤). 글자 추출에는 영향 없음
+  const doc = await pdfjs.getDocument({ data: data instanceof Uint8Array ? data : new Uint8Array(data), isEvalSupported: false }).promise;
   const pages: TextItem[][] = [];
   for (let p = 1; p <= doc.numPages; p++) {
     const page = await doc.getPage(p);

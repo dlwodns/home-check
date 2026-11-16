@@ -333,3 +333,19 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
 .room-card { border-radius: 20px; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04); }
 .home h1 { font-size: 28px; }
 .empty { background: var(--soft); border: 0; }
+
+/* F6 동네 시세 */
+.rent { display: flex; flex-direction: column; gap: 8px; }
+.rent p { margin: 0; }
+.rent-head { display: flex; gap: 10px; align-items: center; }
+.rent-icon { color: var(--muted); }
+.rent-lines { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 2px; }
+.rent-high { background: var(--caution-bg); border-color: transparent; }
+.rent-similar, .rent-low { background: var(--soft); border-color: transparent; }
+.region-pick { margin-top: 6px; }
+.region-ok { color: var(--accent); }
+.home-foot { margin: 8px 0 0; }
+.home-foot a { color: var(--muted); }
+.privacy-page h2 { font-size: 16px; margin: 0 0 8px; }
+.privacy-page .card p { margin: 0 0 6px; line-height: 1.6; }
+.privacy-page ul { margin: 0 0 6px; padding-left: 18px; line-height: 1.7; }

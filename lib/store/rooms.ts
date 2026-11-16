@@ -18,6 +18,12 @@ export interface CheckSummary {
   actions: NextActions;
 }
 
+/** 법정동: 시군구 코드 5자리 + 동 이름. 동네 시세(F6)를 찾는 데만 쓴다 */
+export interface RoomRegion {
+  sgg: string;
+  dong: string;
+}
+
 export interface Room {
   id: string;
   /** 카드 제목: 메모가 있으면 메모, 없으면 주소 */
@@ -30,6 +36,7 @@ export interface Room {
   /** 매물 링크 (http · https만). 다시 열어 보는 바로가기로만 쓴다 */
   link: string;
   memo: string;
+  region: RoomRegion | null;
   branch: Branch | null;
   checked: Record<string, boolean>;
   check: CheckSummary | null;
@@ -63,6 +70,15 @@ export function safeLink(raw: string): string {
   } catch {
     return "";
   }
+}
+
+/** 모양만 검사한다(표에 있는지는 서버가 다시 확인). 큰 지역 표를 모든 화면에 싣지 않으려고 */
+export function parseRegion(v: unknown): RoomRegion | null {
+  if (!v || typeof v !== "object") return null;
+  const d = v as Record<string, unknown>;
+  const sgg = typeof d.sgg === "string" ? d.sgg : "";
+  const dong = typeof d.dong === "string" ? d.dong.trim() : "";
+  return /^\d{5}$/.test(sgg) && /^[가-힣0-9.·]{1,20}$/.test(dong) ? { sgg, dong } : null;
 }
 
 function parseSummary(v: unknown): CheckSummary | null {
@@ -117,6 +133,7 @@ function parseRoom(v: unknown): Room | null {
     rent: num(d.rent),
     link: safeLink(typeof d.link === "string" ? d.link : ""),
     memo,
+    region: parseRegion(d.region),
     branch,
     checked,
     check: parseSummary(d.check),
@@ -171,9 +188,11 @@ export interface RoomInput {
   rent: string;
   /** 매물 링크 · 메모를 한 칸에 받는다. 안의 http(s) 주소는 링크로, 나머지는 메모로 나눈다 */
   note: string;
+  /** 주소에서 찾아 고른 법정동 (못 찾았으면 null — 시세만 빠지고 저장은 된다) */
+  region?: RoomRegion | null;
 }
 
-export type RoomDraft = Pick<Room, "label" | "address" | "deposit" | "rent" | "link" | "memo">;
+export type RoomDraft = Pick<Room, "label" | "address" | "deposit" | "rent" | "link" | "memo" | "region">;
 
 /** 후보 방 추가 칸을 검사해 저장할 값으로 바꾼다. 틀린 칸은 고칠 말을 돌려준다. */
 export function validateRoomInput(input: RoomInput): { ok: true; draft: RoomDraft } | { ok: false; errors: Partial<Record<keyof RoomInput, string>> } {
@@ -205,6 +224,7 @@ export function validateRoomInput(input: RoomInput): { ok: true; draft: RoomDraf
       rent: rent.won === null ? null : rent.won / 10_000,
       link,
       memo,
+      region: parseRegion(input.region ?? null),
     },
   };
 }

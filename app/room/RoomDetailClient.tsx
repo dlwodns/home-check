@@ -8,6 +8,7 @@ import { removeRoom, withRoom } from "@/lib/store/rooms";
 import type { Branch } from "@/lib/store/progress";
 import type { FlagCode } from "@/lib/registry/types";
 import NextActions from "../check/NextActions";
+import RentCard from "./RentCard";
 import StepBar from "../ui/StepBar";
 import rules from "@/data/judge.json";
 import { goodPoints, headline } from "@/lib/registry/goodPoints";
@@ -124,6 +125,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
             <p className="small muted">등기부등본은 인터넷등기소에서 누구나 뗄 수 있어요(열람 700원).</p>
           </div>
         )}
+        <RentCard room={room} />
       </section>
 
       <section aria-labelledby="sec-how" className="room-sec">

@@ -2,7 +2,7 @@
 // F4 내 후보 방을 사용자처럼 눌러 보는 테스트: 추가 → 방 화면 → 점검(결과가 방에 저장) → 단계 체크(방마다 따로) → 지우기.
 import { readFileSync } from "node:fs";
 import type { AnchorHTMLAttributes } from "react";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import expected from "@/samples/expected.json";
@@ -201,5 +201,92 @@ describe("단계 체크는 방마다 따로", () => {
     expect(rooms[1].checked).toEqual({});
     expect(JSON.parse(localStorage.getItem(PROGRESS) ?? "{}").checked ?? {}).toEqual({});
     expect(screen.getByRole("link", { name: /다음 단계/ }).getAttribute("href")).toBe("/steps/2?room=r1");
+  });
+});
+
+describe("동네 시세 (F6)", () => {
+  it("주소에 같은 이름 동이 여러 곳이면 고르게 하고, 고른 동네가 방에 저장된다", async () => {
+    const user = userEvent.setup();
+    render(<RoomAddClient />);
+    await user.type(screen.getByLabelText("주소"), "신사동 12");
+    const group = await screen.findByRole("radiogroup", { name: "어느 동네인가요?" });
+    await user.click(within(group).getByRole("radio", { name: /강남구 신사동/ }));
+    expect(screen.getByText(/강남구 신사동 · 이 동네 시세를 찾아 드려요/)).toBeTruthy();
+    await user.type(screen.getByLabelText("보증금 (만 원)"), "1000");
+    await user.type(screen.getByLabelText("월세 (만 원)"), "60");
+    await user.click(screen.getByRole("button", { name: "저장하고 이 방 보기" }));
+    expect(savedRooms().rooms[0].region).toEqual({ sgg: "11680", dong: "신사동" });
+  });
+
+  it("동네를 못 찾아도 저장은 되고, 시세 없이 저장된다고 알려 준다", async () => {
+    const user = userEvent.setup();
+    render(<RoomAddClient />);
+    await user.type(screen.getByLabelText("주소"), "가상시 새내동 202-7");
+    expect(await screen.findByText(/동네\(법정동\)를 못 찾았어요/)).toBeTruthy();
+    await user.type(screen.getByLabelText("보증금 (만 원)"), "500");
+    await user.click(screen.getByRole("button", { name: "저장하고 이 방 보기" }));
+    expect(savedRooms().rooms[0].region).toBeNull();
+  });
+
+  const rentStats = (count: number) => ({
+    dong: "서교동",
+    months: ["202611", "202610", "202609", "202608", "202607", "202606"],
+    monthly: { count, deposit: { p25: 300, mid: 500, p75: 1000 }, rent: { p25: 45, mid: 50, p75: 55 } },
+    jeonse: null,
+  });
+  const withRegion = { ...baseRoom, deposit: 500, rent: 70, region: { sgg: "11440", dong: "서교동" } };
+
+  it("방 상세: 이 방 월세가 동네 중간값보다 높으면 그렇게 알려 주고, 범위와 출처를 보여 준다", async () => {
+    const f = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(rentStats(12))));
+    seedRooms(withRegion);
+    at("room?id=r1");
+    render(<RoomDetailClient steps={steps} branches={branches} />);
+    expect(await screen.findByText("월세가 동네 중간값보다 높은 편이에요")).toBeTruthy();
+    expect(screen.getByText(/월세: 45–55만 원 \(중간 50\)/)).toBeTruthy();
+    expect(screen.getByText(/서교동 단독 · 다가구 월세 신고 거래 12건, 최근 6개월/)).toBeTruthy();
+    expect(String(f.mock.calls[0][0])).toBe("/api/rent?sgg=11440&dong=%EC%84%9C%EA%B5%90%EB%8F%99");
+    f.mockRestore();
+  });
+
+  it("거래가 적으면 비교하지 않고 '거래 기록이 적어요'", async () => {
+    const f = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(rentStats(2))));
+    seedRooms(withRegion);
+    at("room?id=r1");
+    render(<RoomDetailClient steps={steps} branches={branches} />);
+    expect(await screen.findByText(/거래 기록이 적어요 \(2건\)/)).toBeTruthy();
+    expect(screen.queryByText(/높은 편|비슷해요|낮은 편/)).toBeNull();
+    f.mockRestore();
+  });
+
+  it("불러오지 못하면 실거래가 공개시스템 링크로 안내", async () => {
+    const f = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}", { status: 502 }));
+    seedRooms(withRegion);
+    at("room?id=r1");
+    render(<RoomDetailClient steps={steps} branches={branches} />);
+    expect((await screen.findByRole("link", { name: "국토부 실거래가 공개시스템" })).getAttribute("rel")).toContain("noopener");
+    f.mockRestore();
+  });
+});
+
+describe("개인정보 안내 · 기록 지우기", () => {
+  it("한 번 더 확인한 뒤 homecheck. 기록만 지우고, 다른 저장값은 남긴다", async () => {
+    const { default: ClearData } = await import("@/app/privacy/ClearData");
+    const user = userEvent.setup();
+    seedRooms(baseRoom);
+    localStorage.setItem(PROGRESS, "{}");
+    localStorage.setItem("other.app", "keep");
+    render(<ClearData />);
+    await user.click(screen.getByRole("button", { name: "이 기기의 홈체크 기록 모두 지우기" }));
+    expect(localStorage.getItem(ROOMS)).not.toBeNull();
+    await user.click(screen.getByRole("button", { name: "모두 지우기" }));
+    expect(localStorage.getItem(ROOMS)).toBeNull();
+    expect(localStorage.getItem(PROGRESS)).toBeNull();
+    expect(localStorage.getItem("other.app")).toBe("keep");
+    expect(screen.getByRole("status").textContent).toContain("지웠어요");
+  });
+
+  it("홈 아래에 개인정보 안내 링크가 있다", async () => {
+    render(<RoomsHome />);
+    expect((await screen.findByRole("link", { name: "개인정보 · 데이터 안내" })).getAttribute("href")).toBe("/privacy");
   });
 });

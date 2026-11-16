@@ -83,6 +83,9 @@ export default function RoomsHome() {
         <Link href="/guide">아직 방을 못 찾았어요 · 계약 과정 미리 보기 →</Link>
         <Link href="/check">등기부등본만 바로 점검하기 →</Link>
       </nav>
+      <p className="small muted home-foot">
+        참고용 안내예요 · <Link href="/privacy">개인정보 · 데이터 안내</Link>
+      </p>
     </main>
   );
 }

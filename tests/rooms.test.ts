@@ -25,7 +25,7 @@ import {
 } from "@/lib/store/rooms";
 import { checkLine, flagViews, moneyLine, roomSteps, toCheckCount } from "@/app/ui/roomView";
 
-const draft: RoomDraft = { label: "정문 원룸", address: "OO동 123-4", deposit: 1000, rent: 50, link: "", memo: "정문 원룸" };
+const draft: RoomDraft = { label: "정문 원룸", address: "OO동 123-4", deposit: 1000, rent: 50, link: "", memo: "정문 원룸", region: null };
 const room = (over: Partial<Room> = {}): Room => ({ id: "r1", ...draft, branch: null, checked: {}, check: null, createdAt: "2026-11-17", ...over });
 
 describe("후보 방 추가 칸 검사", () => {

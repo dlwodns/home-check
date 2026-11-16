@@ -2,26 +2,42 @@
 // 후보 방 추가: 주소 · 보증금/월세 · (선택) 링크 · 메모 세 칸만. 저장하면 바로 그 방 화면으로 간다.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
+import type { Region } from "@/lib/region";
 import { addRoom, MAX_ROOMS, newRoomId, roomHref, validateRoomInput, type RoomInput } from "@/lib/store/rooms";
 import { todayKST } from "@/lib/registry/check";
 import { useRooms } from "../../ui/useRooms";
 
+type Field = "address" | "deposit" | "rent" | "note";
 const EMPTY: RoomInput = { address: "", deposit: "", rent: "", note: "" };
+type RegionModule = typeof import("@/lib/region");
 
 export default function RoomAddClient() {
   const router = useRouter();
   const { rooms, update, loaded } = useRooms();
   const [input, setInput] = useState<RoomInput>(EMPTY);
-  const [errors, setErrors] = useState<Partial<Record<keyof RoomInput, string>>>({});
+  const [errors, setErrors] = useState<Partial<Record<Field, string>>>({});
+  // 주소 → 동네(법정동) 찾기. 지역 표가 커서 이 화면에서만 나중에 불러온다
+  const [regionMod, setRegionMod] = useState<RegionModule | null>(null);
+  const [picked, setPicked] = useState<Region | null>(null);
+  useEffect(() => {
+    let alive = true;
+    import("@/lib/region").then((m) => alive && setRegionMod(m));
+    return () => {
+      alive = false;
+    };
+  }, []);
+  const options = regionMod ? regionMod.findRegions(input.address) : [];
+  const key = (r: Region) => `${r.sgg}|${r.dong}`;
+  const chosen = picked && options.some((o) => key(o) === key(picked)) ? picked : options.length === 1 ? options[0] : null;
   const ids = { address: useId(), deposit: useId(), rent: useId(), note: useId() };
   const full = loaded && rooms.length >= MAX_ROOMS;
 
-  const set = (k: keyof RoomInput) => (e: React.ChangeEvent<HTMLInputElement>) => setInput((v) => ({ ...v, [k]: e.target.value }));
+  const set = (k: Field) => (e: React.ChangeEvent<HTMLInputElement>) => setInput((v) => ({ ...v, [k]: e.target.value }));
 
   const save = (e: React.FormEvent) => {
     e.preventDefault();
-    const v = validateRoomInput(input);
+    const v = validateRoomInput({ ...input, region: chosen ? { sgg: chosen.sgg, dong: chosen.dong } : null });
     if (!v.ok) {
       setErrors(v.errors);
       return;
@@ -31,13 +47,13 @@ export default function RoomAddClient() {
     router.push(roomHref(id));
   };
 
-  const err = (k: keyof RoomInput) =>
+  const err = (k: Field) =>
     errors[k] ? (
       <p className="error-text" id={`${ids[k]}-err`} role="alert">
         {errors[k]}
       </p>
     ) : null;
-  const described = (k: keyof RoomInput, hint?: string) => [errors[k] ? `${ids[k]}-err` : "", hint ?? ""].filter(Boolean).join(" ") || undefined;
+  const described = (k: Field, hint?: string) => [errors[k] ? `${ids[k]}-err` : "", hint ?? ""].filter(Boolean).join(" ") || undefined;
 
   return (
     <main className="container check">
@@ -66,9 +82,40 @@ export default function RoomAddClient() {
               aria-describedby={described("address", `${ids.address}-hint`)}
             />
             <p className="hint" id={`${ids.address}-hint`}>
-              동 · 번지까지만 적어도 돼요. 호수는 적지 않아도 괜찮아요.
+              'OO구 OO동 123-4'처럼 적으면 동네 시세도 찾아 드려요. 호수는 적지 않아도 괜찮아요.
             </p>
             {err("address")}
+            {options.length > 1 && (
+              <div className="region-pick">
+                <p className="small strong" id="region-q">
+                  어느 동네인가요?
+                </p>
+                <div className="seg-choice" role="radiogroup" aria-labelledby="region-q">
+                  {options.map((o) => (
+                    <button
+                      key={key(o)}
+                      type="button"
+                      role="radio"
+                      aria-checked={chosen ? key(chosen) === key(o) : false}
+                      className={`chip${chosen && key(chosen) === key(o) ? " chip-on" : ""}`}
+                      onClick={() => setPicked(o)}
+                    >
+                      {o.sggName} {o.dong}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {chosen && (
+              <p className="hint region-ok" role="status">
+                ✓ {chosen.sggName} {chosen.dong} · 이 동네 시세를 찾아 드려요
+              </p>
+            )}
+            {regionMod && !chosen && options.length === 0 && input.address.trim().length >= 3 && (
+              <p className="hint" role="status">
+                동네(법정동)를 못 찾았어요. 이대로 저장해도 되고, 동 이름을 넣으면 시세도 볼 수 있어요.
+              </p>
+            )}
           </div>
 
           <div className="row-2">
@@ -118,7 +165,7 @@ export default function RoomAddClient() {
             {err("note")}
           </div>
 
-          <p className="privacy">🔒 이 휴대폰(브라우저)에만 저장돼요. 등기부등본은 다음 화면에서 올리고, 어디에도 보내지 않아요.</p>
+          <p className="privacy">🔒 이 휴대폰(브라우저)에만 저장돼요. 등기부등본은 다음 화면에서 올리고, 어디에도 보내지 않아요. <Link href="/privacy">자세히</Link></p>
 
           <button type="submit" className="primary">
             저장하고 이 방 보기
