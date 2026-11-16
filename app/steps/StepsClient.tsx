@@ -12,7 +12,7 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
   const { progress, update, loaded, room, roomId } = useProgress();
   const r = (href: string) => withRoom(href, roomId);
   const experienced = progress.mode === "experienced";
-  const stats = stepStats(steps, branches, progress);
+  const stats = stepStats(steps, branches, progress, { inRoom: Boolean(room) });
   const branch = branchFor(progress, branches);
   const pct = stats.total ? Math.round((stats.done / stats.total) * 100) : 0;
 

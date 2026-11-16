@@ -15,7 +15,11 @@ export function branchFor(progress: Progress, branches: BranchContent[]): Branch
   return branches.find((b) => b.id === progress.branch) ?? null;
 }
 
-export function stepStats(steps: Step[], branches: BranchContent[], progress: Progress) {
+/**
+ * @param options.inRoom 후보 방 안에서 볼 때: 방을 이미 찾았으니 1 · 2단계(준비 · 집 찾기)는 건너뛰어도 되는 단계로 친다.
+ *   3단계(집 보러 가기)는 그 방을 직접 보는 단계라 남긴다.
+ */
+export function stepStats(steps: Step[], branches: BranchContent[], progress: Progress, options: { inRoom?: boolean } = {}) {
   const branch = branchFor(progress, branches);
   const perStep: StepStat[] = steps.map((s) => {
     const items = [
@@ -24,7 +28,7 @@ export function stepStats(steps: Step[], branches: BranchContent[], progress: Pr
     ];
     // 해당 없을 수 있는 항목은 체크했을 때만 센다(안 해도 불리하지 않게)
     const counted = items.filter((i) => !i.optional || progress.checked[i.key]);
-    const skipped = progress.mode === "experienced" && Boolean(s.experienced_skip);
+    const skipped = (progress.mode === "experienced" && Boolean(s.experienced_skip)) || (Boolean(options.inRoom) && s.no <= 2);
     return { no: s.no, total: counted.length, done: counted.filter((i) => progress.checked[i.key]).length, skipped };
   });
   const active = perStep.filter((s) => !s.skipped);

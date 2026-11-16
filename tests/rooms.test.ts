@@ -184,10 +184,10 @@ describe("카드 · 상세 표시 계산", () => {
     expect(moneyLine({ deposit: 20000, rent: null })).toBe("보증금 20,000");
   });
 
-  it("진행 막대: 체크가 없으면 1단계가 지금, 해 봤어요면 1–3단계는 건너뜀", () => {
+  it("진행 막대: 방 안에서는 1 · 2단계를 건너뛰고 3단계(집 보러 가기)부터, 해 봤어요면 1–3단계 건너뜀", () => {
     const first = roomSteps(room(), "first", steps, branches);
-    expect(first.segs[0]).toBe("current");
-    expect(first.segs.slice(1).every((s) => s === "todo")).toBe(true);
+    expect(first.segs).toEqual(["skipped", "skipped", "current", "todo", "todo", "todo"]);
+    expect(first.current?.no).toBe(3);
     const exp = roomSteps(room(), "experienced", steps, branches);
     expect(exp.segs.slice(0, 3)).toEqual(["skipped", "skipped", "skipped"]);
     expect(exp.current?.no).toBe(4);

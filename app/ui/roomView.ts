@@ -34,7 +34,7 @@ export type Seg = "done" | "current" | "todo" | "skipped";
 
 /** 방 카드의 6칸 진행 막대 + 지금 몇 단계인지 */
 export function roomSteps(room: Room, mode: Mode | null, steps: Step[], branches: BranchContent[]) {
-  const stats = stepStats(steps, branches, roomProgress(room, mode));
+  const stats = stepStats(steps, branches, roomProgress(room, mode), { inRoom: true });
   const segs: Seg[] = stats.perStep.map((s) =>
     s.skipped ? "skipped" : s.no === stats.current ? "current" : s.done === s.total ? "done" : "todo",
   );

@@ -1,6 +1,7 @@
 "use client";
 // 시작 화면의 두 갈래: 처음이에요(1단계부터, '어디서 찾았어요?' 먼저) / 해 봤어요(바로 6단계 목록).
 import Link from "next/link";
+import BrandMark from "./ui/BrandMark";
 import { useRouter } from "next/navigation";
 import { useProgress } from "./ui/useProgress";
 
@@ -23,9 +24,7 @@ export default function StartClient() {
         <span>계약 과정 미리 보기</span>
       </nav>
       <p className="brand">
-        <span className="brand-mark" aria-hidden="true">
-          ✓
-        </span>
+        <BrandMark />
         홈체크
       </p>
       <h1>

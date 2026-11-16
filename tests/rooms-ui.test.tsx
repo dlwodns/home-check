@@ -60,14 +60,14 @@ describe("홈 = 내 후보 방", () => {
     expect(screen.getByRole("link", { name: /계약 과정 미리 보기/ }).getAttribute("href")).toBe("/guide");
   });
 
-  it("담은 방은 카드로: 이름 · 금액 · 점검 전 · 지금 1단계", async () => {
+  it("담은 방은 카드로: 이름 · 금액 · 점검 전 · 지금 3단계(방을 찾았으니 1 · 2단계는 건너뜀)", async () => {
     seedRooms(baseRoom);
     render(<RoomsHome />);
     const card = await screen.findByRole("link", { name: /정문 원룸/ });
     expect(card.getAttribute("href")).toBe("/room?id=r1");
     expect(card.textContent).toContain("보증금 500 · 월세 50");
     expect(card.textContent).toContain("점검 전");
-    expect(card.textContent).toContain("지금 1단계");
+    expect(card.textContent).toContain("지금 3단계");
   });
 });
 
@@ -103,7 +103,7 @@ describe("방 상세", () => {
     render(<RoomDetailClient steps={steps} branches={branches} />);
     expect(await screen.findByRole("heading", { name: "정문 원룸" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "등기부등본 올려서 점검하기" }).getAttribute("href")).toBe("/check?room=r1");
-    expect(screen.getByRole("link", { name: "1단계 할 일 보기" }).getAttribute("href")).toBe("/steps/1?room=r1");
+    expect(screen.getByRole("link", { name: "3단계 할 일 보기" }).getAttribute("href")).toBe("/steps/3?room=r1");
     expect(screen.getByText(/계약 완료 · 보증금 지키기/)).toBeTruthy();
   });
 
@@ -181,7 +181,8 @@ describe("방에서 점검하기", () => {
     at("room?id=r1");
     render(<RoomDetailClient steps={steps} branches={branches} />);
     expect((await screen.findAllByText("주의")).length).toBeGreaterThan(0);
-    expect(screen.getByText("확인할 것 1가지")).toBeTruthy();
+    expect(screen.getByText("계약 전에 확인할 것이 1가지 있어요")).toBeTruthy();
+    expect(screen.getByText(/계약 상대가 등기부등본의 지금 집주인이에요/)).toBeTruthy();
     expect(screen.getByRole("link", { name: "다시 점검하기" }).getAttribute("href")).toBe("/check?room=r1");
   });
 });

@@ -2,13 +2,18 @@
 // F2 등기부등본 점검: 붙여 넣기 → 내 계약 정보 → 점검 → 결과 카드 · 이유 · 근거 → 읽은 내용 확인 · 고치기.
 // 모든 계산은 이 브라우저 안에서만 하고, 서류 내용은 어디에도 보내거나 저장하지 않는다.
 import Link from "next/link";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { formatWon, runCheck, todayKST, type CheckForm, type CheckOutcome, type FlagView } from "@/lib/registry/check";
 import type { Mortgage, RegistryRead } from "@/lib/registry/types";
 import { buildActions } from "@/lib/registry/actions";
 import { roomHref, roomIdFrom, summarize, updateRoom, type Room } from "@/lib/store/rooms";
 import { roomsStore } from "../ui/useProgress";
+import { goodPoints, headline } from "@/lib/registry/goodPoints";
+import { splitAll, type Segment } from "@/lib/content/terms";
 import NextActions from "./NextActions";
+import TrafficLight from "../ui/TrafficLight";
+import TermText from "../ui/TermText";
+import TermHint from "../ui/TermHint";
 import { MAX_PDF_BYTES, readPdfFile } from "./readPdf";
 
 export interface Sample {
@@ -18,12 +23,6 @@ export interface Sample {
 }
 
 const EMPTY: CheckForm = { myDeposit: "", priorDeposits: "", marketPrice: "", contractParty: "" };
-
-const VERDICT = {
-  safe: { label: "안전", line: "큰 위험 신호는 보이지 않아요", icon: "✓" },
-  caution: { label: "주의", line: "계약 전에 확인할 것이 있어요", icon: "!" },
-  danger: { label: "위험", line: "이대로 계약하면 위험할 수 있어요", icon: "!!" },
-} as const;
 
 const LEVEL_LABEL = { danger: "위험", caution: "주의", info: "참고" } as const;
 
@@ -255,19 +254,26 @@ function Result({
   onConfirm: (v: boolean) => void;
 }) {
   const { result, flags, warnings, read, ratioLines } = outcome;
-  const v = VERDICT[result.verdict];
+  const toCheck = flags.filter((f) => f.level !== "info");
+  const notes = flags.filter((f) => f.level === "info");
+  const good = goodPoints(result, ratioLines);
+  // 이 결과 화면의 이유 문장들: 같은 용어는 처음 나올 때만 누를 수 있게
+  const segs = splitAll(flags.map((f) => f.title));
+  const segOf = (code: string) => segs[flags.findIndex((f) => f.code === code)];
+  const ref = useRef<HTMLElement>(null);
+
+  // 점검하기를 누르면 결과로 바로 이동한다 (입력칸이 길어서 결과가 화면 아래에 생기므로)
+  useEffect(() => {
+    const el = ref.current;
+    if (el && typeof el.scrollIntoView === "function") {
+      el.scrollIntoView({ behavior: window.matchMedia?.("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+    }
+  }, []);
 
   return (
-    <section aria-live="polite">
-      <div className={`verdict verdict-${result.verdict}`}>
-        <span className="verdict-icon" aria-hidden="true">
-          {v.icon}
-        </span>
-        <div>
-          <strong className="verdict-label">{v.label}</strong>
-          <p>{v.line}</p>
-        </div>
-      </div>
+    <section aria-live="polite" className="result" ref={ref}>
+      <TrafficLight verdict={result.verdict} />
+      <h2 className="result-head">{headline(result.verdict, toCheck.length)}</h2>
 
       {warnings.length > 0 && !confirmed && (
         <div className="card warn" role="status">
@@ -281,14 +287,45 @@ function Result({
         </div>
       )}
 
+      {segs.some((g) => g.some((x) => x.term)) && <TermHint />}
+
+      {toCheck.length > 0 && (
+        <>
+          <h3 className="list-title">확인할 것</h3>
+          <ul className="flags">
+            {toCheck.map((f) => (
+              <FlagItem key={f.code} f={f} segments={segOf(f.code)} />
+            ))}
+          </ul>
+        </>
+      )}
+
       {result.ratio !== null && <RatioBar ratio={result.ratio} lines={ratioLines} />}
 
-      <ul className="flags">
-        {flags.map((f) => (
-          <FlagItem key={f.code} f={f} />
-        ))}
-        {flags.length === 0 && <li className="flag flag-safe">근저당 · 압류 · 신탁 등 위험 기록이 보이지 않아요.</li>}
-      </ul>
+      {good.length > 0 && (
+        <>
+          <h3 className="list-title">괜찮은 점</h3>
+          <ul className="good">
+            {good.map((g) => (
+              <li key={g}>
+                <span className="good-mark" aria-hidden="true">✓</span>
+                {g}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {notes.length > 0 && (
+        <>
+          <h3 className="list-title">참고</h3>
+          <ul className="flags">
+            {notes.map((f) => (
+              <FlagItem key={f.code} f={f} segments={segOf(f.code)} />
+            ))}
+          </ul>
+        </>
+      )}
 
       <ReadEditor read={read} hasWarnings={warnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />
 
@@ -297,11 +334,11 @@ function Result({
   );
 }
 
-function FlagItem({ f }: { f: FlagView }) {
+function FlagItem({ f, segments }: { f: FlagView; segments?: Segment[] }) {
   return (
     <li className={`flag flag-${f.level}`}>
       <span className="flag-level">{LEVEL_LABEL[f.level]}</span>
-      <p className="flag-title">{f.title}</p>
+      <p className="flag-title">{segments ? <TermText segments={segments} /> : f.title}</p>
       <p className="flag-sources">
         {f.sources.map((s) => (
           <span key={s.id}>

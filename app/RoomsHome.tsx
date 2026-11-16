@@ -1,6 +1,7 @@
 "use client";
 // 홈 = 내 후보 방. "관심 있는 방, 계약해도 될까요?" — 방마다 점검 결과(신호등)와 6단계 진행을 한눈에.
 import Link from "next/link";
+import BrandMark from "./ui/BrandMark";
 import { branches, steps } from "@/lib/content";
 import { roomHref } from "@/lib/store/rooms";
 import StepBar from "./ui/StepBar";
@@ -15,9 +16,7 @@ export default function RoomsHome() {
   return (
     <main className="container home">
       <p className="brand">
-        <span className="brand-mark" aria-hidden="true">
-          ✓
-        </span>
+        <BrandMark />
         홈체크
       </p>
       <h1>

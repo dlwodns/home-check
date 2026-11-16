@@ -6,10 +6,18 @@ import { useState } from "react";
 import type { Branch as BranchContent, Step } from "@/lib/content";
 import { removeRoom, withRoom } from "@/lib/store/rooms";
 import type { Branch } from "@/lib/store/progress";
+import type { FlagCode } from "@/lib/registry/types";
 import NextActions from "../check/NextActions";
 import StepBar from "../ui/StepBar";
-import { flagViews, moneyLine, roomSteps, toCheckCount, VERDICT_TEXT } from "../ui/roomView";
+import rules from "@/data/judge.json";
+import { goodPoints, headline } from "@/lib/registry/goodPoints";
+import { splitAll } from "@/lib/content/terms";
+import { flagViews, moneyLine, roomSteps, toCheckCount } from "../ui/roomView";
+import TrafficLight from "../ui/TrafficLight";
+import TermText from "../ui/TermText";
 import { roomsStore, useProgress } from "../ui/useProgress";
+
+const flagCodes = (codes: string[]) => codes.filter((c): c is FlagCode => c in rules.flags);
 
 const LEVEL_LABEL = { danger: "위험", caution: "주의", info: "참고" } as const;
 const BRANCH_OPTIONS: { id: Branch; title: string }[] = [
@@ -41,6 +49,8 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
   const check = room.check;
   const flags = check ? flagViews(check) : [];
   const n = check ? toCheckCount(check) : 0;
+  const flagSegs = splitAll(flags.map((f) => f.title));
+  const good = check ? goodPoints({ flags: flagCodes(check.flags), ratio: check.ratio }, { caution: rules.ratio.caution_from }) : [];
   const r = (href: string) => withRoom(href, room.id);
 
   const del = () => {
@@ -75,21 +85,28 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
         </h2>
         {check ? (
           <>
-            <div className={`verdict verdict-${check.verdict}`}>
-              <span className="verdict-icon" aria-hidden="true">
-                {check.verdict === "safe" ? "✓" : "!"}
-              </span>
-              <div>
-                <strong className="verdict-label">{VERDICT_TEXT[check.verdict].label}</strong>
-                <p>{n > 0 ? `확인할 것 ${n}가지` : VERDICT_TEXT[check.verdict].line}</p>
-              </div>
+            <div className="result-top">
+              <TrafficLight verdict={check.verdict} />
+              <p className="result-head">{headline(check.verdict, n)}</p>
             </div>
             {flags.length > 0 && (
               <ul className="flags">
-                {flags.map((f) => (
+                {flags.map((f, i) => (
                   <li key={f.code} className={`flag flag-${f.level}`}>
                     <span className="flag-level">{LEVEL_LABEL[f.level]}</span>
-                    <p className="flag-title">{f.title}</p>
+                    <p className="flag-title">
+                      <TermText segments={flagSegs[i]} />
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+            {good.length > 0 && (
+              <ul className="good">
+                {good.map((g) => (
+                  <li key={g}>
+                    <span className="good-mark" aria-hidden="true">✓</span>
+                    {g}
                   </li>
                 ))}
               </ul>

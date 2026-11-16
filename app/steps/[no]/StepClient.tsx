@@ -6,6 +6,7 @@ import { splitAll } from "@/lib/content/terms";
 import { withRoom } from "@/lib/store/rooms";
 import Checklist from "../../ui/Checklist";
 import TermText from "../../ui/TermText";
+import TermHint from "../../ui/TermHint";
 import { useProgress } from "../../ui/useProgress";
 
 const BRANCH_TITLE = { broker: "중개사를 통해서라면 내가 직접 확인할 것", direct: "직거래라서 꼭 할 것" } as const;
@@ -46,6 +47,7 @@ export default function StepClient({ step, total, branches }: { step: Step; tota
       <p className="muted">
         <TermText segments={summarySegs} />
       </p>
+      {segs.some((g) => g.some((x) => x.term)) && <TermHint />}
 
       <Checklist groupId={step.id} items={step.items} checked={progress.checked} onToggle={toggle} segments={stepSegs} />
 

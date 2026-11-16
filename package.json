@@ -8,7 +8,8 @@
     "start": "next start -p ${PORT:-3000}",
     "test": "vitest run",
     "postinstall": "node scripts/copy-pdf-worker.mjs",
-    "samples:pdf": "node scripts/make-sample-pdfs.mjs"
+    "samples:pdf": "node scripts/make-sample-pdfs.mjs",
+    "brand:images": "node scripts/make-brand-images.mjs"
   },
   "dependencies": {
     "next": "^16.4.3",
