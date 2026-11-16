@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Branch } from "@/lib/store/progress";
+import { roomHref, withRoom } from "@/lib/store/rooms";
 import { useProgress } from "../ui/useProgress";
 
 const OPTIONS: { id: Branch; title: string; desc: string }[] = [
@@ -14,7 +15,7 @@ const OPTIONS: { id: Branch; title: string; desc: string }[] = [
 
 export default function WhereClient({ question }: { question: string }) {
   const router = useRouter();
-  const { progress, update, loaded } = useProgress();
+  const { progress, update, loaded, room, roomId } = useProgress();
   const [picked, setPicked] = useState<Branch | null>(null);
 
   useEffect(() => {
@@ -24,13 +25,13 @@ export default function WhereClient({ question }: { question: string }) {
   const next = () => {
     if (!picked) return;
     update((p) => ({ ...p, branch: picked, mode: p.mode ?? "first" }));
-    router.push("/steps");
+    router.push(withRoom("/steps", roomId));
   };
 
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href="/" className="back" aria-label="처음 화면으로">
+        <Link href={room ? roomHref(room.id) : "/guide"} className="back" aria-label={room ? "이 방으로" : "처음 화면으로"}>
           ←
         </Link>
         <span>시작하기</span>

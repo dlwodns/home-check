@@ -2,10 +2,12 @@
 // F2 등기부등본 점검: 붙여 넣기 → 내 계약 정보 → 점검 → 결과 카드 · 이유 · 근거 → 읽은 내용 확인 · 고치기.
 // 모든 계산은 이 브라우저 안에서만 하고, 서류 내용은 어디에도 보내거나 저장하지 않는다.
 import Link from "next/link";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { formatWon, runCheck, todayKST, type CheckForm, type CheckOutcome, type FlagView } from "@/lib/registry/check";
 import type { Mortgage, RegistryRead } from "@/lib/registry/types";
 import { buildActions } from "@/lib/registry/actions";
+import { roomHref, roomIdFrom, summarize, updateRoom, type Room } from "@/lib/store/rooms";
+import { roomsStore } from "../ui/useProgress";
 import NextActions from "./NextActions";
 import { MAX_PDF_BYTES, readPdfFile } from "./readPdf";
 
@@ -42,6 +44,17 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   const [run, setRun] = useState(0);
   const ids = { text: useId(), my: useId(), prior: useId(), market: useId(), party: useId(), file: useId() };
   const [pdfStatus, setPdfStatus] = useState<{ kind: "busy" | "ok" | "error"; message: string } | null>(null);
+  // ?room=방id 로 들어오면 그 방을 점검하고, 결과 요약(판정 · 이유 · 다음 행동)만 그 방에 저장한다
+  const [room, setRoom] = useState<Room | null>(null);
+  const [savedToRoom, setSavedToRoom] = useState(false);
+
+  useEffect(() => {
+    const id = roomIdFrom(window.location.search);
+    const found = id ? roomsStore().load().rooms.find((r) => r.id === id) ?? null : null;
+    if (!found) return;
+    setRoom(found);
+    setForm((f) => (f.myDeposit ? f : { ...f, myDeposit: String(found.deposit) }));
+  }, []);
 
   const onPdf = async (file: File | undefined) => {
     if (!file) return;
@@ -74,7 +87,15 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   const check = (opts: { edited?: RegistryRead | null; confirmed?: boolean } = {}) => {
     const e = opts.edited === undefined ? edited : opts.edited;
     const c = opts.confirmed ?? confirmed;
-    setOutcome(runCheck(text, form, todayKST(), { edited: e ?? undefined, confirmed: c }));
+    const asOf = todayKST();
+    const out = runCheck(text, form, asOf, { edited: e ?? undefined, confirmed: c });
+    setOutcome(out);
+    if (out.ok && room) {
+      const store = roomsStore();
+      const summary = summarize(out.result, buildActions(out.read, out.result), asOf);
+      store.save(updateRoom(store.load(), room.id, (r) => ({ ...r, check: summary })));
+      setSavedToRoom(true);
+    }
   };
 
   const start = () => {
@@ -99,11 +120,17 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href="/" className="back" aria-label="처음 화면으로">
+        <Link href={room ? roomHref(room.id) : "/"} className="back" aria-label={room ? "이 방으로" : "처음 화면으로"}>
           ←
         </Link>
-        <span>등기부등본 점검</span>
+        <span>{room ? `${room.label} · 등기부등본 점검` : "등기부등본 점검"}</span>
       </nav>
+
+      {room && (
+        <p className="card small room-banner">
+          <strong>{room.label}</strong> 방을 점검해요. 결과는 이 방에 <strong>판정 요약만</strong> 저장돼요(서류 원문 · 집주인 이름은 저장하지 않아요).
+        </p>
+      )}
 
       <p className="privacy">
         🔒 서류 내용은 이 휴대폰(브라우저) 안에서만 읽어요. 어디에도 보내거나 저장하지 않아요.
@@ -185,6 +212,12 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
             ))}
           </ul>
         </section>
+      )}
+
+      {outcome?.ok && room && savedToRoom && (
+        <p className="card small saved-note" role="status">
+          ✓ <strong>{room.label}</strong>에 저장했어요. <Link href={roomHref(room.id)}>이 방으로 돌아가 계약 방법 보기 →</Link>
+        </p>
       )}
 
       {outcome?.ok && (

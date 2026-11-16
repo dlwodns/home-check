@@ -3,6 +3,7 @@
 import Link from "next/link";
 import type { Branch, Step } from "@/lib/content";
 import { splitAll } from "@/lib/content/terms";
+import { withRoom } from "@/lib/store/rooms";
 import Checklist from "../../ui/Checklist";
 import TermText from "../../ui/TermText";
 import { useProgress } from "../../ui/useProgress";
@@ -10,7 +11,8 @@ import { useProgress } from "../../ui/useProgress";
 const BRANCH_TITLE = { broker: "중개사를 통해서라면 내가 직접 확인할 것", direct: "직거래라서 꼭 할 것" } as const;
 
 export default function StepClient({ step, total, branches }: { step: Step; total: number; branches: Branch[] }) {
-  const { progress, update } = useProgress();
+  const { progress, update, room, roomId } = useProgress();
+  const r = (href: string) => withRoom(href, roomId);
   const branch = step.key ? branches.find((b) => b.id === progress.branch) : undefined;
 
   // 이 화면의 문장들을 한 번에 나눠, 같은 용어는 처음 나올 때만 밑줄을 긋는다
@@ -32,10 +34,11 @@ export default function StepClient({ step, total, branches }: { step: Step; tota
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href="/steps" className="back" aria-label="내 계약 진행으로">
+        <Link href={r("/steps")} className="back" aria-label="내 계약 진행으로">
           ←
         </Link>
         <span>
+          {room ? `${room.label} · ` : ""}
           {step.no}단계 / {total}
         </span>
       </nav>
@@ -55,13 +58,13 @@ export default function StepClient({ step, total, branches }: { step: Step; tota
       {step.key && !branch && (
         <p className="card small">
           {progress.branch === "none" ? "방을 찾으면" : "방을 어디서 찾았는지 고르면"} 중개사 · 직거래 맞춤 체크리스트가 여기에 붙어요.{" "}
-          <Link href="/where">고르러 가기</Link>
+          <Link href={r("/where")}>고르러 가기</Link>
         </p>
       )}
 
       <nav className="step-nav">
-        {step.no > 1 ? <Link href={`/steps/${step.no - 1}`}>← 이전 단계</Link> : <span />}
-        {step.no < total ? <Link href={`/steps/${step.no + 1}`}>다음 단계 →</Link> : <Link href="/steps">진행 보기</Link>}
+        {step.no > 1 ? <Link href={r(`/steps/${step.no - 1}`)}>← 이전 단계</Link> : <span />}
+        {step.no < total ? <Link href={r(`/steps/${step.no + 1}`)}>다음 단계 →</Link> : <Link href={r("/steps")}>진행 보기</Link>}
       </nav>
     </main>
   );

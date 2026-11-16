@@ -228,3 +228,50 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .pdf-ok { background: var(--safe-bg); color: var(--safe); }
 .pdf-error { background: var(--danger-bg); color: var(--danger); }
 .pdf-busy { background: var(--info-bg); color: var(--info); }
+
+/* ── F4 내 후보 방 (11/17, 디자인 다듬기는 11/18) ── */
+.accent { color: var(--accent); }
+.home { padding-top: 32px; padding-bottom: 40px; display: flex; flex-direction: column; gap: 14px; }
+.home h1 { font-size: 26px; line-height: 1.35; margin: 4px 0 0; font-weight: 800; }
+.lead { margin: 0; line-height: 1.55; }
+.rooms { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.rooms-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.rooms-head h2 { font-size: 16px; margin: 0; }
+.room-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.room-card { display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px solid var(--border); border-radius: 18px; background: var(--surface); color: var(--text); text-decoration: none; }
+.room-card:hover, .room-card:focus-visible { border-color: var(--accent); }
+.room-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+.room-name { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.room-name strong { font-size: 16px; overflow-wrap: anywhere; }
+.room-line { font-size: 14px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: 800; flex-shrink: 0; }
+.pill .dot { width: 8px; height: 8px; border-radius: 4px; background: currentColor; }
+.pill-safe { background: var(--safe-bg); color: var(--safe); }
+.pill-caution { background: var(--caution-bg); color: var(--caution); }
+.pill-danger { background: var(--danger-bg); color: var(--danger); }
+.pill-none { background: var(--bg); color: var(--muted); font-weight: 700; border: 1px solid var(--border); }
+.stepbar { display: flex; align-items: center; gap: 4px; color: var(--muted); }
+.seg { flex: 1; height: 6px; border-radius: 3px; background: var(--border); }
+.seg-done { background: var(--accent); }
+.seg-current { background: var(--accent); opacity: 0.45; }
+.seg-skipped { background: var(--border); opacity: 0.5; }
+.stepbar-flag { flex-shrink: 0; margin-left: 4px; }
+.add-room { display: flex; align-items: center; justify-content: center; min-height: 56px; border-radius: 18px; border: 1.5px dashed var(--accent); background: var(--safe-bg); color: var(--accent); font-weight: 700; text-decoration: none; }
+.home-links { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; font-size: 14px; }
+.home-links a { color: var(--muted); }
+.empty h2 { margin: 0 0 6px; font-size: 17px; }
+.empty p { margin: 0; }
+.row-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.room-detail { display: flex; flex-direction: column; gap: 12px; }
+.room-detail > .title { margin-bottom: 0; }
+.room-sec { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.sec-title { font-size: 15px; margin: 0; color: var(--accent); font-weight: 800; }
+.sec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.seg-choice { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0; }
+.chip-on { border-color: var(--accent) !important; background: var(--safe-bg) !important; color: var(--accent) !important; font-weight: 700; }
+.topbar-right { margin-left: auto; font-size: 13px; }
+.finish { margin: 0; text-align: right; }
+.danger-zone { border-top: 1px solid var(--border); padding-top: 14px; }
+.ghost.danger { color: var(--danger); border-color: var(--danger); }
+.room-banner { margin: 0; background: var(--safe-bg); border-color: transparent; }
+.saved-note { background: var(--safe-bg); border-color: var(--accent); }

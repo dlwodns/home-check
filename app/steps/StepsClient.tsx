@@ -3,12 +3,14 @@
 import Link from "next/link";
 import type { Branch, Step } from "@/lib/content";
 import { branchFor, stepStats } from "@/lib/store/stats";
+import { roomHref, withRoom } from "@/lib/store/rooms";
 import { useProgress } from "../ui/useProgress";
 
 const BRANCH_LABEL = { broker: "중개사를 통해서", direct: "직거래", none: "아직 방을 못 찾음" } as const;
 
 export default function StepsClient({ steps, branches }: { steps: Step[]; branches: Branch[] }) {
-  const { progress, update, loaded } = useProgress();
+  const { progress, update, loaded, room, roomId } = useProgress();
+  const r = (href: string) => withRoom(href, roomId);
   const experienced = progress.mode === "experienced";
   const stats = stepStats(steps, branches, progress);
   const branch = branchFor(progress, branches);
@@ -17,16 +19,16 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href="/" className="back" aria-label="처음 화면으로">
+        <Link href={room ? roomHref(room.id) : "/guide"} className="back" aria-label={room ? "이 방으로" : "처음 화면으로"}>
           ←
         </Link>
-        <span>내 계약 진행</span>
+        <span>{room ? `${room.label} · 계약 진행` : "내 계약 진행"}</span>
       </nav>
 
       <div className="card">
         <p className="small">
           {loaded && progress.branch ? `방: ${BRANCH_LABEL[progress.branch]}` : "방을 어디서 찾았는지 아직 안 골랐어요"} ·{" "}
-          <Link href="/where">{progress.branch ? "바꾸기" : "고르기"}</Link>
+          <Link href={r("/where")}>{progress.branch ? "바꾸기" : "고르기"}</Link>
         </p>
         <p className="small muted" aria-live="polite">
           {stats.activeSteps}단계 중 {stats.finishedSteps}단계 완료 · 할 일 {stats.done}/{stats.total}
@@ -36,7 +38,7 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
         </div>
       </div>
 
-      <Link href="/check" className={`cta${experienced ? "" : " cta-soft"}`}>
+      <Link href={r("/check")} className={`cta${experienced ? "" : " cta-soft"}`}>
         등기부등본 바로 점검하기
       </Link>
 
@@ -60,7 +62,7 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
           return (
             <li key={s.id} className={st.skipped ? "skipped" : undefined}>
               <Link
-                href={`/steps/${s.no}`}
+                href={r(`/steps/${s.no}`)}
                 className={`step${isCurrent ? " step-current" : ""}${done ? " step-done" : ""}`}
                 aria-current={isCurrent ? "step" : undefined}
               >

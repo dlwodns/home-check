@@ -16,6 +16,12 @@ export default function StartClient() {
 
   return (
     <main className="container start">
+      <nav className="topbar">
+        <Link href="/" className="back" aria-label="내 후보 방으로">
+          ←
+        </Link>
+        <span>계약 과정 미리 보기</span>
+      </nav>
       <p className="brand">
         <span className="brand-mark" aria-hidden="true">
           ✓
@@ -27,7 +33,7 @@ export default function StartClient() {
         <br />
         한 단계씩 같이 해요
       </h1>
-      <p className="muted">방은 직방 · 다방에서 찾고, 계약은 홈체크와 함께. 지금 할 일을 순서대로 알려 드려요.</p>
+      <p className="muted">방을 찾기 전이라도 괜찮아요. 계약 완료까지 지금 할 일을 순서대로 알려 드려요.</p>
 
       {started && (
         <Link href="/steps" className="cta">
@@ -53,7 +59,7 @@ export default function StartClient() {
           <li>등기부등본 위험 신호를 쉬운 말로 점검</li>
           <li>어려운 용어는 눌러서 바로 뜻 보기</li>
         </ol>
-        <Link href="/check">등기부등본만 바로 점검하기 →</Link>
+        <Link href="/rooms/new">방을 찾았다면: 후보 방 추가하기 →</Link>
       </section>
       <p className="muted small">진행 상황은 지금 이 브라우저에만 저장돼요.</p>
     </main>

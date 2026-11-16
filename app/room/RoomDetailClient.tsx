@@ -1,0 +1,182 @@
+"use client";
+// 방 상세: ① 이 방, 안전한가요? → ② 이 방은 이렇게 계약해요 → 계약 과정(끝: 계약 완료 · 보증금 지키기).
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import type { Branch as BranchContent, Step } from "@/lib/content";
+import { removeRoom, withRoom } from "@/lib/store/rooms";
+import type { Branch } from "@/lib/store/progress";
+import NextActions from "../check/NextActions";
+import StepBar from "../ui/StepBar";
+import { flagViews, moneyLine, roomSteps, toCheckCount, VERDICT_TEXT } from "../ui/roomView";
+import { roomsStore, useProgress } from "../ui/useProgress";
+
+const LEVEL_LABEL = { danger: "위험", caution: "주의", info: "참고" } as const;
+const BRANCH_OPTIONS: { id: Branch; title: string }[] = [
+  { id: "broker", title: "공인중개사를 통해서" },
+  { id: "direct", title: "집주인과 직접 (직거래)" },
+];
+
+export default function RoomDetailClient({ steps, branches }: { steps: Step[]; branches: BranchContent[] }) {
+  const router = useRouter();
+  const { progress, update, loaded, room } = useProgress();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  if (!loaded) return <main className="container check" aria-busy="true" />;
+  if (!room) {
+    return (
+      <main className="container check">
+        <h1 className="title">이 방을 찾을 수 없어요</h1>
+        <p className="muted">지운 방이거나, 다른 휴대폰 · 브라우저에서 담은 방일 수 있어요.</p>
+        <Link href="/" className="cta">
+          내 후보 방으로
+        </Link>
+      </main>
+    );
+  }
+
+  // 갈래 · 체크는 progress(이 화면에서 바꾼 최신 값)를 쓴다
+  const live = { ...room, branch: progress.branch, checked: progress.checked };
+  const { segs, current } = roomSteps(live, progress.mode, steps, branches);
+  const check = room.check;
+  const flags = check ? flagViews(check) : [];
+  const n = check ? toCheckCount(check) : 0;
+  const r = (href: string) => withRoom(href, room.id);
+
+  const del = () => {
+    const s = roomsStore();
+    s.save(removeRoom(s.load(), room.id));
+    router.push("/");
+  };
+
+  return (
+    <main className="container check room-detail">
+      <nav className="topbar">
+        <Link href="/" className="back" aria-label="내 후보 방으로">
+          ←
+        </Link>
+        <span>내 후보 방</span>
+        {room.link && (
+          <a href={room.link} target="_blank" rel="noopener noreferrer nofollow" className="topbar-right">
+            매물 링크 열기
+          </a>
+        )}
+      </nav>
+
+      <h1 className="title">{room.label}</h1>
+      <p className="muted small">
+        {room.address} · {moneyLine(room)}
+        {room.memo && room.memo !== room.label ? ` · ${room.memo}` : ""}
+      </p>
+
+      <section aria-labelledby="sec-safe" className="room-sec">
+        <h2 id="sec-safe" className="sec-title">
+          ① 이 방, 안전한가요?
+        </h2>
+        {check ? (
+          <>
+            <div className={`verdict verdict-${check.verdict}`}>
+              <span className="verdict-icon" aria-hidden="true">
+                {check.verdict === "safe" ? "✓" : "!"}
+              </span>
+              <div>
+                <strong className="verdict-label">{VERDICT_TEXT[check.verdict].label}</strong>
+                <p>{n > 0 ? `확인할 것 ${n}가지` : VERDICT_TEXT[check.verdict].line}</p>
+              </div>
+            </div>
+            {flags.length > 0 && (
+              <ul className="flags">
+                {flags.map((f) => (
+                  <li key={f.code} className={`flag flag-${f.level}`}>
+                    <span className="flag-level">{LEVEL_LABEL[f.level]}</span>
+                    <p className="flag-title">{f.title}</p>
+                  </li>
+                ))}
+              </ul>
+            )}
+            <p className="small muted">
+              {check.asOf} 점검 · <Link href={r("/check")}>다시 점검하기</Link>
+            </p>
+          </>
+        ) : (
+          <div className="card">
+            <p>아직 점검 전이에요. 등기부등본을 올리면 진짜 집주인 · 빚 · 위험 기록을 바로 알려 드려요.</p>
+            <Link href={r("/check")} className="cta">
+              등기부등본 올려서 점검하기
+            </Link>
+            <p className="small muted">등기부등본은 인터넷등기소에서 누구나 뗄 수 있어요(열람 700원).</p>
+          </div>
+        )}
+      </section>
+
+      <section aria-labelledby="sec-how" className="room-sec">
+        <h2 id="sec-how" className="sec-title">
+          ② 이 방은 이렇게 계약해요
+        </h2>
+        <div className="card">
+          <p className="small strong" id="branch-q">
+            이 방은 어떻게 계약해요?
+          </p>
+          <div className="seg-choice" role="radiogroup" aria-labelledby="branch-q">
+            {BRANCH_OPTIONS.map((o) => (
+              <button
+                key={o.id}
+                type="button"
+                role="radio"
+                aria-checked={progress.branch === o.id}
+                className={`chip${progress.branch === o.id ? " chip-on" : ""}`}
+                onClick={() => update((p) => ({ ...p, branch: o.id }))}
+              >
+                {o.title}
+              </button>
+            ))}
+          </div>
+          {progress.branch === "direct" && <p className="small">직거래는 <strong>집주인 본인 확인</strong>을 내가 직접 해야 해요. 4단계에 직거래 체크리스트를 붙여 둘게요.</p>}
+          {progress.branch === "broker" && <p className="small">중개사가 있어도 내가 직접 확인할 것이 있어요. 4단계에 중개사 체크리스트를 붙여 둘게요.</p>}
+        </div>
+        {check ? (
+          <NextActions actions={check.actions} />
+        ) : (
+          <p className="card small muted">점검하면 이 방에 맞춘 질문 · 할 일 · 특약을 알려 드려요.</p>
+        )}
+      </section>
+
+      <section aria-labelledby="sec-steps" className="room-sec">
+        <div className="sec-head">
+          <h2 id="sec-steps" className="sec-title">
+            계약 과정
+          </h2>
+          <span className="small muted">{current ? `지금 ${current.no}단계 · ${current.title}` : "모든 단계를 마쳤어요"}</span>
+        </div>
+        <StepBar segs={segs} finish />
+        <p className="small muted finish">도착: 계약 완료 · 보증금 지키기 (전입신고 · 확정일자)</p>
+        <Link href={r(current ? `/steps/${current.no}` : "/steps")} className="cta cta-soft">
+          {current ? `${current.no}단계 할 일 보기` : "단계 다시 보기"}
+        </Link>
+        <Link href={r("/steps")} className="small">
+          6단계 전체 보기 →
+        </Link>
+      </section>
+
+      <section className="room-sec danger-zone">
+        {confirmDelete ? (
+          <div className="row-buttons" role="group" aria-label="이 방 지우기 확인">
+            <span className="small">이 방과 체크 · 점검 기록을 지울까요?</span>
+            <button type="button" className="ghost danger" onClick={del}>
+              지우기
+            </button>
+            <button type="button" className="ghost" onClick={() => setConfirmDelete(false)}>
+              취소
+            </button>
+          </div>
+        ) : (
+          <button type="button" className="linklike small" onClick={() => setConfirmDelete(true)}>
+            이 방 지우기
+          </button>
+        )}
+      </section>
+
+      <p className="disclaimer">참고용 안내예요. 최종 확인은 공인중개사 · 법률 전문가에게 받아 주세요.</p>
+    </main>
+  );
+}

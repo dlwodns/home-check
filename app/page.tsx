@@ -1,5 +1,5 @@
-import StartClient from "./StartClient";
+import RoomsHome from "./RoomsHome";
 
 export default function Home() {
-  return <StartClient />;
+  return <RoomsHome />;
 }
