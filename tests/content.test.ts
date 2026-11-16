@@ -71,6 +71,13 @@ describe("6단계 · 체크리스트", () => {
 });
 
 describe("용어 사전", () => {
+  it("'확인됨(verified)' 용어는 법령 원문으로 확인된(✅) 근거를 하나 이상 단다", () => {
+    const confirmed = new Set(sources.filter((s) => s.status === "confirmed").map((s) => s.id));
+    for (const t of terms.filter((t) => t.verified)) {
+      expect(t.sources.some((id) => confirmed.has(id)), t.term).toBe(true);
+    }
+  });
+
   it("용어와 다른 이름이 서로 겹치지 않는다", () => {
     const words = terms.flatMap((t) => [t.term, ...t.aliases]);
     expect(new Set(words).size).toBe(words.length);
