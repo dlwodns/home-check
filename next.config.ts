@@ -4,13 +4,22 @@ import type { NextConfig } from "next";
 // - 스크립트 · 글꼴 · 이미지 · 연결은 이 사이트 안에서만 (외부 분석 · 광고 없음)
 // - 다른 사이트가 홈체크를 틀(iframe) 안에 넣지 못하게 (가짜 화면 겹치기 방지)
 // - Next.js가 페이지에 넣는 작은 인라인 스크립트 · 스타일 때문에 'unsafe-inline'은 남겨 둔다
+const supabaseOrigin = (() => {
+  try {
+    return process.env.NEXT_PUBLIC_SUPABASE_URL ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin : "";
+  } catch {
+    return "";
+  }
+})();
+
 const csp = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",
-  "connect-src 'self'",
+  // 로그인 · 계정 저장(Supabase) 주소만 추가로 허용. 키가 없으면 이 사이트 안에서만
+  `connect-src 'self'${supabaseOrigin ? ` ${supabaseOrigin}` : ""}`,
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",

@@ -349,3 +349,10 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
 .privacy-page h2 { font-size: 16px; margin: 0 0 8px; }
 .privacy-page .card p { margin: 0 0 6px; line-height: 1.6; }
 .privacy-page ul { margin: 0 0 6px; padding-left: 18px; line-height: 1.7; }
+
+/* F0 로그인 */
+.home-top { display: flex; justify-content: space-between; align-items: center; }
+.account-link { min-height: 44px; display: inline-flex; align-items: center; padding: 0 12px; border-radius: 12px; background: var(--soft); color: var(--text); font-size: 14px; font-weight: 700; text-decoration: none; }
+.confirm-email p { margin: 0 0 10px; line-height: 1.6; }
+.confirm-email .primary { width: auto; flex: 1; }
+.account-email { font-size: 18px; overflow-wrap: anywhere; }

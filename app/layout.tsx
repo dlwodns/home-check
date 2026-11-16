@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import CloudSync from "./ui/CloudSync";
 
 // 공유 미리보기 이미지 주소의 기준. Netlify는 배포 주소를 URL 환경 변수로 넣어 준다.
 const site = process.env.URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
@@ -31,7 +32,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
-      <body>{children}</body>
+      <body>
+        {children}
+        <CloudSync />
+      </body>
     </html>
   );
 }

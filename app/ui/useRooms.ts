@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { EMPTY_ROOMS, type RoomsState } from "@/lib/store/rooms";
 import { roomsStore } from "./useProgress";
+import { SYNC_EVENT } from "./CloudSync";
 
 export function useRooms() {
   const [state, setState] = useState<RoomsState>(EMPTY_ROOMS);
@@ -11,6 +12,12 @@ export function useRooms() {
   useEffect(() => {
     setState(roomsStore().load());
     setLoaded(true);
+    // 로그인 직후 계정 기록과 합쳐지면 다시 읽는다
+    const reload = (e: Event) => {
+      if ((e as CustomEvent).detail === "saved") setState(roomsStore().load());
+    };
+    window.addEventListener(SYNC_EVENT, reload);
+    return () => window.removeEventListener(SYNC_EVENT, reload);
   }, []);
 
   /** 저장소의 최신 값에 바꿀 내용을 적용한다 (다른 화면에서 바뀐 체크를 덮어쓰지 않게) */

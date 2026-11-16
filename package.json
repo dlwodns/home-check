@@ -12,6 +12,7 @@
     "brand:images": "node scripts/make-brand-images.mjs"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.119.0",
     "next": "^16.4.3",
     "pdfjs-dist": "^6.4.299",
     "react": "^19.3.1",

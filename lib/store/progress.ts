@@ -1,5 +1,5 @@
-// F1 진행 상황 저장. 지금은 이 브라우저(localStorage)에만 저장하고, 11/18 로그인 후에는
-// 같은 모양(ProgressStore)으로 Supabase 저장소를 갈아 끼운다. 화면 코드는 바뀌지 않는다.
+// F1 진행 상황 저장. 이 브라우저(localStorage)에 저장하고, 로그인 중이면 lib/cloud/sync가 같은 내용을 계정에도 저장한다.
+import { notifySaved } from "./events";
 
 export type Mode = "first" | "experienced";
 export type Branch = "broker" | "direct" | "none";
@@ -52,6 +52,7 @@ export function localProgressStore(storage: Pick<Storage, "getItem" | "setItem">
     save(p) {
       try {
         storage?.setItem(KEY, JSON.stringify(p));
+        notifySaved();
       } catch {
         /* 저장 공간이 없거나 막혀 있으면 이번 화면에서만 기억한다 */
       }

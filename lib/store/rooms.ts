@@ -1,6 +1,7 @@
 // F4 내 후보 방. 방마다 주소 · 금액 · 메모와 그 방의 진행 상황(갈래 · 체크), 점검 결과 요약을 가진다.
 // 지금은 이 브라우저(localStorage)에 저장하고, 로그인 후에는 같은 모양(RoomsStore)으로 계정 저장소를 갈아 끼운다.
 // 등기부등본 원문 · 집주인 이름은 저장하지 않는다. 점검 요약에는 판정 · 이유 코드 · 비율 · 다음 행동 문장만 담는다.
+import { notifySaved } from "./events";
 import type { NextActions } from "@/lib/registry/actions";
 import { parseManwon } from "@/lib/registry/check";
 import type { CheckResult } from "@/lib/registry/types";
@@ -175,6 +176,7 @@ export function localRoomsStore(storage: Pick<Storage, "getItem" | "setItem"> | 
     save(s) {
       try {
         storage?.setItem(KEY, JSON.stringify(s));
+        notifySaved();
       } catch {
         /* 저장이 막혀 있으면 이번 화면에서만 기억한다 */
       }

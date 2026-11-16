@@ -2,6 +2,7 @@
 // 홈 = 내 후보 방. "관심 있는 방, 계약해도 될까요?" — 방마다 점검 결과(신호등)와 6단계 진행을 한눈에.
 import Link from "next/link";
 import BrandMark from "./ui/BrandMark";
+import AccountLink from "./ui/AccountLink";
 import { branches, steps } from "@/lib/content";
 import { roomHref } from "@/lib/store/rooms";
 import StepBar from "./ui/StepBar";
@@ -15,10 +16,13 @@ export default function RoomsHome() {
 
   return (
     <main className="container home">
-      <p className="brand">
-        <BrandMark />
-        홈체크
-      </p>
+      <div className="home-top">
+        <p className="brand">
+          <BrandMark />
+          홈체크
+        </p>
+        <AccountLink />
+      </div>
       <h1>
         관심 있는 방,
         <br />
@@ -32,7 +36,7 @@ export default function RoomsHome() {
             <h2 id="rooms-title">
               내 후보 방 <span className="accent">{rooms.length}</span>
             </h2>
-            <span className="small muted">로그인 없이 이 휴대폰에 저장돼요</span>
+            <span className="small muted">이 휴대폰에 저장돼요</span>
           </div>
           <ul className="room-list">
             {rooms.map((r) => {
