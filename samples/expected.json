@@ -42,6 +42,7 @@
             "creditor": "가나은행"
           }
         ],
+        "jeonses": [],
         "seizures": [],
         "risk_records": [],
         "erased_risk_records": [],
@@ -78,6 +79,7 @@
           }
         ],
         "erased_mortgages": [],
+        "jeonses": [],
         "seizures": [],
         "risk_records": [],
         "erased_risk_records": [],
@@ -114,6 +116,7 @@
           }
         ],
         "erased_mortgages": [],
+        "jeonses": [],
         "seizures": [
           {
             "type": "가압류",

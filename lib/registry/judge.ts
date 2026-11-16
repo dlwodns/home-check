@@ -52,18 +52,21 @@ export function judge(
   readWarnings: readonly string[] = [],
 ): CheckResult {
   const mortgage_total = read.active_mortgages.reduce((sum, m) => sum + m.max_claim, 0);
+  // 먼저 설정된 전세권의 전세금도 내 보증금보다 앞서므로 빚 비율에 더한다 (민법 제303조, S25)
+  const jeonse_total = (read.jeonses ?? []).reduce((sum, j) => sum + j.amount, 0);
 
   const { market_price, prior_deposits, my_deposit } = inputs;
   // 앞선 보증금을 모르면 0으로 계산하되(최소값), prior_deposits_unknown으로 '실제보다 낮게 보일 수 있음'을 알린다
   const ratio =
     market_price && market_price > 0
-      ? Math.round(((mortgage_total + (prior_deposits ?? 0) + my_deposit) / market_price) * 1000) / 10
+      ? Math.round(((mortgage_total + jeonse_total + (prior_deposits ?? 0) + my_deposit) / market_price) * 1000) / 10
       : null;
 
   const flags = new Set<FlagCode>(ownerFlags(read, inputs.contract_party));
   if (readWarnings.length) flags.add("read_incomplete");
   for (const r of read.risk_records) flags.add(RISK_FLAG[r.type]);
   if (read.seizures.length) flags.add("seizure");
+  if (jeonse_total > 0) flags.add("jeonse");
 
   if (prior_deposits === null) flags.add("prior_deposits_unknown");
   if (ratio === null) flags.add("ratio_unknown");

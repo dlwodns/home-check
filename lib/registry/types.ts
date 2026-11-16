@@ -7,6 +7,15 @@ export interface Mortgage {
   creditor: string;
 }
 
+/** 전세권 (을구). 전세권자는 뒤에 들어온 세입자보다 전세금을 먼저 돌려받는다(민법 제303조) */
+export interface Jeonse {
+  /** 전세금(원) */
+  amount: number;
+  holder: string;
+  /** 접수일 YYYY-MM-DD */
+  date: string;
+}
+
 export interface Seizure {
   /** 압류 · 가압류 */
   type: "압류" | "가압류";
@@ -36,6 +45,8 @@ export interface RegistryRead {
   previous_owners: string[];
   active_mortgages: Mortgage[];
   erased_mortgages: Mortgage[];
+  /** 말소되지 않은 전세권 */
+  jeonses: Jeonse[];
   seizures: Seizure[];
   /** 말소되지 않은 위험 기록 */
   risk_records: RiskRecord[];
@@ -77,6 +88,7 @@ export type FlagCode =
   | "provisional_registration"
   | "auction"
   | "lease_registration"
+  | "jeonse"
   | "ratio_danger"
   | "ratio_caution"
   | "ratio_unknown"
