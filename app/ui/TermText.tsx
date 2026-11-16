@@ -3,10 +3,13 @@
 // - 누를 수 있는 단어: 연한 초록 배경 + 점선 밑줄. 한 번 본 단어는 옅게
 // - 말풍선: 꼬리가 단어를 가리킴, 화면 밖으로 나가면 안쪽으로 밀고 아래 공간이 없으면 위로
 // - 한 번에 하나만, 바깥을 누르거나 Esc · 같은 단어를 다시 누르면 닫힘
+// - PC(마우스)에서는 단어 위에 잠깐 올려도 보이고, 벗어나면 닫힘. 눌러서 연 것은 고정
+// - '해 봤어요'인 사람은 밑줄 · 말풍선을 끌 수 있음(termPrefs)
 import Link from "next/link";
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { Segment } from "@/lib/content/terms";
 import type { Term } from "@/lib/content";
+import { useTermsOff } from "./termPrefs";
 
 const SEEN_KEY = "homecheck.terms.seen.v1";
 export const TERM_OPEN_EVENT = "homecheck:term-open";
@@ -36,6 +39,8 @@ function markSeen(id: string) {
 export default function TermText({ segments }: { segments: Segment[] }) {
   const [seen, setSeen] = useState<Set<string>>(new Set());
   useEffect(() => setSeen(loadSeen()), []);
+  const off = useTermsOff();
+  if (off) return <>{segments.map((s) => s.text).join("")}</>;
 
   return (
     <>
@@ -57,29 +62,56 @@ function TermButton({ term, label, seen, onSeen }: { term: Term; label: string; 
   const popRef = useRef<HTMLSpanElement>(null);
   const id = useId();
 
-  const close = useCallback(() => setOpen(false), []);
+  const [pinned, setPinned] = useState(false); // 눌러서 연 것(마우스가 벗어나도 유지)
+  const hoverTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const close = useCallback(() => {
+    setOpen(false);
+    setPinned(false);
+  }, []);
+
+  const show = (pin: boolean) => {
+    if (!open) {
+      closeCurrent?.();
+      closeCurrent = close;
+      markSeen(term.id);
+      window.dispatchEvent(new CustomEvent(TERM_OPEN_EVENT));
+    }
+    setOpen(true);
+    setPinned(pin);
+  };
 
   const toggle = () => {
-    if (open) {
-      setOpen(false);
-      return;
-    }
-    closeCurrent?.();
-    closeCurrent = close;
-    setOpen(true);
-    markSeen(term.id);
-    window.dispatchEvent(new CustomEvent(TERM_OPEN_EVENT));
+    if (open && pinned) close();
+    else show(true); // 마우스로 잠깐 열려 있던 것을 누르면 고정
   };
+
+  const canHover = (e: React.PointerEvent) =>
+    e.pointerType === "mouse" && typeof window.matchMedia === "function" && window.matchMedia("(hover: hover)").matches;
+  const clearHover = () => {
+    if (hoverTimer.current) clearTimeout(hoverTimer.current);
+    hoverTimer.current = null;
+  };
+  const onEnter = (e: React.PointerEvent) => {
+    if (!canHover(e)) return;
+    clearHover();
+    if (!open) hoverTimer.current = setTimeout(() => show(false), 250);
+  };
+  const onLeave = (e: React.PointerEvent) => {
+    if (!canHover(e)) return;
+    clearHover();
+    if (open && !pinned) hoverTimer.current = setTimeout(close, 200);
+  };
+  useEffect(() => clearHover, []);
 
   // 바깥을 누르거나 Esc를 누르면 닫는다
   useEffect(() => {
     if (!open) return;
     const onDown = (e: PointerEvent) => {
-      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) setOpen(false);
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) close();
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
-        setOpen(false);
+        close();
         btnRef.current?.focus();
       }
     };
@@ -118,7 +150,7 @@ function TermButton({ term, label, seen, onSeen }: { term: Term; label: string; 
   }, [open]);
 
   return (
-    <span className="term-wrap" ref={wrapRef}>
+    <span className="term-wrap" ref={wrapRef} onPointerEnter={onEnter} onPointerLeave={onLeave}>
       <button
         ref={btnRef}
         type="button"
@@ -134,7 +166,7 @@ function TermButton({ term, label, seen, onSeen }: { term: Term; label: string; 
         <span ref={popRef} id={id} className="term-pop" role="note">
           <span className="term-pop-head">
             <strong>{term.term}</strong>
-            <button type="button" className="term-close" aria-label="뜻 닫기" onClick={() => { setOpen(false); btnRef.current?.focus(); }}>
+            <button type="button" className="term-close" aria-label="뜻 닫기" onClick={() => { close(); btnRef.current?.focus(); }}>
               ×
             </button>
           </span>

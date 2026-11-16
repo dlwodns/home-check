@@ -2,11 +2,13 @@
 // 처음 한 번만: "초록 점선 단어를 누르면 뜻이 나와요". 단어를 한 번 누르거나 '알겠어요'를 누르면 다시 안 나온다.
 import { useEffect, useState } from "react";
 import { TERM_OPEN_EVENT } from "./TermText";
+import { setTermsOff, useTermsOff } from "./termPrefs";
 
 const KEY = "homecheck.hint.terms.v1";
 
 export default function TermHint() {
   const [show, setShow] = useState(false);
+  const off = useTermsOff();
 
   useEffect(() => {
     try {
@@ -26,7 +28,7 @@ export default function TermHint() {
     return () => window.removeEventListener(TERM_OPEN_EVENT, done);
   }, []);
 
-  if (!show) return null;
+  if (!show || off) return null;
   return (
     <p className="term-hint" role="status">
       <span>
@@ -35,18 +37,23 @@ export default function TermHint() {
         </span>{" "}
         단어를 누르면 뜻이 나와요
       </span>
-      <button
-        type="button"
-        className="linklike"
-        onClick={() => {
-          setShow(false);
-          try {
-            localStorage.setItem(KEY, "done");
-          } catch {}
-        }}
-      >
-        알겠어요
-      </button>
+      <span className="term-hint-actions">
+        <button
+          type="button"
+          className="linklike"
+          onClick={() => {
+            setShow(false);
+            try {
+              localStorage.setItem(KEY, "done");
+            } catch {}
+          }}
+        >
+          알겠어요
+        </button>
+        <button type="button" className="linklike muted" onClick={() => setTermsOff(true)}>
+          다 알아요 · 끄기
+        </button>
+      </span>
     </p>
   );
 }

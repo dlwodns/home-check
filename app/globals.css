@@ -356,3 +356,4 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
 .confirm-email p { margin: 0 0 10px; line-height: 1.6; }
 .confirm-email .primary { width: auto; flex: 1; }
 .account-email { font-size: 18px; overflow-wrap: anywhere; }
+.term-hint-actions { display: inline-flex; gap: 12px; flex-shrink: 0; }

@@ -5,12 +5,14 @@ import type { Branch, Step } from "@/lib/content";
 import { branchFor, stepStats } from "@/lib/store/stats";
 import { roomHref, withRoom } from "@/lib/store/rooms";
 import { useProgress } from "../ui/useProgress";
+import { setTermsOff, useTermsOff } from "../ui/termPrefs";
 
 const BRANCH_LABEL = { broker: "중개사를 통해서", direct: "직거래", none: "아직 방을 못 찾음" } as const;
 
 export default function StepsClient({ steps, branches }: { steps: Step[]; branches: Branch[] }) {
   const { progress, update, loaded, room, roomId } = useProgress();
   const r = (href: string) => withRoom(href, roomId);
+  const termsOff = useTermsOff();
   const experienced = progress.mode === "experienced";
   const stats = stepStats(steps, branches, progress, { inRoom: Boolean(room) });
   const branch = branchFor(progress, branches);
@@ -33,6 +35,14 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
         <p className="small muted" aria-live="polite">
           {stats.activeSteps}단계 중 {stats.finishedSteps}단계 완료 · 할 일 {stats.done}/{stats.total}
         </p>
+        {(experienced || termsOff) && (
+          <p className="small muted">
+            어려운 말 밑줄 · 설명: {termsOff ? "꺼짐" : "켜짐"} ·{" "}
+            <button type="button" className="linklike" onClick={() => setTermsOff(!termsOff)}>
+              {termsOff ? "다시 켜기" : "끄기"}
+            </button>
+          </p>
+        )}
         <div className="bar" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct} aria-label="전체 진행">
           <div className="bar-fill bar-safe" style={{ width: `${pct}%` }} />
         </div>

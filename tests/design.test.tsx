@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // 11/18 디자인: "괜찮은 점" 계산, 신호등, 용어 말풍선(한 번에 하나 · Esc · 바깥 누르기 · 본 단어 옅게 · 처음 안내).
 import type { AnchorHTMLAttributes } from "react";
-import { cleanup, render, screen } from "@testing-library/react";
+import { act, cleanup, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { goodPoints, headline } from "@/lib/registry/goodPoints";
@@ -161,5 +161,45 @@ describe("처음 한 번 안내", () => {
     render(<TermHint />);
     await user.click(await screen.findByRole("button", { name: "알겠어요" }));
     expect(screen.queryByText(/단어를 누르면 뜻이 나와요/)).toBeNull();
+  });
+});
+
+describe("용어 말풍선 세부 (11/16 합의)", () => {
+  it("PC(마우스)에서는 올리면 열리고 벗어나면 닫힌다, 눌러서 연 것은 벗어나도 유지", async () => {
+    const mm = vi.fn(() => ({ matches: true }));
+    vi.stubGlobal("matchMedia", mm);
+    const user = userEvent.setup();
+    const [segs] = splitAll(["근저당을 확인해요"]);
+    render(<p><TermText segments={segs} /> 다른 글</p>);
+    const t = screen.getByRole("button", { name: "근저당" });
+    await user.hover(t);
+    await waitFor(() => expect(screen.getByRole("note")).toBeTruthy());
+    await user.unhover(t);
+    await waitFor(() => expect(screen.queryByRole("note")).toBeNull());
+    await user.click(t);
+    await user.unhover(t);
+    await new Promise((r) => setTimeout(r, 300));
+    expect(screen.getByRole("note")).toBeTruthy();
+    vi.unstubAllGlobals();
+  });
+
+  it("'다 알아요 · 끄기'를 누르면 밑줄 단어가 일반 글자로 바뀌고, 다시 켤 수 있다", async () => {
+    const { setTermsOff } = await import("@/app/ui/termPrefs");
+    const user = userEvent.setup();
+    const [segs] = splitAll(["근저당을 확인해요"]);
+    render(
+      <>
+        <TermHint />
+        <p>
+          <TermText segments={segs} />
+        </p>
+      </>,
+    );
+    await user.click(await screen.findByRole("button", { name: "다 알아요 · 끄기" }));
+    expect(screen.queryByRole("button", { name: "근저당" })).toBeNull();
+    expect(screen.getByText("근저당을 확인해요")).toBeTruthy();
+    expect(screen.queryByText(/단어를 누르면 뜻이 나와요/)).toBeNull();
+    act(() => setTermsOff(false));
+    expect(screen.getByRole("button", { name: "근저당" })).toBeTruthy();
   });
 });
