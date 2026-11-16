@@ -7,6 +7,7 @@ import { formatWon, runCheck, todayKST, type CheckForm, type CheckOutcome, type 
 import type { Mortgage, RegistryRead } from "@/lib/registry/types";
 import { buildActions } from "@/lib/registry/actions";
 import NextActions from "./NextActions";
+import { MAX_PDF_BYTES, readPdfFile } from "./readPdf";
 
 export interface Sample {
   label: string;
@@ -39,7 +40,36 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   const [confirmed, setConfirmed] = useState(false);
   // 새로 점검할 때마다 바뀌어 "읽은 내용 고치기" 입력칸을 새 결과로 초기화한다
   const [run, setRun] = useState(0);
-  const ids = { text: useId(), my: useId(), prior: useId(), market: useId(), party: useId() };
+  const ids = { text: useId(), my: useId(), prior: useId(), market: useId(), party: useId(), file: useId() };
+  const [pdfStatus, setPdfStatus] = useState<{ kind: "busy" | "ok" | "error"; message: string } | null>(null);
+
+  const onPdf = async (file: File | undefined) => {
+    if (!file) return;
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      setPdfStatus({ kind: "error", message: "PDF 파일만 올릴 수 있어요." });
+      return;
+    }
+    if (file.size > MAX_PDF_BYTES) {
+      setPdfStatus({ kind: "error", message: "파일이 너무 커요(10MB까지). 인터넷등기소에서 받은 PDF를 그대로 올려 주세요." });
+      return;
+    }
+    setPdfStatus({ kind: "busy", message: "PDF에서 글자를 읽는 중이에요…" });
+    try {
+      const r = await readPdfFile(file);
+      if (!r.hasText) {
+        setPdfStatus({
+          kind: "error",
+          message: "이 PDF에는 읽을 수 있는 글자가 없어요(사진 · 스캔 파일). 인터넷등기소에서 받은 PDF를 올리거나, 내용을 붙여 넣어 주세요.",
+        });
+        return;
+      }
+      setText(r.text);
+      setOutcome(null);
+      setPdfStatus({ kind: "ok", message: `PDF ${r.pages}쪽에서 글자를 읽었어요. 아래 내용이 서류와 맞는지 확인한 뒤 점검해 주세요.` });
+    } catch {
+      setPdfStatus({ kind: "error", message: "PDF를 읽지 못했어요. 비밀번호가 걸린 파일인지 확인하거나, 내용을 붙여 넣어 주세요." });
+    }
+  };
 
   const check = (opts: { edited?: RegistryRead | null; confirmed?: boolean } = {}) => {
     const e = opts.edited === undefined ? edited : opts.edited;
@@ -55,6 +85,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   };
 
   const pickSample = (s: Sample) => {
+    setPdfStatus(null);
     setText(s.text);
     setForm(s.form);
     setOutcome(null);
@@ -80,8 +111,27 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
 
       <section className="card">
         <h2>1. 서류 넣기</h2>
+        <label htmlFor={ids.file} className="file-pick">
+          <span>등기부등본 PDF 올리기</span>
+          <span className="small muted">인터넷등기소에서 받은 PDF 그대로 · 이 기기 안에서만 읽어요</span>
+        </label>
+        <input
+          id={ids.file}
+          className="visually-hidden"
+          type="file"
+          accept="application/pdf,.pdf"
+          onChange={(e) => {
+            void onPdf(e.target.files?.[0]);
+            e.target.value = ""; // 같은 파일을 다시 골라도 읽게
+          }}
+        />
+        {pdfStatus && (
+          <p className={`pdf-status pdf-${pdfStatus.kind}`} role={pdfStatus.kind === "error" ? "alert" : "status"}>
+            {pdfStatus.message}
+          </p>
+        )}
         <label htmlFor={ids.text} className="field-label">
-          등기부등본(등기사항전부증명서) 내용을 그대로 붙여 넣어 주세요
+          또는 등기부등본(등기사항전부증명서) 내용을 그대로 붙여 넣어 주세요
         </label>
         <textarea
           id={ids.text}

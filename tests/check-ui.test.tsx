@@ -8,6 +8,9 @@ import type { AnchorHTMLAttributes } from "react";
 import expected from "@/samples/expected.json";
 import CheckClient, { type Sample } from "@/app/check/CheckClient";
 
+const readPdfFile = vi.fn();
+vi.mock("@/app/check/readPdf", () => ({ MAX_PDF_BYTES: 10 * 1024 * 1024, readPdfFile: (f: File) => readPdfFile(f) }));
+
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
     <a href={href} {...rest}>
@@ -129,3 +132,46 @@ describe("다음 행동 카드", () => {
     expect(await screen.findByText(/복사하지 못했어요/)).toBeTruthy();
   });
 });
+
+describe("PDF 올리기", () => {
+  const pdf = (name = "등기부.pdf", size = 1000, type = "application/pdf") => {
+    const f = new File(["%PDF"], name, { type });
+    Object.defineProperty(f, "size", { value: size });
+    return f;
+  };
+
+  it("PDF를 올리면 글자가 채워지고, 바로 점검할 수 있다", async () => {
+    const user = userEvent.setup();
+    readPdfFile.mockResolvedValueOnce({ text: samples[1].text, pages: 1, hasText: true });
+    render(<CheckClient samples={samples} />);
+    await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
+    expect(await screen.findByText(/PDF 1쪽에서 글자를 읽었어요/)).toBeTruthy();
+    expect((screen.getByLabelText(/내용을 그대로 붙여 넣어 주세요/) as HTMLTextAreaElement).value).toContain("【 을 구 】");
+    await user.type(screen.getByLabelText("내 보증금 (만 원)"), "500");
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(document.querySelector(".verdict-label")?.textContent).not.toBe("안전"); // 시세 · 앞선 보증금을 몰라 주의
+  });
+
+  it("글자가 없는 스캔 PDF는 안내하고 내용을 바꾸지 않는다", async () => {
+    const user = userEvent.setup();
+    readPdfFile.mockResolvedValueOnce({ text: "", pages: 2, hasText: false });
+    render(<CheckClient samples={samples} />);
+    await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
+    expect((await screen.findByRole("alert")).textContent).toContain("사진 · 스캔 파일");
+    expect((screen.getByLabelText(/내용을 그대로 붙여 넣어 주세요/) as HTMLTextAreaElement).value).toBe("");
+  });
+
+  it("너무 큰 파일 · 읽기 실패(비밀번호 등)도 안내만 하고 멈추지 않는다", async () => {
+    const user = userEvent.setup();
+    render(<CheckClient samples={samples} />);
+    readPdfFile.mockClear();
+    await user.upload(screen.getByLabelText(/PDF 올리기/), pdf("큰파일.pdf", 11 * 1024 * 1024));
+    expect((await screen.findByRole("alert")).textContent).toContain("10MB");
+    expect(readPdfFile).not.toHaveBeenCalled();
+
+    readPdfFile.mockRejectedValueOnce(new Error("PasswordException"));
+    await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
+    expect((await screen.findByRole("alert")).textContent).toContain("비밀번호");
+  });
+});
+
