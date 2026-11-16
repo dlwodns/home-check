@@ -1,0 +1,26 @@
+# GitHub에 올릴 때마다 자동 테스트와 빌드를 돌린다 (7주차 점검표 ② "처음 받은 사람이 실행할 수 있나"를 매번 확인).
+# 키가 필요 없는 테스트만 돌리므로 비밀값을 쓰지 않는다.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx tsc --noEmit
+      - run: npm test
+      - run: npm run build

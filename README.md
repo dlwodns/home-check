@@ -9,7 +9,7 @@
 - 형태: 모바일 우선 웹 + PWA (설치 없이 링크로 열고, 홈 화면에 추가 가능)
 - 제출: 포스터 11/23(월) · 최종 코드 11/28(토)
 - 현재 단계: **MVP 핵심 흐름 완성(11/13)** — F1 계약 단계 길잡이 → F2 등기부등본 점검 → F3 다음 행동 카드까지 이어집니다. 자동 테스트 142개(화면 클릭 테스트 포함). 다음은 배포 · 로그인.
-- 기획 문서: [미니 PRD](docs/PRD.md) · [외부 데이터 API 메모](docs/DATA_APIS.md) · [화면 흐름](docs/FLOW.md) · [근거 목록](docs/SOURCES.md) (법 · 제도 안내의 공식 확인 링크) · [아이디어 보관함](docs/IDEAS.md) · [개발 일정](docs/SCHEDULE.md)
+- 기획 문서: [미니 PRD](docs/PRD.md) · [외부 데이터 API 메모](docs/DATA_APIS.md) · [외부 서비스 지도](docs/SERVICES.md) · [화면 흐름](docs/FLOW.md) · [근거 목록](docs/SOURCES.md) (법 · 제도 안내의 공식 확인 링크) · [아이디어 보관함](docs/IDEAS.md) · [개발 일정](docs/SCHEDULE.md)
 
 ## 주요 기능
 
@@ -64,6 +64,11 @@ npm test                 # 자동 테스트 (Vitest)
 - 공용 개발 서버에서는 계정마다 `PORT`가 자동으로 정해져 있습니다. (예: user79 → 3079, 백엔드용으로 +100인 3179)
 - 다른 프로젝트를 이미 내 포트로 켜 두었다면 `PORT=3179 npm run dev`처럼 내 두 번째 포트로 켭니다.
 - 켜 둔 개발 서버 확인은 `devls`, 모두 끄기는 `devstop` 명령으로 합니다. (공용 서버 제공 명령)
+
+## 배포
+
+- **Netlify**로 배포합니다(8주차 강의 기준). GitHub 저장소를 연결하면 `main`에 올릴 때마다 자동으로 다시 배포됩니다. 설정은 `netlify.toml`에 있습니다.
+- GitHub에 올릴 때마다 **자동 테스트(CI)**가 돕니다: 타입 검사 → 테스트 → 빌드 (`.github/workflows/ci.yml`).
 
 ## 필요한 키
 

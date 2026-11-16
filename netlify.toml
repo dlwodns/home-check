@@ -1,0 +1,9 @@
+# Netlify 배포 설정 (8주차 강의 기준: GitHub 저장소를 Netlify로 배포)
+# Next.js는 Netlify가 자동으로 인식해 서버 기능까지 함께 배포한다.
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  # 이 서버(Node 22)와 같은 버전으로 빌드한다
+  NODE_VERSION = "22"
