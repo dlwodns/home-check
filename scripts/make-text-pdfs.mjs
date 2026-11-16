@@ -19,7 +19,7 @@ const wide = (ch) => /[ᄀ-ᇿ㄰-㆏가-힣　-〿＀-￯]/.test(ch);
 
 mkdirSync(out, { recursive: true });
 const fontBytes = readFileSync(FONT_PATH);
-for (const file of readdirSync(src).filter((f) => /^B\d+\.txt$/.test(f))) {
+for (const file of readdirSync(src).filter((f) => /^[A-Z]\d+\.txt$/.test(f))) {
   const doc = await PDFDocument.create();
   doc.registerFontkit(fontkit);
   const font = await doc.embedFont(fontBytes, { subset: true });
