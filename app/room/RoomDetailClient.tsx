@@ -110,6 +110,15 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
                     <p className="flag-title">
                       <TermText segments={flagSegs[i]} />
                     </p>
+                    <details className="flag-explain">
+                      <summary>왜 문제인지</summary>
+                      <dl>
+                        <dt>무슨 뜻</dt>
+                        <dd>{f.meaning}</dd>
+                        <dt>왜 위험</dt>
+                        <dd>{f.why}</dd>
+                      </dl>
+                    </details>
                   </li>
                 ))}
               </ul>
@@ -126,7 +135,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
             )}
             <UnknownList items={check.unknowns.map(unknownById).filter((u): u is Unknown => Boolean(u))} />
             <p className="small muted">
-              {check.asOf} 점검 · <Link href={r("/check")}>다시 점검하기</Link>
+              {check.asOf} 점검{check.edited && check.edited.length > 0 ? ` · ✎ 내가 고친 값(${check.edited.join(" · ")})으로 계산` : ""} · <Link href={r("/check")}>다시 점검하기</Link>
             </p>
           </>
         ) : (
@@ -167,7 +176,18 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
           {progress.branch === "broker" && <p className="small">중개사가 있어도 내가 직접 확인할 것이 있어요. 4단계에 중개사 체크리스트를 붙여 둘게요.</p>}
         </div>
         {check ? (
-          <NextActions actions={check.actions} />
+          <NextActions
+            actions={check.actions}
+            picked={progress.checked}
+            onPick={(key, value) =>
+              update((p) => {
+                const checked = { ...p.checked };
+                if (value) checked[key] = true;
+                else delete checked[key];
+                return { ...p, checked };
+              })
+            }
+          />
         ) : (
           <p className="card small muted">점검하면 이 방에 맞춘 질문 · 할 일 · 특약을 알려 드려요.</p>
         )}

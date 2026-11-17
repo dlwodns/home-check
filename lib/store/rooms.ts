@@ -22,6 +22,8 @@ export interface CheckSummary {
   actions: NextActions;
   /** 등기부로는 알 수 없는 것 (lib/registry/unknowns의 id) */
   unknowns: string[];
+  /** 사용자가 직접 고친 칸 (예: "집주인", "근저당"). 없으면 빈 배열 */
+  edited?: string[];
 }
 
 /** 법정동: 시군구 코드 5자리 + 동 이름. 동네 시세(F6)를 찾는 데만 쓴다 */
@@ -110,6 +112,7 @@ function parseSummary(v: unknown): CheckSummary | null {
     ratio: num(d.ratio),
     asOf: /^\d{4}-\d{2}-\d{2}$/.test(String(d.asOf)) ? String(d.asOf) : "",
     // 예전에 저장한 요약에는 없으므로, 그때는 언제나 해당하는 것만 넣는다
+    edited: strList(d.edited, 10).filter((x) => x === "집주인" || x === "근저당"),
     unknowns: Array.isArray(d.unknowns) ? strList(d.unknowns, 30).filter((u) => UNKNOWN_IDS.includes(u)) : [...DEFAULT_UNKNOWNS],
     actions: {
       questions: strList(a.questions),

@@ -491,3 +491,17 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
 .docs-link { display: flex; justify-content: space-between; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
 .docs-link > span:first-child { display: flex; flex-direction: column; gap: 2px; }
 .docs-count { font-size: 18px; font-weight: 800; color: var(--accent); flex-shrink: 0; }
+
+/* 요청 목록 */
+.pick-on { border-color: var(--accent) !important; background: var(--safe-bg) !important; color: var(--accent) !important; font-weight: 700; }
+.request { border: 1.5px dashed var(--accent); }
+.request h3 { margin-top: 0; }
+
+/* 이유 풀이 */
+.flag-explain { margin-top: 6px; }
+.flag-explain summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--text); min-height: 32px; display: flex; align-items: center; }
+.flag-explain dl { margin: 6px 0 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 10px; font-size: 13px; line-height: 1.55; }
+.flag-explain dt { font-weight: 800; color: var(--muted); white-space: nowrap; }
+.flag-explain dd { margin: 0; }
+.edited-note { margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--info-bg); color: var(--info); font-size: 13px; line-height: 1.5; }
+.ratio-range { margin: 8px 0 4px; font-weight: 600; }

@@ -2,10 +2,11 @@
 // F2 등기부등본 점검: 붙여 넣기 → 내 계약 정보 → 점검 → 결과 카드 · 이유 · 근거 → 읽은 내용 확인 · 고치기.
 // 모든 계산은 이 브라우저 안에서만 하고, 서류 내용은 어디에도 보내거나 저장하지 않는다.
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { formatWon, runCheck, todayKST, type CheckForm, type CheckOutcome, type FlagView } from "@/lib/registry/check";
 import type { Mortgage, RegistryRead } from "@/lib/registry/types";
-import { buildActions } from "@/lib/registry/actions";
+import { buildActions, todoFor } from "@/lib/registry/actions";
+import { readRegistry } from "@/lib/registry/read";
 import { roomHref, roomIdFrom, summarize, updateRoom, type Room } from "@/lib/store/rooms";
 import { roomsStore } from "../ui/useProgress";
 import { goodPoints, headline, summaryLines } from "@/lib/registry/goodPoints";
@@ -43,6 +44,9 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   const [form, setForm] = useState<CheckForm>(EMPTY);
   const [outcome, setOutcome] = useState<CheckOutcome | null>(null);
   const [edited, setEdited] = useState<RegistryRead | null>(null);
+  // '내가 고침' 표시용: 서류에서 처음 읽은 값과 사용자가 고친 값을 비교한다
+  const original = useMemo(() => (text.trim() ? readRegistry(text).read : null), [text]);
+  const editedFields = editedFieldsOf(original, edited);
   const [confirmed, setConfirmed] = useState(false);
   // 새로 점검할 때마다 바뀌어 "읽은 내용 고치기" 입력칸을 새 결과로 초기화한다
   const [run, setRun] = useState(0);
@@ -96,7 +100,10 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     setOutcome(out);
     if (out.ok && room) {
       const store = roomsStore();
-      const summary = summarize(out.result, buildActions(out.read, out.result), asOf, unknownsFor(out.read, out.result).map((u) => u.id));
+      const summary = {
+        ...summarize(out.result, buildActions(out.read, out.result), asOf, unknownsFor(out.read, out.result).map((u) => u.id)),
+        edited: editedFieldsOf(text.trim() ? readRegistry(text).read : null, e ?? null),
+      };
       store.save(updateRoom(store.load(), room.id, (r) => ({ ...r, check: summary })));
       setSavedToRoom(true);
     }
@@ -230,6 +237,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         <Result
           key={run}
           outcome={outcome}
+          editedFields={editedFields}
           confirmed={confirmed}
           onEdit={(r) => {
             setEdited(r);
@@ -249,13 +257,25 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   );
 }
 
+/** 사용자가 고친 칸 이름 (없으면 빈 배열) */
+export function editedFieldsOf(original: RegistryRead | null, edited: RegistryRead | null): string[] {
+  if (!original || !edited) return [];
+  const out: string[] = [];
+  if (original.current_owner !== edited.current_owner) out.push("집주인");
+  const sig = (r: RegistryRead) => JSON.stringify(r.active_mortgages.map((m) => [m.max_claim, m.creditor]));
+  if (sig(original) !== sig(edited)) out.push("근저당");
+  return out;
+}
+
 function Result({
   outcome,
+  editedFields,
   confirmed,
   onEdit,
   onConfirm,
 }: {
   outcome: Extract<CheckOutcome, { ok: true }>;
+  editedFields: string[];
   confirmed: boolean;
   onEdit: (r: RegistryRead) => void;
   onConfirm: (v: boolean) => void;
@@ -284,6 +304,11 @@ function Result({
     <section aria-live="polite" className="result" ref={ref}>
       <TrafficLight verdict={result.verdict} />
       <h2 className="result-head">{headline(result.verdict, toCheck.length)}</h2>
+      {editedFields.length > 0 && (
+        <p className="edited-note" role="status">
+          ✎ 내가 고친 값({editedFields.join(" · ")})으로 다시 계산한 결과예요. 서류와 다르게 고쳤다면 결과도 달라져요.
+        </p>
+      )}
       <ul className="summary-lines">
         {summary.map((l) => (
           <li key={l}>{l}</li>
@@ -309,7 +334,7 @@ function Result({
           <h3 className="list-title">확인할 것</h3>
           <ul className="flags">
             {toCheck.map((f) => (
-              <FlagItem key={f.code} f={f} segments={segOf(f.code)} />
+              <FlagItem key={f.code} f={f} segments={segOf(f.code)} todo={todoFor(f.code, read, result)} />
             ))}
           </ul>
         </>
@@ -336,7 +361,7 @@ function Result({
           <h3 className="list-title">참고</h3>
           <ul className="flags">
             {notes.map((f) => (
-              <FlagItem key={f.code} f={f} segments={segOf(f.code)} />
+              <FlagItem key={f.code} f={f} segments={segOf(f.code)} todo={todoFor(f.code, read, result)} />
             ))}
           </ul>
         </>
@@ -352,11 +377,26 @@ function Result({
   );
 }
 
-function FlagItem({ f, segments }: { f: FlagView; segments?: Segment[] }) {
+function FlagItem({ f, segments, todo }: { f: FlagView; segments?: Segment[]; todo?: string | null }) {
   return (
     <li className={`flag flag-${f.level}`}>
       <span className="flag-level">{LEVEL_LABEL[f.level]}</span>
       <p className="flag-title">{segments ? <TermText segments={segments} /> : f.title}</p>
+      <details className="flag-explain">
+        <summary>왜 문제인지 · 할 일</summary>
+        <dl>
+          <dt>무슨 뜻</dt>
+          <dd>{f.meaning}</dd>
+          <dt>왜 위험</dt>
+          <dd>{f.why}</dd>
+          {todo && (
+            <>
+              <dt>할 일</dt>
+              <dd>{todo}</dd>
+            </>
+          )}
+        </dl>
+      </details>
       <p className="flag-sources">
         {f.sources.map((s) => (
           <span key={s.id}>
@@ -387,11 +427,23 @@ function RatioBar({ ratio, lines }: { ratio: number; lines: { caution: number; d
         <span style={{ left: `${lines.caution}%` }}>{lines.caution}%</span>
         <span style={{ left: `${lines.danger}%` }}>{lines.danger}%</span>
       </div>
+      <p className="small ratio-range">{ratioRangeText(ratio, lines)}</p>
       <p className="small muted">
-        {lines.caution}% · {lines.danger}%는 법으로 정한 기준이 아니라 많이 쓰는 참고선이에요.
+        {lines.caution}% · {lines.danger}%는 법으로 정한 기준이 아니라 많이 쓰는 참고선이에요. 시세는 직접 적은 값이라 실제와 다를 수 있어요.
       </p>
     </div>
   );
+}
+
+/** 시세가 10% 다르면 비율이 어떻게 되는지 — 시세는 추정값이라 범위로도 보여 준다 */
+export function ratioRangeText(ratio: number, lines: { caution: number; danger: number }): string {
+  const r = (x: number) => Math.round(x * 10) / 10;
+  const ifLower = r(ratio / 0.9);
+  const ifHigher = r(ratio / 1.1);
+  const base = `시세가 10% 낮으면 ${ifLower}%, 10% 높으면 ${ifHigher}%예요.`;
+  if (ratio < lines.danger && ifLower >= lines.danger) return `${base} 시세가 조금만 낮아도 ${lines.danger}%를 넘어요.`;
+  if (ratio < lines.caution && ifLower >= lines.caution) return `${base} 시세가 조금만 낮아도 ${lines.caution}%를 넘어요.`;
+  return base;
 }
 
 function ReadEditor({

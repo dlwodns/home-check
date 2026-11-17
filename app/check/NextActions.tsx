@@ -48,8 +48,56 @@ export function CopyButton({ text, label = "복사" }: { text: string; label?: s
   );
 }
 
-export default function NextActions({ actions }: { actions: Actions }) {
+/** 문장 → 짧고 바뀌지 않는 키 (요청 목록 체크를 저장할 때 씀) */
+export function reqKey(kind: "q" | "c", textOrId: string): string {
+  if (kind === "c") return `req.c.${textOrId}`.slice(0, 80);
+  let h = 5381;
+  for (const ch of textOrId) h = ((h * 33) ^ ch.codePointAt(0)!) >>> 0;
+  return `req.q.${h.toString(36)}`;
+}
+
+/** 담은 질문 · 특약을 집주인 · 중개사에게 보낼 한 덩어리 글로 */
+export function requestText(questions: string[], clauses: { title: string; text: string }[]): string {
+  const out: string[] = [];
+  if (questions.length) out.push("[계약 전에 확인하고 싶은 것]", ...questions.map((q, i) => `${i + 1}. ${q}`));
+  if (clauses.length) {
+    if (out.length) out.push("");
+    out.push("[계약서 특약으로 넣고 싶은 것]", ...clauses.map((c, i) => `${i + 1}. ${c.title}: ${c.text}`));
+  }
+  return out.join("\n");
+}
+
+function PickButton({ on, onClick }: { on: boolean; onClick: () => void }) {
+  return (
+    <button type="button" className={`ghost pick${on ? " pick-on" : ""}`} aria-pressed={on} onClick={onClick}>
+      {on ? "✓ 요청 목록에 담았어요" : "+ 요청 목록에 담기"}
+    </button>
+  );
+}
+
+/**
+ * @param picked · onPick 방 화면에서는 방에 저장되게 넘기고, 없으면 이 화면 안에서만 기억한다.
+ */
+export default function NextActions({
+  actions,
+  picked: pickedProp,
+  onPick,
+}: {
+  actions: Actions;
+  picked?: Record<string, boolean>;
+  onPick?: (key: string, value: boolean) => void;
+}) {
   const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
+  const [localPicked, setLocalPicked] = useState<Record<string, boolean>>({});
+  const picked = pickedProp ?? localPicked;
+  const toggle = (key: string) => {
+    const value = !picked[key];
+    if (onPick) onPick(key, value);
+    else setLocalPicked((p) => ({ ...p, [key]: value }));
+  };
+  const pickedQuestions = actions.questions.filter((q) => picked[reqKey("q", q)]);
+  const pickedClauses = actions.clauses.filter((c) => picked[reqKey("c", c.id)]);
+  const request = requestText(pickedQuestions, pickedClauses);
 
   return (
     <section className="next" aria-labelledby="next-title">
@@ -62,7 +110,10 @@ export default function NextActions({ actions }: { actions: Actions }) {
             {actions.questions.map((q) => (
               <li key={q}>
                 <p className="bubble">{q}</p>
-                <CopyButton text={q} />
+                <div className="row-buttons">
+                  <CopyButton text={q} />
+                  <PickButton on={Boolean(picked[reqKey("q", q)])} onClick={() => toggle(reqKey("q", q))} />
+                </div>
               </li>
             ))}
           </ul>
@@ -94,10 +145,35 @@ export default function NextActions({ actions }: { actions: Actions }) {
                   </span>
                 ))}
               </p>
-              <CopyButton text={c.text} />
+              <div className="row-buttons">
+                <CopyButton text={c.text} />
+                <PickButton on={Boolean(picked[reqKey("c", c.id)])} onClick={() => toggle(reqKey("c", c.id))} />
+              </div>
             </li>
           ))}
         </ul>
+      </div>
+
+      <div className="card request" aria-live="polite">
+        <h3>
+          내 요청 목록 <span className="accent">{pickedQuestions.length + pickedClauses.length}</span>
+        </h3>
+        {request ? (
+          <>
+            <p className="small muted">집주인 · 중개사에게 한 번에 보내거나, 계약하는 날 보면서 하나씩 확인해요.</p>
+            <pre className="summary">{request}</pre>
+            <div className="row-buttons">
+              <CopyButton text={request} label="목록 복사" />
+              {canShare && (
+                <button type="button" className="ghost" onClick={() => navigator.share({ title: "계약 전 요청 목록", text: request }).catch(() => {})}>
+                  보내기
+                </button>
+              )}
+            </div>
+          </>
+        ) : (
+          <p className="small muted">위의 질문 · 특약에서 &apos;요청 목록에 담기&apos;를 누르면 여기에 모여요.</p>
+        )}
       </div>
 
       <div className="card parent">

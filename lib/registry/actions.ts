@@ -47,6 +47,18 @@ export function fill(template: string, values: Record<string, string>): string {
   return template.replace(/\{(\w+)\}/g, (_, k: string) => values[k] ?? "확인 필요");
 }
 
+/** 이유 하나에 대한 '할 일' 첫 문장 (이유 풀이의 '할 일' 줄) */
+export function todoFor(code: FlagCode, read: RegistryRead, result: CheckResult): string | null {
+  const a = (data.flags as Record<string, FlagActions>)[code];
+  const t = a?.todo?.[0] ?? a?.ask?.[0];
+  if (!t) return null;
+  return fill(t, {
+    transferDate: koreanDate(read.last_ownership_transfer),
+    mortgageTotal: formatWon(result.mortgage_total),
+    ratio: result.ratio === null ? "확인 필요" : `${result.ratio}%`,
+  });
+}
+
 export function buildActions(read: RegistryRead, result: CheckResult): NextActions {
   const flags = data.flags as Record<string, FlagActions>;
   const clauses = data.clauses as Record<string, ClauseData>;

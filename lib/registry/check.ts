@@ -52,6 +52,9 @@ export interface FlagView {
   code: FlagCode;
   level: "danger" | "caution" | "info";
   title: string;
+  /** 무슨 뜻 · 왜 위험한지 (data/judge.json) */
+  meaning: string;
+  why: string;
   sources: { id: string; title: string; url: string | null; status: "confirmed" | "check" | "not_legal" | "unknown" }[];
   basis?: string;
 }
@@ -68,11 +71,13 @@ export type CheckOutcome =
     };
 
 export function toFlagView(code: FlagCode): FlagView {
-  const f = rules.flags[code] as { level: string; title: string; sources: string[]; basis?: string };
+  const f = rules.flags[code] as { level: string; title: string; meaning: string; why: string; sources: string[]; basis?: string };
   return {
     code,
     level: levelOf(code),
     title: f.title,
+    meaning: f.meaning,
+    why: f.why,
     sources: f.sources.map((id) => {
       const s = findSource(id);
       return { id, title: s?.title ?? id, url: s?.official_url ?? null, status: s?.status ?? "unknown" };
