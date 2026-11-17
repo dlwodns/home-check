@@ -1,5 +1,5 @@
-import RoomsHome from "./RoomsHome";
+import HomeGate from "./HomeGate";
 
 export default function Home() {
-  return <RoomsHome />;
+  return <HomeGate />;
 }

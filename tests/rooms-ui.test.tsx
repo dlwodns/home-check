@@ -302,3 +302,33 @@ describe("이상한 입력 (7주차 점검표 ⑤)", () => {
     expect(push).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("로비(입구)", () => {
+  it("처음 온 사람에게는 로비를, 문을 누르면 '들어온 사람'으로 기억한다", async () => {
+    const { default: HomeGate } = await import("@/app/HomeGate");
+    const user = userEvent.setup();
+    render(<HomeGate />);
+    expect(await screen.findByRole("heading", { level: 1, name: /관심 있는 방,\s*계약해도 될까요\?/ })).toBeTruthy();
+    expect(screen.getByText(/법령 원문으로 확인한 근거 \d+개/)).toBeTruthy();
+    const doors = screen.getAllByRole("link", { name: "관심 있는 방 담고 시작하기" });
+    expect(doors[0].getAttribute("href")).toBe("/rooms/new");
+    await user.click(doors[0]);
+    expect(localStorage.getItem("homecheck.entered.v1")).toBe("1");
+  });
+
+  it("한 번 들어온 사람은 로비 없이 바로 '내 후보 방'", async () => {
+    const { default: HomeGate } = await import("@/app/HomeGate");
+    localStorage.setItem("homecheck.entered.v1", "1");
+    render(<HomeGate />);
+    expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
+    expect(screen.queryByRole("link", { name: "관심 있는 방 담고 시작하기" })).toBeNull();
+    expect(screen.getByRole("link", { name: "홈체크 소개" }).getAttribute("href")).toBe("/welcome");
+  });
+
+  it("방을 담아 둔 사람도 바로 '내 후보 방' (예전 사용자)", async () => {
+    const { default: HomeGate } = await import("@/app/HomeGate");
+    seedRooms(baseRoom);
+    render(<HomeGate />);
+    expect(await screen.findByRole("link", { name: /정문 원룸/ })).toBeTruthy();
+  });
+});
