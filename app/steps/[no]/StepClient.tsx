@@ -9,6 +9,7 @@ import TermText from "../../ui/TermText";
 import TermHint from "../../ui/TermHint";
 import PriorDepositGuide from "../../ui/PriorDepositGuide";
 import { useProgress } from "../../ui/useProgress";
+import HomeLink from "../../ui/HomeLink";
 
 const BRANCH_TITLE = { broker: "중개사를 통해서라면 내가 직접 확인할 것", direct: "직거래라서 꼭 할 것" } as const;
 
@@ -43,6 +44,7 @@ export default function StepClient({ step, total, branches }: { step: Step; tota
           {room ? `${room.label} · ` : ""}
           {step.no}단계 / {total}
         </span>
+        <HomeLink />
       </nav>
       <h1 className="title">{step.title}</h1>
       <p className="muted">

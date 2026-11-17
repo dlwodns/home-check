@@ -16,6 +16,7 @@ import TermText from "../ui/TermText";
 import TermHint from "../ui/TermHint";
 import PriorDepositGuide from "../ui/PriorDepositGuide";
 import { MAX_PDF_BYTES, readPdfFile } from "./readPdf";
+import HomeLink from "../ui/HomeLink";
 
 export interface Sample {
   label: string;
@@ -124,6 +125,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           ←
         </Link>
         <span>{room ? `${room.label} · 등기부등본 점검` : "등기부등본 점검"}</span>
+        <HomeLink />
       </nav>
 
       {room && (

@@ -8,6 +8,7 @@ import { maskEmail } from "@/lib/cloud/auth";
 import { supabaseDb } from "@/lib/cloud/sync";
 import { currentSyncStatus, SYNC_EVENT, type SyncStatus } from "../ui/CloudSync";
 import { useAuth } from "../ui/useAuth";
+import HomeLink from "../ui/HomeLink";
 
 const STATUS_TEXT: Record<SyncStatus, string> = {
   off: "계정 저장 대기 중",
@@ -77,6 +78,7 @@ export default function AccountClient() {
           ←
         </Link>
         <span>내 계정</span>
+        <HomeLink />
       </nav>
 
       {message && (

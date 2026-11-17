@@ -424,3 +424,9 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
   .cycle-safe { animation: none; background: #2fbf71; box-shadow: 0 0 12px #2fbf71; }
   [data-reveal] { opacity: 1; transform: none; transition: none; }
 }
+
+/* 위쪽 오른편 홈 버튼 (로고) */
+.home-link { margin-left: auto; flex-shrink: 0; white-space: nowrap; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; border-radius: 12px; color: var(--accent); font-size: 13px; font-weight: 800; text-decoration: none; }
+.home-link:hover, .home-link:focus-visible { background: var(--safe-bg); }
+.topbar-right + .home-link { margin-left: 4px; }
+.topbar > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }

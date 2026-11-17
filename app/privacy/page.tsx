@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import ClearData from "./ClearData";
+import HomeLink from "../ui/HomeLink";
 
 export const metadata: Metadata = { title: "개인정보 · 데이터 안내 · 홈체크" };
 
@@ -13,6 +14,7 @@ export default function PrivacyPage() {
           ←
         </Link>
         <span>개인정보 · 데이터 안내</span>
+        <HomeLink />
       </nav>
       <h1 className="title">내 정보는 이렇게 다뤄요</h1>
       <p className="muted">2026년 11월 기준 · 기능이 바뀌면 이 안내도 함께 고쳐요.</p>

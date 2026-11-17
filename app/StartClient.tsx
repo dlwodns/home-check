@@ -4,6 +4,7 @@ import Link from "next/link";
 import BrandMark from "./ui/BrandMark";
 import { useRouter } from "next/navigation";
 import { useProgress } from "./ui/useProgress";
+import HomeLink from "./ui/HomeLink";
 
 export default function StartClient() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function StartClient() {
           ←
         </Link>
         <span>계약 과정 미리 보기</span>
+        <HomeLink />
       </nav>
       <p className="brand">
         <BrandMark />

@@ -3,6 +3,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { sources, type SourceStatus } from "@/lib/content";
+import HomeLink from "../ui/HomeLink";
 
 export const metadata: Metadata = {
   title: "근거 목록 · 홈체크",
@@ -23,6 +24,7 @@ export default function SourcesPage() {
           ←
         </Link>
         <span>근거 목록</span>
+        <HomeLink />
       </nav>
       <p className="muted small">
         홈체크의 안내는 아래 근거를 바탕으로 해요. 법은 바뀔 수 있으니 계약 전에는 공식 링크에서 한 번 더 확인해 주세요.

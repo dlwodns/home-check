@@ -17,6 +17,7 @@ import { flagViews, moneyLine, roomSteps, toCheckCount } from "../ui/roomView";
 import TrafficLight from "../ui/TrafficLight";
 import TermText from "../ui/TermText";
 import { roomsStore, useProgress } from "../ui/useProgress";
+import HomeLink from "../ui/HomeLink";
 
 const flagCodes = (codes: string[]) => codes.filter((c): c is FlagCode => c in rules.flags);
 
@@ -72,6 +73,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
             매물 링크 열기
           </a>
         )}
+        <HomeLink />
       </nav>
 
       <h1 className="title">{room.label}</h1>

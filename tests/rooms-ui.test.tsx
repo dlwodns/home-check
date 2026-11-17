@@ -332,3 +332,15 @@ describe("로비(입구)", () => {
     expect(await screen.findByRole("link", { name: /정문 원룸/ })).toBeTruthy();
   });
 });
+
+describe("홈 버튼", () => {
+  it("하위 화면 위쪽에 '홈으로' 로고 버튼이 있고 홈(/)으로 간다", async () => {
+    seedRooms(baseRoom);
+    at("room?id=r1");
+    render(<RoomDetailClient steps={steps} branches={branches} />);
+    expect((await screen.findByRole("link", { name: "홈으로" })).getAttribute("href")).toBe("/");
+    cleanup();
+    render(<RoomAddClient />);
+    expect(screen.getByRole("link", { name: "홈으로" }).getAttribute("href")).toBe("/");
+  });
+});

@@ -7,6 +7,7 @@ import type { Region } from "@/lib/region";
 import { addRoom, MAX_ROOMS, newRoomId, roomHref, validateRoomInput, type RoomInput } from "@/lib/store/rooms";
 import { todayKST } from "@/lib/registry/check";
 import { useRooms } from "../../ui/useRooms";
+import HomeLink from "../../ui/HomeLink";
 
 type Field = "address" | "deposit" | "rent" | "note";
 const EMPTY: RoomInput = { address: "", deposit: "", rent: "", note: "" };
@@ -67,6 +68,7 @@ export default function RoomAddClient() {
           ←
         </Link>
         <span>후보 방 추가</span>
+        <HomeLink />
       </nav>
       <h1 className="title">어떤 방인가요?</h1>
       <p className="muted">세 가지만 적으면 돼요</p>

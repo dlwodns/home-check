@@ -6,6 +6,7 @@ import { useId, useState } from "react";
 import { getSupabase } from "@/lib/cloud/client";
 import { authErrorText, normalizeEmail, PASSWORD_MIN, validateAuth, type AuthErrors } from "@/lib/cloud/auth";
 import { useAuth } from "../ui/useAuth";
+import HomeLink from "../ui/HomeLink";
 
 type Mode = "login" | "signup";
 
@@ -71,6 +72,7 @@ export default function LoginClient() {
           ←
         </Link>
         <span>{mode === "login" ? "로그인" : "가입하기"}</span>
+        <HomeLink />
       </nav>
 
       {loaded && !enabled && (
