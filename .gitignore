@@ -5,3 +5,6 @@ node_modules/
 next-env.d.ts
 *.tsbuildinfo
 public/pdf.worker.min.mjs
+
+# Graphify 코드 지도 (로컬 전용)
+graphify-out/
