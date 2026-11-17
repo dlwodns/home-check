@@ -7,16 +7,26 @@ import { branches, steps } from "@/lib/content";
 import { roomHref } from "@/lib/store/rooms";
 import StepBar from "./ui/StepBar";
 import { VERDICT_GLYPH } from "./ui/TrafficLight";
-import { checkLine, moneyLine, roomSteps, VERDICT_TEXT } from "./ui/roomView";
+import { checkLine, freshVisit, lastRoomId, moneyLine, nextAction, roomSteps, VERDICT_TEXT } from "./ui/roomView";
+import { useEffect, useState } from "react";
 import { useProgress } from "./ui/useProgress";
 import { useRooms } from "./ui/useRooms";
 
 export default function RoomsHome() {
   const { rooms, loaded } = useRooms();
   const { progress } = useProgress();
+  // 새로 들어왔을 때만 짧은 입장 효과(0.3초, 동작 줄이기면 없음) — 화면 안에서 오갈 때는 매번 나오지 않게
+  const [enter, setEnter] = useState(false);
+  const [lastId, setLastId] = useState<string | null>(null);
+  useEffect(() => {
+    setEnter(freshVisit());
+    setLastId(lastRoomId());
+  }, []);
+  const continueRoom = rooms.find((r) => r.id === lastId) ?? rooms[0];
+  const cont = continueRoom ? nextAction(continueRoom, progress.mode, steps, branches) : null;
 
   return (
-    <main className="container home">
+    <main className={`container home${enter ? " enter" : ""}`}>
       <div className="home-top">
         <p className="brand">
           <BrandMark />
@@ -30,6 +40,16 @@ export default function RoomsHome() {
         <span className="accent">계약해도 될까요?</span>
       </h1>
       <p className="muted lead">위험부터 확인하고, 그 방에 맞는 계약 방법까지 알려 드려요</p>
+
+      {loaded && continueRoom && cont && (
+        <Link href={cont.href} className="continue-card">
+          <span className="small muted">{continueRoom.id === lastId ? "지난번 본 방" : "이어서 하기"} · {continueRoom.label}</span>
+          <strong>{cont.text}</strong>
+          <span className="continue-go" aria-hidden="true">
+            이어하기 →
+          </span>
+        </Link>
+      )}
 
       {loaded && rooms.length > 0 && (
         <section aria-labelledby="rooms-title" className="rooms">
@@ -65,6 +85,7 @@ export default function RoomsHome() {
                       )}
                     </span>
                     <span className="room-line">{checkLine(r.check)}</span>
+                    <span className="room-next">다음 할 일: {nextAction(r, progress.mode, steps, branches).text}</span>
                     <StepBar segs={segs} />
                     <span className="small muted">{current ? `지금 ${current.no}단계 · ${current.title}` : "모든 단계를 마쳤어요"}</span>
                   </Link>

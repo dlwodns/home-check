@@ -439,3 +439,18 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
 .unknowns li { display: flex; flex-direction: column; gap: 3px; line-height: 1.5; }
 .signal-glyph { font-size: 14px; font-weight: 800; margin-right: -6px; }
 .pill-glyph { font-size: 11px; }
+
+/* 홈: 이어하기 · 다음 할 일 · 새로 들어올 때 짧은 입장 효과 */
+.continue-card { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border-radius: 20px; background: var(--accent); color: var(--on-accent); text-decoration: none; box-shadow: 0 8px 20px rgba(31, 122, 77, 0.22); }
+.continue-card .muted { color: var(--on-accent); opacity: 0.85; }
+.continue-card strong { font-size: 18px; line-height: 1.4; }
+.continue-go { align-self: flex-end; font-size: 14px; font-weight: 700; }
+.room-next { font-size: 13px; font-weight: 700; color: var(--accent); }
+.enter h1, .enter .lead, .enter .continue-card, .enter .room-list > li { animation: rise 0.3s ease-out both; }
+.enter .continue-card { animation-delay: 0.05s; }
+.enter .room-list > li:nth-child(1) { animation-delay: 0.1s; }
+.enter .room-list > li:nth-child(2) { animation-delay: 0.15s; }
+.enter .room-list > li:nth-child(n + 3) { animation-delay: 0.2s; }
+@media (prefers-reduced-motion: reduce) {
+  .enter h1, .enter .lead, .enter .continue-card, .enter .room-list > li { animation: none; }
+}

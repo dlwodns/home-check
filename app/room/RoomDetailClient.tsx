@@ -2,7 +2,7 @@
 // 방 상세: ① 이 방, 안전한가요? → ② 이 방은 이렇게 계약해요 → 계약 과정(끝: 계약 완료 · 보증금 지키기).
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Branch as BranchContent, Step } from "@/lib/content";
 import { removeRoom, withRoom } from "@/lib/store/rooms";
 import type { Branch } from "@/lib/store/progress";
@@ -13,7 +13,7 @@ import StepBar from "../ui/StepBar";
 import rules from "@/data/judge.json";
 import { goodPoints, headline } from "@/lib/registry/goodPoints";
 import { splitAll } from "@/lib/content/terms";
-import { flagViews, moneyLine, roomSteps, toCheckCount } from "../ui/roomView";
+import { flagViews, moneyLine, rememberLastRoom, roomSteps, toCheckCount } from "../ui/roomView";
 import TrafficLight from "../ui/TrafficLight";
 import TermText from "../ui/TermText";
 import UnknownList from "../ui/UnknownList";
@@ -33,6 +33,9 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
   const router = useRouter();
   const { progress, update, loaded, room } = useProgress();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  useEffect(() => {
+    if (room) rememberLastRoom(room.id);
+  }, [room]);
 
   if (!loaded) return <main className="container check" aria-busy="true" />;
   if (!room) {

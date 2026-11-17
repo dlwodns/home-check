@@ -49,3 +49,41 @@ export function moneyLine(room: Pick<Room, "deposit" | "rent">): string {
     ? `보증금 ${manwon(room.deposit)}`
     : `보증금 ${manwon(room.deposit)} · 월세 ${manwon(room.rent)}`;
 }
+
+/** 이 방에서 지금 할 일 하나 (방 카드 · '이어하기' 카드에 씀) */
+export function nextAction(room: Room, mode: Mode | null, steps: Step[], branches: BranchContent[]): { text: string; href: string } {
+  const q = `room=${encodeURIComponent(room.id)}`;
+  if (!room.check) return { text: "등기부등본 올려서 점검하기", href: `/check?${q}` };
+  const { current } = roomSteps(room, mode, steps, branches);
+  if (current) return { text: `${current.no}단계 · ${current.title}`, href: `/steps/${current.no}?${q}` };
+  return { text: "계약 완료 · 보증금 지키기까지 마쳤어요", href: `/room?id=${encodeURIComponent(room.id)}` };
+}
+
+const LAST_KEY = "homecheck.lastRoom.v1";
+/** 마지막으로 본 방 (홈의 '이어하기'에 씀) */
+export function rememberLastRoom(id: string) {
+  try {
+    localStorage.setItem(LAST_KEY, id);
+  } catch {
+    /* 막혀 있으면 첫 번째 방으로 대신 */
+  }
+}
+export function lastRoomId(): string | null {
+  try {
+    return localStorage.getItem(LAST_KEY);
+  } catch {
+    return null;
+  }
+}
+
+const SESSION_KEY = "homecheck.session.v1";
+/** 이번에 새로 들어온 것인지 (탭 · 앱을 새로 열 때만 true, 한 번 물어보면 기억) */
+export function freshVisit(): boolean {
+  try {
+    if (sessionStorage.getItem(SESSION_KEY)) return false;
+    sessionStorage.setItem(SESSION_KEY, "1");
+    return true;
+  } catch {
+    return false;
+  }
+}

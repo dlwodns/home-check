@@ -63,7 +63,7 @@ describe("홈 = 내 후보 방", () => {
   it("담은 방은 카드로: 이름 · 금액 · 점검 전 · 지금 3단계(방을 찾았으니 1 · 2단계는 건너뜀)", async () => {
     seedRooms(baseRoom);
     render(<RoomsHome />);
-    const card = await screen.findByRole("link", { name: /정문 원룸/ });
+    const card = await screen.findByRole("link", { name: /정문 원룸.*보증금/ });
     expect(card.getAttribute("href")).toBe("/room?id=r1");
     expect(card.textContent).toContain("보증금 500 · 월세 50");
     expect(card.textContent).toContain("점검 전");
@@ -329,7 +329,7 @@ describe("로비(입구)", () => {
     const { default: HomeGate } = await import("@/app/HomeGate");
     seedRooms(baseRoom);
     render(<HomeGate />);
-    expect(await screen.findByRole("link", { name: /정문 원룸/ })).toBeTruthy();
+    expect(await screen.findByRole("link", { name: /정문 원룸.*보증금/ })).toBeTruthy();
   });
 });
 
@@ -342,5 +342,38 @@ describe("홈 버튼", () => {
     cleanup();
     render(<RoomAddClient />);
     expect(screen.getByRole("link", { name: "홈으로" }).getAttribute("href")).toBe("/");
+  });
+});
+
+describe("홈: 이어하기 · 다음 할 일", () => {
+  it("맨 위 '이어하기'는 지난번 본 방의 다음 할 일로 가고, 방 카드에도 다음 할 일이 보인다", async () => {
+    seedRooms(baseRoom, { ...baseRoom, id: "r2", label: "후문 원룸" });
+    localStorage.setItem("homecheck.lastRoom.v1", "r2");
+    render(<RoomsHome />);
+    const cont = await screen.findByRole("link", { name: /지난번 본 방 · 후문 원룸/ });
+    expect(cont.getAttribute("href")).toBe("/check?room=r2");
+    expect(cont.textContent).toContain("등기부등본 올려서 점검하기");
+    const card = screen.getByRole("link", { name: /정문 원룸.*보증금/ });
+    expect(card.textContent).toContain("다음 할 일: 등기부등본 올려서 점검하기");
+  });
+
+  it("방 화면을 열면 '지난번 본 방'으로 기억한다", async () => {
+    seedRooms(baseRoom);
+    at("room?id=r1");
+    render(<RoomDetailClient steps={steps} branches={branches} />);
+    await screen.findByRole("heading", { name: "정문 원룸" });
+    expect(localStorage.getItem("homecheck.lastRoom.v1")).toBe("r1");
+  });
+
+  it("새로 들어왔을 때만 입장 효과(이번 탭에서 두 번째부터는 없음)", async () => {
+    sessionStorage.clear();
+    seedRooms(baseRoom);
+    const { container } = render(<RoomsHome />);
+    await screen.findByRole("link", { name: /정문 원룸.*보증금/ });
+    expect(container.querySelector("main")!.className).toContain("enter");
+    cleanup();
+    const again = render(<RoomsHome />);
+    await screen.findByRole("link", { name: /정문 원룸.*보증금/ });
+    expect(again.container.querySelector("main")!.className).not.toContain("enter");
   });
 });
