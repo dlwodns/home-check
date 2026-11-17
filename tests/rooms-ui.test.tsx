@@ -415,3 +415,48 @@ describe("다음 행동 · 계약 과정 (벤치마킹 7 · 8 · 9)", () => {
     f.mockRestore();
   });
 });
+
+describe("서류 · 준비물 (10)", () => {
+  it("방에 맞는 것만: 직거래면 중개 서류는 빼고, 아파트처럼 앞선 보증금이 해당 없으면 뺀다", async () => {
+    const { visibleDocs } = await import("@/app/docs/DocsClient");
+    const ids = (b: string | null, u: string[] | null) => visibleDocs(b, u).map((d) => d.item.id);
+    expect(ids("direct", ["tax"])).not.toContain("explanation_doc");
+    expect(ids("direct", ["tax"])).not.toContain("prior_deposits");
+    expect(ids("broker", ["prior_deposits"])).toEqual(expect.arrayContaining(["explanation_doc", "guarantee_cert", "prior_deposits"]));
+    const unknown = visibleDocs(null, null);
+    expect(unknown.find((d) => d.item.id === "explanation_doc")!.conditional).toBe(true);
+  });
+
+  it("모든 서류의 근거 번호가 근거 목록에 있다", async () => {
+    const docs = (await import("@/data/documents.json")).default;
+    const { findSource } = await import("@/lib/content");
+    for (const it of docs.items) for (const s of it.sources) expect(findSource(s), `${it.id}: ${s}`).toBeTruthy();
+  });
+
+  it("방에서 열고 체크하면 그 방에만 저장되고, 방 화면에 몇 개 챙겼는지 보인다", async () => {
+    const { default: DocsClient } = await import("@/app/docs/DocsClient");
+    const user = userEvent.setup();
+    seedRooms({ ...baseRoom, branch: "direct" }, { ...baseRoom, id: "r2" });
+    at("docs?room=r1");
+    render(<DocsClient />);
+    expect(await screen.findByRole("heading", { name: "무엇을 챙기면 되나요?" })).toBeTruthy();
+    expect(screen.getByText("인터넷 열람 700원 · 발급 1,000원", { exact: false })).toBeTruthy();
+    await user.click(screen.getByLabelText(/^등기부등본$/));
+    const rooms = savedRooms().rooms;
+    expect(rooms[0].checked["docs.registry"]).toBe(true);
+    expect(rooms[1].checked["docs.registry"]).toBeUndefined();
+    cleanup();
+    at("room?id=r1");
+    render(<RoomDetailClient steps={steps} branches={branches} />);
+    const link = await screen.findByRole("link", { name: /서류 · 준비물/ });
+    expect(link.getAttribute("href")).toBe("/docs?room=r1");
+    expect(link.textContent).toMatch(/1\/\d+/);
+  });
+
+  it("서류를 체크해도 계약 단계 진행률은 바뀌지 않는다", async () => {
+    const { roomSteps } = await import("@/app/ui/roomView");
+    const a = roomSteps({ ...baseRoom, branch: null, checked: {} } as never, "first", steps, branches).stats.done;
+    const b = roomSteps({ ...baseRoom, branch: null, checked: { "docs.registry": true } } as never, "first", steps, branches).stats.done;
+    expect(b).toBe(a);
+  });
+});

@@ -18,6 +18,7 @@ import TrafficLight from "../ui/TrafficLight";
 import TermText from "../ui/TermText";
 import UnknownList from "../ui/UnknownList";
 import HelpCard from "../ui/HelpCard";
+import { docKey, visibleDocs } from "../docs/DocsClient";
 import { unknownById, type Unknown } from "@/lib/registry/unknowns";
 import { roomsStore, useProgress } from "../ui/useProgress";
 import HomeLink from "../ui/HomeLink";
@@ -60,6 +61,9 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
   const flagSegs = splitAll(flags.map((f) => f.title));
   const good = check ? goodPoints({ flags: flagCodes(check.flags), ratio: check.ratio }, { caution: rules.ratio.caution_from }) : [];
   const r = (href: string) => withRoom(href, room.id);
+  const docsList = visibleDocs(progress.branch, room.check?.unknowns ?? null);
+  const docsTotal = docsList.length;
+  const docsDone = docsList.filter((d) => progress.checked[docKey(d.item.id)]).length;
 
   const del = () => {
     const s = roomsStore();
@@ -167,6 +171,13 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
         ) : (
           <p className="card small muted">점검하면 이 방에 맞춘 질문 · 할 일 · 특약을 알려 드려요.</p>
         )}
+        <Link href={r("/docs")} className="card docs-link">
+          <span>
+            <strong>서류 · 준비물</strong>
+            <span className="small muted">계약 전에 뗄 것 · 받을 것 · 계약하는 날 챙길 것 · 이사 뒤 할 것</span>
+          </span>
+          <span className="docs-count">{docsDone}/{docsTotal}</span>
+        </Link>
         <HelpCard />
       </section>
 

@@ -476,3 +476,18 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
   .done-ring, .done-tick { stroke-dashoffset: 0; animation: none; }
   .skel { animation: none; }
 }
+
+/* 서류 · 준비물 */
+.docs-group h2 { font-size: 15px; margin: 18px 0 8px; color: var(--accent); font-weight: 800; }
+.docs-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.docs-list > li { display: flex; gap: 12px; align-items: flex-start; padding: 14px; border-radius: 16px; border: 1px solid var(--border); }
+.docs-list > li > input { width: 22px; height: 22px; margin-top: 2px; flex-shrink: 0; accent-color: var(--accent); }
+.docs-list > li > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; line-height: 1.5; }
+.docs-list label { cursor: pointer; display: flex; flex-direction: column; gap: 2px; }
+.doc-only { font-size: 12px; font-weight: 700; color: var(--info); }
+.doc-meta { color: var(--text); }
+.doc-done { background: var(--safe-bg); border-color: transparent !important; }
+.doc-done strong { text-decoration: line-through; text-decoration-color: var(--muted); }
+.docs-link { display: flex; justify-content: space-between; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
+.docs-link > span:first-child { display: flex; flex-direction: column; gap: 2px; }
+.docs-count { font-size: 18px; font-weight: 800; color: var(--accent); flex-shrink: 0; }

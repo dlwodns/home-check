@@ -69,6 +69,12 @@ export default function StepClient({ step, total, branches, next = null }: { ste
         </p>
       )}
 
+      {step.no >= 4 && (
+        <Link href={r("/docs")} className="small">
+          서류 · 준비물 한눈에 보기 →
+        </Link>
+      )}
+
       {next ? (
         <Link href={r(`/steps/${next.no}`)} className="card next-step">
           <span className="small muted">다음은 {next.no}단계예요</span>

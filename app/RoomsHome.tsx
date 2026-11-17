@@ -87,7 +87,8 @@ export default function RoomsHome() {
                     <span className="room-line">{checkLine(r.check)}</span>
                     <span className="room-next">다음 할 일: {nextAction(r, progress.mode, steps, branches).text}</span>
                     <StepBar segs={segs} />
-                    <span className="small muted">{current ? `지금 ${current.no}단계 · ${current.title}` : "모든 단계를 마쳤어요"}</span>
+                    {/* 다음 할 일이 이미 '지금 단계'를 말하면 같은 줄을 또 쓰지 않는다 */}
+                    {!r.check && current && <span className="small muted">지금 {current.no}단계 · {current.title}</span>}
                   </Link>
                 </li>
               );
