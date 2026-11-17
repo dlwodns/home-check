@@ -69,7 +69,8 @@ describe("샘플로 만든 다음 행동", () => {
     expect(a.questions).toEqual([]);
     expect(a.todos.at(-1)).toContain("계약하는 날 등기부등본을 다시 떼서");
     expect(a.clauses.map((c) => c.id)).toEqual(["undisclosed_info"]);
-    expect(a.parentSummary).toContain("큰 위험 신호는 보이지 않았어요");
+    expect(a.parentSummary).toContain("확인한 범위 안에서는 큰 위험 신호가 없었어요");
+    expect(a.parentSummary).toContain("등기부로는 알 수 없어 따로 확인할 것: ");
   });
 
   it("부모님 요약에는 집주인 이름 · 주소 같은 다른 사람 개인정보가 없다", () => {

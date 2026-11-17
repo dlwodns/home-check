@@ -8,7 +8,9 @@ import type { Mortgage, RegistryRead } from "@/lib/registry/types";
 import { buildActions } from "@/lib/registry/actions";
 import { roomHref, roomIdFrom, summarize, updateRoom, type Room } from "@/lib/store/rooms";
 import { roomsStore } from "../ui/useProgress";
-import { goodPoints, headline } from "@/lib/registry/goodPoints";
+import { goodPoints, headline, summaryLines } from "@/lib/registry/goodPoints";
+import { unknownsFor } from "@/lib/registry/unknowns";
+import UnknownList from "../ui/UnknownList";
 import { splitAll, type Segment } from "@/lib/content/terms";
 import NextActions from "./NextActions";
 import TrafficLight from "../ui/TrafficLight";
@@ -93,7 +95,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     setOutcome(out);
     if (out.ok && room) {
       const store = roomsStore();
-      const summary = summarize(out.result, buildActions(out.read, out.result), asOf);
+      const summary = summarize(out.result, buildActions(out.read, out.result), asOf, unknownsFor(out.read, out.result).map((u) => u.id));
       store.save(updateRoom(store.load(), room.id, (r) => ({ ...r, check: summary })));
       setSavedToRoom(true);
     }
@@ -261,6 +263,9 @@ function Result({
   const toCheck = flags.filter((f) => f.level !== "info");
   const notes = flags.filter((f) => f.level === "info");
   const good = goodPoints(result, ratioLines);
+  const unknowns = unknownsFor(read, result);
+  const actions = buildActions(read, result);
+  const summary = summaryLines(toCheck[0]?.title ?? null, actions.todos[0] ?? null, good.length, unknowns.length);
   // 이 결과 화면의 이유 문장들: 같은 용어는 처음 나올 때만 누를 수 있게
   const segs = splitAll(flags.map((f) => f.title));
   const segOf = (code: string) => segs[flags.findIndex((f) => f.code === code)];
@@ -278,6 +283,11 @@ function Result({
     <section aria-live="polite" className="result" ref={ref}>
       <TrafficLight verdict={result.verdict} />
       <h2 className="result-head">{headline(result.verdict, toCheck.length)}</h2>
+      <ul className="summary-lines">
+        {summary.map((l) => (
+          <li key={l}>{l}</li>
+        ))}
+      </ul>
 
       {warnings.length > 0 && !confirmed && (
         <div className="card warn" role="status">
@@ -331,9 +341,11 @@ function Result({
         </>
       )}
 
+      <UnknownList items={unknowns} />
+
       <ReadEditor read={read} hasWarnings={warnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />
 
-      <NextActions actions={buildActions(read, result)} />
+      <NextActions actions={actions} />
     </section>
   );
 }

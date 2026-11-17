@@ -169,6 +169,7 @@ describe("카드 · 상세 표시 계산", () => {
     ratio: 76,
     asOf: "2026-11-17",
     actions: { questions: [], todos: [], clauses: [], parentSummary: "" },
+    unknowns: [],
   };
 
   it("없어진 이유 코드는 건너뛰고, 참고(info)는 '확인할 것'에 세지 않는다", () => {
@@ -176,7 +177,7 @@ describe("카드 · 상세 표시 계산", () => {
     expect(toCheckCount(summary)).toBe(1);
     expect(checkLine(summary)).toBe("계약 전에 확인할 것이 1가지 있어요");
     expect(checkLine(null)).toMatch(/등기부등본을 올리면/);
-    expect(checkLine({ ...summary, verdict: "safe", flags: [] })).toBe("큰 위험 신호는 보이지 않아요");
+    expect(checkLine({ ...summary, verdict: "safe", flags: [] })).toBe("확인한 범위 안에서는 큰 위험 신호가 없어요");
   });
 
   it("금액 줄: 전세면 월세를 빼고 쉼표를 붙인다", () => {

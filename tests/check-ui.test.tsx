@@ -175,3 +175,17 @@ describe("PDF 올리기", () => {
   });
 });
 
+
+describe("결과: 3줄 요약 · 알 수 없는 것 · 판정 모양 (벤치마킹 반영)", () => {
+  it("안전 샘플도 '확인한 범위 안에서'라고 말하고, 등기부로 알 수 없는 것을 함께 보여 준다", async () => {
+    const user = userEvent.setup();
+    render(<CheckClient samples={samples} />);
+    await user.click(screen.getByRole("button", { name: "안전 샘플" }));
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(screen.getByText("확인한 범위 안에서는 큰 위험 신호가 없어요")).toBeTruthy();
+    expect(screen.getByText(/등기부등본으로는 알 수 없는 것 \d가지/)).toBeTruthy();
+    expect(screen.getByText(/집주인의 국세 · 지방세 체납/)).toBeTruthy();
+    expect(document.querySelector(".summary-lines")!.textContent).toContain("등기부로는 알 수 없는 것");
+    expect(document.querySelector(".signal-glyph")!.textContent).toBe("✓");
+  });
+});

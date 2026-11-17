@@ -22,5 +22,17 @@ export function goodPoints(result: Pick<CheckResult, "flags" | "ratio">, lines: 
 /** 위험 · 주의 이유 개수 → 큰 제목 */
 export function headline(verdict: CheckResult["verdict"], count: number): string {
   if (count > 0) return `계약 전에 확인할 것이 ${count}가지 있어요`;
-  return verdict === "safe" ? "큰 위험 신호는 보이지 않아요" : "계약 전에 한 번 더 확인해 주세요";
+  return verdict === "safe" ? "확인한 범위 안에서는 큰 위험 신호가 없어요" : "계약 전에 한 번 더 확인해 주세요";
+}
+
+/**
+ * 큰 제목 아래 3줄 요약: 가장 먼저 볼 것 · 지금 할 일 · 괜찮은 점과 알 수 없는 것 개수 (직방 지킴 진단 '종합 의견'처럼 짧게)
+ * @param topReason 위험 · 주의 이유 중 가장 급한 것의 제목 (없으면 null)
+ */
+export function summaryLines(topReason: string | null, firstTodo: string | null, goodCount: number, unknownCount: number): string[] {
+  const lines: string[] = [];
+  lines.push(topReason ? `가장 먼저: ${topReason}` : "등기부등본에서 위험 기록은 찾지 못했어요");
+  if (firstTodo) lines.push(`지금 할 일: ${firstTodo}`);
+  lines.push(`괜찮은 점 ${goodCount}가지 · 등기부로는 알 수 없는 것 ${unknownCount}가지`);
+  return lines;
 }

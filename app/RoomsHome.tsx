@@ -6,6 +6,7 @@ import AccountLink from "./ui/AccountLink";
 import { branches, steps } from "@/lib/content";
 import { roomHref } from "@/lib/store/rooms";
 import StepBar from "./ui/StepBar";
+import { VERDICT_GLYPH } from "./ui/TrafficLight";
 import { checkLine, moneyLine, roomSteps, VERDICT_TEXT } from "./ui/roomView";
 import { useProgress } from "./ui/useProgress";
 import { useRooms } from "./ui/useRooms";
@@ -54,7 +55,9 @@ export default function RoomsHome() {
                       </span>
                       {r.check ? (
                         <span className={`pill pill-${r.check.verdict}`}>
-                          <span className="dot" aria-hidden="true" />
+                          <span className="pill-glyph" aria-hidden="true">
+                            {VERDICT_GLYPH[r.check.verdict]}
+                          </span>
                           {VERDICT_TEXT[r.check.verdict].label}
                         </span>
                       ) : (

@@ -8,7 +8,7 @@ import { roomProgress, type CheckSummary, type Room } from "@/lib/store/rooms";
 import { stepStats } from "@/lib/store/stats";
 
 export const VERDICT_TEXT = {
-  safe: { label: "안전", line: "큰 위험 신호는 보이지 않아요" },
+  safe: { label: "안전", line: "확인한 범위 안에서는 큰 위험 신호가 없어요" },
   caution: { label: "주의", line: "계약 전에 확인할 것이 있어요" },
   danger: { label: "위험", line: "이대로 계약하면 위험할 수 있어요" },
 } as const;

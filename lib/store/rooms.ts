@@ -5,6 +5,9 @@ import { notifySaved } from "./events";
 import type { NextActions } from "@/lib/registry/actions";
 import { parseManwon } from "@/lib/registry/check";
 import type { CheckResult } from "@/lib/registry/types";
+import { UNKNOWN_IDS } from "@/lib/registry/unknowns";
+
+const DEFAULT_UNKNOWNS = ["tax", "identity", "building", "later_changes"];
 import type { Branch, Mode, Progress } from "./progress";
 
 export type Verdict = CheckResult["verdict"];
@@ -17,6 +20,8 @@ export interface CheckSummary {
   /** 점검한 날 YYYY-MM-DD */
   asOf: string;
   actions: NextActions;
+  /** 등기부로는 알 수 없는 것 (lib/registry/unknowns의 id) */
+  unknowns: string[];
 }
 
 /** 법정동: 시군구 코드 5자리 + 동 이름. 동네 시세(F6)를 찾는 데만 쓴다 */
@@ -104,6 +109,8 @@ function parseSummary(v: unknown): CheckSummary | null {
     flags: strList(d.flags, 60).filter((f) => /^[a-z_]+$/.test(f)),
     ratio: num(d.ratio),
     asOf: /^\d{4}-\d{2}-\d{2}$/.test(String(d.asOf)) ? String(d.asOf) : "",
+    // 예전에 저장한 요약에는 없으므로, 그때는 언제나 해당하는 것만 넣는다
+    unknowns: Array.isArray(d.unknowns) ? strList(d.unknowns, 30).filter((u) => UNKNOWN_IDS.includes(u)) : [...DEFAULT_UNKNOWNS],
     actions: {
       questions: strList(a.questions),
       todos: strList(a.todos),
@@ -255,8 +262,8 @@ export function roomProgress(room: Room, mode: Mode | null): Progress {
 }
 
 /** 점검 결과에서 방에 남길 요약만 뽑는다 (등기부 원문 · 집주인 이름은 넣지 않는다). */
-export function summarize(result: CheckResult, actions: NextActions, asOf: string): CheckSummary {
-  return { verdict: result.verdict, flags: [...result.flags], ratio: result.ratio, asOf, actions };
+export function summarize(result: CheckResult, actions: NextActions, asOf: string, unknowns: string[] = [...DEFAULT_UNKNOWNS]): CheckSummary {
+  return { verdict: result.verdict, flags: [...result.flags], ratio: result.ratio, asOf, actions, unknowns };
 }
 
 /** 주소 쿼리 ?room=… 에서 방 id를 읽는다. 모양이 이상하면 null. */

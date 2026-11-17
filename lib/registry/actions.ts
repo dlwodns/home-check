@@ -3,6 +3,7 @@
 import data from "@/data/actions.json";
 import { findSource } from "@/lib/content";
 import { formatWon, toFlagView } from "./check";
+import { unknownsFor } from "./unknowns";
 import type { CheckResult, FlagCode, RegistryRead } from "./types";
 
 interface FlagActions {
@@ -87,7 +88,7 @@ export function buildActions(read: RegistryRead, result: CheckResult): NextActio
         sources: c.sources.map((sid) => ({ id: sid, title: findSource(sid)?.title ?? sid })),
       };
     }),
-    parentSummary: parentSummary(result, todos),
+    parentSummary: parentSummary(result, todos, unknownsFor(read, result).map((u) => u.short)),
   };
 }
 
@@ -95,15 +96,16 @@ export function buildActions(read: RegistryRead, result: CheckResult): NextActio
  * 가족 · 지인에게 보낼 요약. 집주인 이름 · 주소 같은 다른 사람의 개인정보는 넣지 않는다.
  * 참고 안내(info)는 빼고 위험 · 주의 이유와 할 일 3개까지만 넣어 짧게 유지한다.
  */
-function parentSummary(result: CheckResult, todos: string[]): string {
+function parentSummary(result: CheckResult, todos: string[], unknowns: string[]): string {
   const reasons = result.flags
     .map((f: FlagCode) => toFlagView(f))
     .filter((f) => f.level !== "info")
     .map((f) => `· ${f.title}`);
   const lines = [
     `[홈체크] 등기부등본 점검 결과: ${VERDICT_WORD[result.verdict]}`,
-    ...(reasons.length ? reasons : ["· 큰 위험 신호는 보이지 않았어요"]),
+    ...(reasons.length ? reasons : ["· 확인한 범위 안에서는 큰 위험 신호가 없었어요"]),
     result.ratio !== null ? `· 빚 + 보증금 = 건물 시세의 ${result.ratio}% (70 · 80%는 참고선)` : null,
+    unknowns.length ? `· 등기부로는 알 수 없어 따로 확인할 것: ${unknowns.join(" · ")}` : null,
     "",
     "다음에 할 일",
     ...todos.slice(0, 3).map((t, i) => `${i + 1}. ${t}`),

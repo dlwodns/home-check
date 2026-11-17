@@ -29,7 +29,7 @@ describe("이 기기 기록 + 계정 기록 합치기", () => {
   });
 
   it("같은 방이면 체크는 합치고, 비어 있는 점검 · 동네 · 갈래 · 링크는 다른 쪽으로 채운다", () => {
-    const summary = { verdict: "caution" as const, flags: [], ratio: 76, asOf: "2026-11-17", actions: { questions: [], todos: [], clauses: [], parentSummary: "" } };
+    const summary = { verdict: "caution" as const, flags: [], ratio: 76, asOf: "2026-11-17", actions: { questions: [], todos: [], clauses: [], parentSummary: "" }, unknowns: [] };
     const m = mergeRooms(
       rs(room("a", { checked: { "s1.a": true }, label: "이 기기 이름" })),
       rs(room("a", { checked: { "s4.b": true }, check: summary, region: { sgg: "11440", dong: "서교동" }, branch: "direct", link: "https://example.com/1", label: "계정 이름" })),

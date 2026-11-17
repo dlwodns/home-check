@@ -16,6 +16,8 @@ import { splitAll } from "@/lib/content/terms";
 import { flagViews, moneyLine, roomSteps, toCheckCount } from "../ui/roomView";
 import TrafficLight from "../ui/TrafficLight";
 import TermText from "../ui/TermText";
+import UnknownList from "../ui/UnknownList";
+import { unknownById, type Unknown } from "@/lib/registry/unknowns";
 import { roomsStore, useProgress } from "../ui/useProgress";
 import HomeLink from "../ui/HomeLink";
 
@@ -114,6 +116,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
                 ))}
               </ul>
             )}
+            <UnknownList items={check.unknowns.map(unknownById).filter((u): u is Unknown => Boolean(u))} />
             <p className="small muted">
               {check.asOf} 점검 · <Link href={r("/check")}>다시 점검하기</Link>
             </p>
