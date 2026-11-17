@@ -14,16 +14,25 @@ export type ParsedAmount = { ok: true; won: number | null } | { ok: false; messa
  * 만 원 단위 입력칸을 원으로 바꾼다. 빈칸은 null(모름)이고, 0으로 치지 않는다.
  * 허용: "500", "1,000", " 500 ", "500만", "500만원", "1억", "1억 2,000", "1억2000만원"
  */
+/** 받침에 맞는 조사: josa("월세", "은", "는") → "월세는", josa("보증금", "은", "는") → "보증금은" */
+export const NOT_REGISTRY = "등기부등본 형식을 찾지 못했어요.";
+
+export function josa(word: string, withBatchim: string, without: string): string {
+  const last = word.charCodeAt(word.length - 1);
+  const hangul = last >= 0xac00 && last <= 0xd7a3;
+  return word + (hangul && (last - 0xac00) % 28 !== 0 ? withBatchim : without);
+}
+
 export function parseManwon(raw: string, label: string): ParsedAmount {
   const s = raw.replace(/\s/g, "").replace(/,/g, "").replace(/원$/, "");
   if (s === "") return { ok: true, won: null };
   const m = /^(?:(\d+(?:\.\d+)?)억)?(?:(\d+(?:\.\d+)?)(?:만)?)?$/.exec(s);
   if (!m || (m[1] === undefined && m[2] === undefined)) {
-    return { ok: false, message: `${label}은(는) 숫자로 적어 주세요. 예: 500 (만 원 단위)` };
+    return { ok: false, message: `${josa(label, "은", "는")} 숫자로 적어 주세요. 예: 500 (만 원 단위)` };
   }
   const manwon = Number(m[1] ?? 0) * 10_000 + Number(m[2] ?? 0);
   if (!Number.isFinite(manwon) || manwon > 1_000_000) {
-    return { ok: false, message: `${label}이(가) 너무 커요. 만 원 단위로 적었는지 확인해 주세요.` };
+    return { ok: false, message: `${josa(label, "이", "가")} 너무 커요. 만 원 단위로 적었는지 확인해 주세요.` };
   }
   return { ok: true, won: Math.round(manwon * MANWON) };
 }
@@ -94,6 +103,10 @@ export function runCheck(
   if (errors.length || !my.ok || !prior.ok || !market.ok) return { ok: false, errors };
 
   const { read: parsed, warnings } = readRegistry(text);
+  // 등기부등본이 아닌 글이면 판정(신호등)을 내지 않는다 — 엉뚱한 글에 '주의'가 뜨면 믿을 수 없는 결과처럼 보인다
+  if (!options.edited && warnings.some((w) => w.startsWith(NOT_REGISTRY))) {
+    return { ok: false, errors: [`${NOT_REGISTRY} 인터넷등기소에서 받은 등기사항전부증명서를 그대로 붙여 넣거나 PDF로 올려 주세요.`] };
+  }
   const read = options.edited ?? parsed;
   const inputs: CheckInputs = {
     market_price: market.won,

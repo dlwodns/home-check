@@ -111,3 +111,21 @@ describe("금액 보여 주기", () => {
     expect(formatWon(won)).toBe(text);
   });
 });
+
+describe("이상한 입력 (7주차 점검표 ⑤)", () => {
+  it("등기부등본이 아닌 글이면 판정(신호등)을 내지 않고 고칠 말만 준다", async () => {
+    const { runCheck } = await import("@/lib/registry/check");
+    const out = runCheck("가나다 ABCDEFG".repeat(2000), { myDeposit: "500", priorDeposits: "", marketPrice: "", contractParty: "" }, "2026-11-17");
+    expect(out.ok).toBe(false);
+    if (!out.ok) expect(out.errors.join(" ")).toMatch(/등기부등본 형식을 찾지 못했어요/);
+  });
+
+  it("오류 문장의 조사가 받침에 맞는다 (보증금은 · 월세는 · 시세가)", async () => {
+    const { josa, parseManwon } = await import("@/lib/registry/check");
+    expect(josa("보증금", "은", "는")).toBe("보증금은");
+    expect(josa("월세", "은", "는")).toBe("월세는");
+    expect(josa("건물 시세", "이", "가")).toBe("건물 시세가");
+    const r = parseManwon("abc", "월세");
+    expect(!r.ok && r.message).toBe("월세는 숫자로 적어 주세요. 예: 500 (만 원 단위)");
+  });
+});

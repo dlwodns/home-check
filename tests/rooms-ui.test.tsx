@@ -290,3 +290,15 @@ describe("개인정보 안내 · 기록 지우기", () => {
     expect((await screen.findByRole("link", { name: "개인정보 · 데이터 안내" })).getAttribute("href")).toBe("/privacy");
   });
 });
+
+describe("이상한 입력 (7주차 점검표 ⑤)", () => {
+  it("저장 버튼을 빠르게 두 번 눌러도 방은 하나만 생긴다", async () => {
+    const user = userEvent.setup();
+    render(<RoomAddClient />);
+    await user.type(screen.getByLabelText("주소"), "OO동 1");
+    await user.type(screen.getByLabelText("보증금 (만 원)"), "500");
+    await user.dblClick(screen.getByRole("button", { name: "저장하고 이 방 보기" }));
+    expect(savedRooms().rooms).toHaveLength(1);
+    expect(push).toHaveBeenCalledTimes(1);
+  });
+});

@@ -2,7 +2,7 @@
 // 후보 방 추가: 주소 · 보증금/월세 · (선택) 링크 · 메모 세 칸만. 저장하면 바로 그 방 화면으로 간다.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { Region } from "@/lib/region";
 import { addRoom, MAX_ROOMS, newRoomId, roomHref, validateRoomInput, type RoomInput } from "@/lib/store/rooms";
 import { todayKST } from "@/lib/registry/check";
@@ -35,13 +35,18 @@ export default function RoomAddClient() {
 
   const set = (k: Field) => (e: React.ChangeEvent<HTMLInputElement>) => setInput((v) => ({ ...v, [k]: e.target.value }));
 
+  const [saving, setSaving] = useState(false); // 두 번 눌러도 방이 하나만 생기게
+  const savingRef = useRef(false);
   const save = (e: React.FormEvent) => {
     e.preventDefault();
+    if (savingRef.current) return;
     const v = validateRoomInput({ ...input, region: chosen ? { sgg: chosen.sgg, dong: chosen.dong } : null });
     if (!v.ok) {
       setErrors(v.errors);
       return;
     }
+    savingRef.current = true;
+    setSaving(true);
     const id = newRoomId();
     update((s) => addRoom(s, v.draft, id, todayKST()));
     router.push(roomHref(id));
@@ -167,7 +172,7 @@ export default function RoomAddClient() {
 
           <p className="privacy">🔒 이 휴대폰(브라우저)에만 저장돼요. 등기부등본은 다음 화면에서 올리고, 어디에도 보내지 않아요. <Link href="/privacy">자세히</Link></p>
 
-          <button type="submit" className="primary">
+          <button type="submit" className="primary" disabled={saving}>
             저장하고 이 방 보기
           </button>
         </form>
