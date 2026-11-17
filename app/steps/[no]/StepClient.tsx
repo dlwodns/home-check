@@ -13,7 +13,7 @@ import HomeLink from "../../ui/HomeLink";
 
 const BRANCH_TITLE = { broker: "중개사를 통해서라면 내가 직접 확인할 것", direct: "직거래라서 꼭 할 것" } as const;
 
-export default function StepClient({ step, total, branches }: { step: Step; total: number; branches: Branch[] }) {
+export default function StepClient({ step, total, branches, next = null }: { step: Step; total: number; branches: Branch[]; next?: Step | null }) {
   const { progress, update, room, roomId } = useProgress();
   const r = (href: string) => withRoom(href, roomId);
   const branch = step.key ? branches.find((b) => b.id === progress.branch) : undefined;
@@ -66,6 +66,19 @@ export default function StepClient({ step, total, branches }: { step: Step; tota
         <p className="card small">
           {progress.branch === "none" ? "방을 찾으면" : "방을 어디서 찾았는지 고르면"} 중개사 · 직거래 맞춤 체크리스트가 여기에 붙어요.{" "}
           <Link href={r("/where")}>고르러 가기</Link>
+        </p>
+      )}
+
+      {next ? (
+        <Link href={r(`/steps/${next.no}`)} className="card next-step">
+          <span className="small muted">다음은 {next.no}단계예요</span>
+          <strong>{next.title}</strong>
+          <span className="small">{next.summary}</span>
+        </Link>
+      ) : (
+        <p className="card next-step">
+          <span className="small muted">마지막 단계예요</span>
+          <strong>여기까지 하면 계약 완료 · 보증금 지키기 끝</strong>
         </p>
       )}
 

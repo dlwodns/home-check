@@ -33,9 +33,11 @@ export default function RentCard({ room }: { room: Pick<Room, "deposit" | "rent"
   }
   if (state.kind === "loading") {
     return (
-      <p className="card small muted rent" role="status">
-        {region.dong} 시세를 찾는 중이에요…
-      </p>
+      <div className="card rent rent-loading" role="status" aria-label={`${region.dong} 시세를 찾는 중이에요`}>
+        <span className="skel skel-title" />
+        <span className="skel" />
+        <span className="skel skel-short" />
+      </div>
     );
   }
   if (state.kind === "error") {

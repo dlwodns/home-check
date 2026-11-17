@@ -377,3 +377,41 @@ describe("홈: 이어하기 · 다음 할 일", () => {
     expect(again.container.querySelector("main")!.className).not.toContain("enter");
   });
 });
+
+describe("다음 행동 · 계약 과정 (벤치마킹 7 · 8 · 9)", () => {
+  it("막히면 물어볼 공공 상담 창구가 전화 링크로 있다 (번호는 공식 확인한 것)", async () => {
+    seedRooms(baseRoom);
+    at("room?id=r1");
+    render(<RoomDetailClient steps={steps} branches={branches} />);
+    expect((await screen.findByRole("link", { name: /대한법률구조공단 법률상담 132 전화하기/ })).getAttribute("href")).toBe("tel:132");
+    expect(screen.getByRole("link", { name: /HUG 전세피해 및 예방지원센터 1533-8119 전화하기/ }).getAttribute("href")).toBe("tel:1533-8119");
+  });
+
+  it("단계 화면 끝에 '다음은 N단계' 미리보기, 마지막 단계는 끝이라고 알려 준다", () => {
+    render(<StepClient step={steps[2]} total={steps.length} branches={branches} next={steps[3]} />);
+    expect(screen.getByRole("link", { name: /다음은 4단계예요/ }).getAttribute("href")).toBe("/steps/4");
+    cleanup();
+    render(<StepClient step={steps[5]} total={steps.length} branches={branches} next={null} />);
+    expect(screen.getByText(/계약 완료 · 보증금 지키기 끝/)).toBeTruthy();
+  });
+
+  it("모든 단계를 다 체크하면 '계약 완료까지 다 챙겼어요'가 한 번 보인다", async () => {
+    const checked: Record<string, boolean> = {};
+    for (const s of steps) for (const i of s.items) checked[`${s.id}.${i.id}`] = true;
+    const direct = branches.find((b) => b.id === "direct")!;
+    for (const i of direct.items) checked[`${direct.id}.${i.id}`] = true;
+    seedRooms({ ...baseRoom, branch: "direct", checked });
+    at("room?id=r1");
+    render(<RoomDetailClient steps={steps} branches={branches} />);
+    expect(await screen.findByText("계약 완료까지 다 챙겼어요")).toBeTruthy();
+  });
+
+  it("동네 시세를 불러오는 동안 회색 틀(로딩)을 보여 준다", async () => {
+    const f = vi.spyOn(globalThis, "fetch").mockReturnValue(new Promise(() => {}));
+    seedRooms({ ...baseRoom, region: { sgg: "11440", dong: "서교동" } });
+    at("room?id=r1");
+    render(<RoomDetailClient steps={steps} branches={branches} />);
+    expect(await screen.findByRole("status", { name: "서교동 시세를 찾는 중이에요" })).toBeTruthy();
+    f.mockRestore();
+  });
+});

@@ -17,6 +17,7 @@ import { flagViews, moneyLine, rememberLastRoom, roomSteps, toCheckCount } from 
 import TrafficLight from "../ui/TrafficLight";
 import TermText from "../ui/TermText";
 import UnknownList from "../ui/UnknownList";
+import HelpCard from "../ui/HelpCard";
 import { unknownById, type Unknown } from "@/lib/registry/unknowns";
 import { roomsStore, useProgress } from "../ui/useProgress";
 import HomeLink from "../ui/HomeLink";
@@ -166,6 +167,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
         ) : (
           <p className="card small muted">점검하면 이 방에 맞춘 질문 · 할 일 · 특약을 알려 드려요.</p>
         )}
+        <HelpCard />
       </section>
 
       <section aria-labelledby="sec-steps" className="room-sec">
@@ -176,6 +178,18 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
           <span className="small muted">{current ? `지금 ${current.no}단계 · ${current.title}` : "모든 단계를 마쳤어요"}</span>
         </div>
         <StepBar segs={segs} finish />
+        {!current && (
+          <div className="done-card" role="status">
+            <svg className="done-check" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle className="done-ring" pathLength={1} cx="12" cy="12" r="10" />
+              <path className="done-tick" pathLength={1} d="M7.5 12.5l3 3 6-6.5" />
+            </svg>
+            <span>
+              <strong>계약 완료까지 다 챙겼어요</strong>
+              <span className="small">이사 뒤 전입신고 · 확정일자까지 했다면, 보증금을 지키는 준비가 끝났어요.</span>
+            </span>
+          </div>
+        )}
         <p className="small muted finish">도착: 계약 완료 · 보증금 지키기 (전입신고 · 확정일자)</p>
         <Link href={r(current ? `/steps/${current.no}` : "/steps")} className="cta cta-soft">
           {current ? `${current.no}단계 할 일 보기` : "단계 다시 보기"}

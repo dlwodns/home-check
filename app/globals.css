@@ -454,3 +454,25 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
 @media (prefers-reduced-motion: reduce) {
   .enter h1, .enter .lead, .enter .continue-card, .enter .room-list > li { animation: none; }
 }
+
+/* 상담 창구 · 다음 단계 · 완료 · 시세 로딩 틀 */
+.help h3 { margin: 0 0 10px; font-size: 15px; }
+.help ul { list-style: none; margin: 0 0 8px; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.help li { display: flex; gap: 12px; align-items: flex-start; }
+.help li > span { display: flex; flex-direction: column; gap: 2px; }
+.help-tel { flex-shrink: 0; min-width: 88px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border-radius: 12px; background: var(--safe-bg); color: var(--accent); font-weight: 800; text-decoration: none; }
+.next-step { display: flex; flex-direction: column; gap: 4px; text-decoration: none; color: var(--text); background: var(--soft); border: 0; }
+.next-step strong { font-size: 16px; }
+.done-card { display: flex; gap: 14px; align-items: center; padding: 16px; border-radius: 18px; background: var(--safe-bg); color: var(--safe); }
+.done-card > span { display: flex; flex-direction: column; gap: 2px; color: var(--text); }
+.done-ring, .done-tick { stroke-dasharray: 1; stroke-dashoffset: 1; animation: draw 0.45s ease-out forwards; }
+.done-tick { animation-delay: 0.35s; animation-duration: 0.3s; }
+.skel { display: block; height: 12px; border-radius: 6px; background: linear-gradient(90deg, var(--border) 25%, var(--soft) 50%, var(--border) 75%); background-size: 200% 100%; animation: skel 1.2s linear infinite; }
+.skel-title { height: 16px; width: 70%; }
+.skel-short { width: 45%; }
+.rent-loading { gap: 10px; }
+@keyframes skel { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .done-ring, .done-tick { stroke-dashoffset: 0; animation: none; }
+  .skel { animation: none; }
+}

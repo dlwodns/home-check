@@ -11,6 +11,7 @@ import { roomsStore } from "../ui/useProgress";
 import { goodPoints, headline, summaryLines } from "@/lib/registry/goodPoints";
 import { unknownsFor } from "@/lib/registry/unknowns";
 import UnknownList from "../ui/UnknownList";
+import HelpCard from "../ui/HelpCard";
 import { splitAll, type Segment } from "@/lib/content/terms";
 import NextActions from "./NextActions";
 import TrafficLight from "../ui/TrafficLight";
@@ -346,6 +347,7 @@ function Result({
       <ReadEditor read={read} hasWarnings={warnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />
 
       <NextActions actions={actions} />
+      <HelpCard />
     </section>
   );
 }
