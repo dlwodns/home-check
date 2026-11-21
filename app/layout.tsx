@@ -8,7 +8,7 @@ const description = "관심 있는 방, 계약해도 될까? 등기부등본으�
 
 export const metadata: Metadata = {
   metadataBase: new URL(site),
-  title: "홈체크 · 전월세 계약 전 점검",
+  title: "홈체크 · 이 방, 계약해도 될까?",
   description,
   applicationName: "홈체크",
   appleWebApp: { capable: true, title: "홈체크", statusBarStyle: "default" },
@@ -16,9 +16,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "ko_KR",
     siteName: "홈체크",
-    title: "홈체크 · 관심 있는 방, 계약해도 될까?",
+    title: "홈체크 · 이 방, 계약해도 될까?",
     description,
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "홈체크: 관심 있는 방, 계약해도 될까?" }],
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "홈체크 · 이 방, 계약해도 될까?" }],
   },
   twitter: { card: "summary_large_image", images: ["/og.png"] },
 };

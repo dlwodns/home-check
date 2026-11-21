@@ -45,7 +45,7 @@ function ogSvg(font) {
   const W = 1200;
   const H = 630;
   const title = textPath(font, "홈체크", 228, 250, 92, INK, 3);
-  const l1 = textPath(font, "관심 있는 방, 계약해도 될까?", 96, 390, 56, INK, 1.6);
+  const l1 = textPath(font, "이 방, 계약해도 될까?", 96, 390, 56, INK, 1.6);
   const l2 = textPath(font, "위험부터 확인하고, 그 방에 맞는 계약 방법까지", 96, 470, 38, "#4E5968", 0.6);
   const l3 = textPath(font, "전월세 계약 전 등기부등본 점검 · 참고용 안내", 96, 560, 28, "#6B7684");
   const icon = `<g transform="translate(96 160)"><rect width="110" height="110" rx="26" fill="${GREEN}"/><g transform="translate(16 16) scale(3.25)">${mark()}</g></g>`;
