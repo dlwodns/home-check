@@ -44,7 +44,7 @@
 - [x] A9 Supabase에 남은 시험 계정(hc-e2e-…@example.com) 지우기 — 사용자 (11/17 완료)
 
 ### B. 배포 (개발의 마지막 단계)
-- [ ] B1 Netlify: 저장소 연결, 환경 변수 3개(Supabase 2개 · 공공데이터 키), Make public
+- [x] B1 Netlify: 저장소 연결, 환경 변수 3개(Supabase 2개 · 공공데이터 키), Make public (11/21 완료: https://home-checkapp.netlify.app. 확인: https · http→https 이동 · 보안 헤더 · 부제 · 공유 이미지 · 시세 API 실제 응답 · CSP에 Supabase 주소 · 공공데이터 키가 공개 파일에 없음 · 저장소엔 빈 .env.sample만)
 - [ ] B2 8주차 완료 체크 6개(https · 스마트폰 · 기능 · 데이터 · GitHub에 .env 없음 · RLS) + 휴대폰으로 처음부터 끝까지
 
 ### C. 포스터 · 제출
