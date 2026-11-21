@@ -91,6 +91,11 @@ FONT_PATH=/경로/NanumGothic-Regular.ttf npm run samples:pdf
 - 주소: https://home-checkapp.netlify.app · 환경 변수 3개(아래 '필요한 키'의 Supabase 2개 · 공공데이터 키)는 Netlify 화면에 넣습니다. `NEXT_PUBLIC_` 두 개는 브라우저로 가는 공개용 값이라 secret으로 표시하지 않습니다(표시하면 빌드가 실패할 수 있음). 키를 바꾸면 **Clear cache and deploy**로 다시 배포해야 반영됩니다.
 - GitHub에 올릴 때마다 **자동 테스트(CI)**가 돕니다: 타입 검사 → 테스트 → 빌드 (`.github/workflows/ci.yml`).
 
+## 포스터 (A2)
+
+- 결과물: `poster/homecheck-poster-A2.pdf` (420 × 594mm, 1쪽) · 미리보기 `poster/homecheck-poster-preview.png`
+- 만드는 법은 Claude 스킬 [`.claude/skills/poster/SKILL.md`](.claude/skills/poster/SKILL.md)에 있습니다: 화면 캡처(`scripts/poster-shots.mjs`) → `poster/poster.html` 고치기 → `CHROME_PATH=/경로/chrome node scripts/make-poster.mjs`
+
 ## 필요한 키
 
 | 이름 | 설명 |
