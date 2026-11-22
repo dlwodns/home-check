@@ -57,7 +57,7 @@ export default function RoomsHome() {
             <h2 id="rooms-title">
               내 후보 방 <span className="accent">{rooms.length}</span>
             </h2>
-            <span className="small muted">이 휴대폰에 저장돼요</span>
+            <span className="small muted">이 기기에 저장돼요</span>
           </div>
           <ul className="room-list">
             {rooms.map((r) => {

@@ -145,7 +145,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       )}
 
       <p className="privacy">
-        🔒 서류 내용은 이 휴대폰(브라우저) 안에서만 읽어요. 어디에도 보내거나 저장하지 않아요. <Link href="/privacy">자세히</Link>
+        🔒 서류 내용은 이 기기(브라우저) 안에서만 읽어요. 어디에도 보내거나 저장하지 않아요. <Link href="/privacy">자세히</Link>
       </p>
 
       <section className="card">

@@ -14,7 +14,7 @@ const STATUS_TEXT: Record<SyncStatus, string> = {
   off: "계정 저장 대기 중",
   syncing: "계정에 저장하는 중…",
   saved: "✓ 계정에도 저장돼 있어요",
-  error: "계정에 저장하지 못했어요. 인터넷 연결을 확인해 주세요. 이 휴대폰에는 저장돼 있어요.",
+  error: "계정에 저장하지 못했어요. 인터넷 연결을 확인해 주세요. 이 기기에는 저장돼 있어요.",
 };
 
 type Confirm = null | "clear" | "delete";
@@ -47,7 +47,7 @@ export default function AccountClient() {
     try {
       await supabaseDb(sb, user.id).clear();
       await sb.auth.signOut(); // 다시 로그인하면 이 기기 기록이 새로 올라가므로, 지운 뒤에는 로그아웃해 둔다
-      setMessage("계정에 저장된 기록을 지우고 로그아웃했어요. 이 휴대폰 기록은 남아 있어요.");
+      setMessage("계정에 저장된 기록을 지우고 로그아웃했어요. 이 기기 기록은 남아 있어요.");
     } catch {
       setMessage("지우지 못했어요. 잠시 뒤 다시 해 주세요.");
     }
@@ -68,7 +68,7 @@ export default function AccountClient() {
     await sb.auth.signOut();
     setBusy(false);
     setConfirm(null);
-    setMessage("계정과 계정에 저장된 기록을 모두 지웠어요. 이 휴대폰 기록은 남아 있어요.");
+    setMessage("계정과 계정에 저장된 기록을 모두 지웠어요. 이 기기 기록은 남아 있어요.");
   };
 
   return (
@@ -89,7 +89,7 @@ export default function AccountClient() {
 
       {loaded && (!enabled || !user) && !message && (
         <div className="card">
-          <p>로그인하지 않았어요. 기록은 이 휴대폰에만 저장돼요.</p>
+          <p>로그인하지 않았어요. 기록은 이 기기에만 저장돼요.</p>
           {enabled && (
             <Link href="/login" className="cta">
               로그인 · 가입
@@ -108,7 +108,7 @@ export default function AccountClient() {
             <button type="button" className="ghost" onClick={logout}>
               로그아웃
             </button>
-            <p className="small muted">로그아웃해도 이 휴대폰의 기록은 남아요. 같이 쓰는 기기라면 개인정보 안내에서 이 기기 기록도 지워 주세요.</p>
+            <p className="small muted">로그아웃해도 이 기기의 기록은 남아요. 같이 쓰는 기기라면 개인정보 안내에서 이 기기 기록도 지워 주세요.</p>
           </section>
 
           <section className="card">
@@ -127,8 +127,8 @@ export default function AccountClient() {
               <div className="row-buttons" role="group" aria-label="지우기 확인">
                 <span className="small">
                   {confirm === "clear"
-                    ? "계정에 저장된 후보 방 · 체크가 지워져요. 이 휴대폰 기록은 남아요."
-                    : "계정과 계정에 저장된 기록이 모두 지워지고 되돌릴 수 없어요. 이 휴대폰 기록은 남아요."}
+                    ? "계정에 저장된 후보 방 · 체크가 지워져요. 이 기기 기록은 남아요."
+                    : "계정과 계정에 저장된 기록이 모두 지워지고 되돌릴 수 없어요. 이 기기 기록은 남아요."}
                 </span>
                 <button type="button" className="ghost danger" disabled={busy} onClick={confirm === "clear" ? clearCloud : deleteAccount}>
                   {confirm === "clear" ? "기록 지우기" : "계정 삭제하기"}

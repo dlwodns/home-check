@@ -172,7 +172,7 @@ export default function RoomAddClient() {
             {err("note")}
           </div>
 
-          <p className="privacy">🔒 이 휴대폰(브라우저)에만 저장돼요. 등기부등본은 다음 화면에서 올리고, 어디에도 보내지 않아요. <Link href="/privacy">자세히</Link></p>
+          <p className="privacy">🔒 이 기기(브라우저)에만 저장돼요. 등기부등본은 다음 화면에서 올리고, 어디에도 보내지 않아요. <Link href="/privacy">자세히</Link></p>
 
           <button type="submit" className="primary" disabled={saving}>
             저장하고 이 방 보기

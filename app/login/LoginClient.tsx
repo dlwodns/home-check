@@ -76,7 +76,7 @@ export default function LoginClient() {
       </nav>
 
       {loaded && !enabled && (
-        <p className="card">로그인은 아직 준비 중이에요. 지금은 이 휴대폰에만 저장돼요.</p>
+        <p className="card">로그인은 아직 준비 중이에요. 지금은 이 기기에만 저장돼요.</p>
       )}
 
       {loaded && enabled && user && (
@@ -151,7 +151,7 @@ export default function LoginClient() {
 
             {mode === "signup" && (
               <p className="card warn small">
-                <strong>비밀번호를 잊으면 이 계정에 다시 들어올 수 없어요.</strong> 비밀번호 찾기 메일은 아직 없어요. 이 휴대폰에 저장된 기록은 그대로 남아요.
+                <strong>비밀번호를 잊으면 이 계정에 다시 들어올 수 없어요.</strong> 비밀번호 찾기 메일은 아직 없어요. 이 기기에 저장된 기록은 그대로 남아요.
               </p>
             )}
 

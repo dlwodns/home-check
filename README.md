@@ -54,15 +54,19 @@
 
 ## 실행 방법
 
-Node.js 20 이상이 필요합니다.
+Node.js **22**가 필요합니다(CI · Netlify와 같은 버전, 20은 확인하지 않음).
 
 ```bash
+cp .env.sample .env      # 키 이름만 든 파일 복사 (값을 비워 둬도 실행됨)
 npm install
 npm run dev              # 개발 서버
 # 또는
 npm run build && npm start   # 프로덕션 실행
 npm test                 # 자동 테스트 (Vitest)
 ```
+
+- 키를 비워 두면: 로그인 버튼이 숨고 이 기기에만 저장되며, 동네 시세 카드만 '불러오지 못했어요'로 나옵니다. 나머지(등기부 점검 · 다음 할 일 · 6단계)는 모두 동작합니다. 고장이 아닙니다.
+- 브라우저에서 `http://localhost:3000`을 엽니다.
 
 `npm install` 때 PDF 읽기용 pdf.js 작업 파일이 `public/pdf.worker.min.mjs`로 자동 복사됩니다(저장소에는 넣지 않음).
 
@@ -79,11 +83,12 @@ FONT_PATH=/경로/NanumGothic-Regular.ttf npm run samples:pdf
 - 등기부등본 읽기 · 판정, 후보 방 · 동네 시세 · 로그인 저장(합치기 · 검사) · 화면 동작(사용자처럼 눌러 보기)
 - **블라인드 시험 서류 20건**(`samples/blind` · `samples/blind2`): 홈체크 코드를 보지 않은 에이전트가 실제 양식대로 만들고 정답을 먼저 적은 서류. **고치기 전 측정: 1차 48/60(80%), 2차 40/60(67%)** → 원인을 고쳐 둘 다 60/60, 글자 붙여 넣기와 PDF 올리기 둘 다 확인. 고칠 때 본 서류라 지금은 회귀 테스트로 씀(처음 보는 모양에서는 정확도가 떨어질 수 있음). PDF는 `FONT_PATH=… node scripts/make-text-pdfs.mjs`로 다시 만듦
 
-포트는 환경변수 `PORT`를 따릅니다. 값이 없으면 3000번을 씁니다.
+<details>
+<summary>공용 실습 서버에서만 (2026-11-28 서버 종료 전까지)</summary>
 
-- 공용 개발 서버에서는 계정마다 `PORT`가 자동으로 정해져 있습니다. (예: user79 → 3079, 백엔드용으로 +100인 3179)
-- 다른 프로젝트를 이미 내 포트로 켜 두었다면 `PORT=3179 npm run dev`처럼 내 두 번째 포트로 켭니다.
-- 켜 둔 개발 서버 확인은 `devls`, 모두 끄기는 `devstop` 명령으로 합니다. (공용 서버 제공 명령)
+포트는 환경변수 `PORT`를 따르고, 없으면 3000번을 씁니다. 공용 서버에서는 계정마다 `PORT`가 정해져 있어(예: user79 → 3079, 두 번째 포트 3179) 그 번호로 켜집니다. 켜 둔 서버 확인은 `devls`, 끄기는 `devstop`(공용 서버 제공 명령)입니다.
+
+</details>
 
 ## 배포
 
@@ -103,6 +108,7 @@ FONT_PATH=/경로/NanumGothic-Regular.ttf npm run samples:pdf
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase 프로젝트 주소. 없으면 로그인 버튼이 숨고 이 기기 저장만 씁니다. |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase **공개(Publishable · anon) 키**. 브라우저에서 쓰며 권한은 DB의 RLS(본인 줄만)로 막습니다. 관리자 키(secret · service_role)는 어디에도 쓰지 않습니다. |
 | `DATA_GO_KR_API_KEY` | 공공데이터포털 인증키. 동네 시세(`/api/rent`)에 씁니다. 서버에서만 읽고 응답 · 로그에 남기지 않습니다. 없으면 시세 카드만 '불러오지 못했어요'로 나옵니다. |
+| `NEXT_PUBLIC_SITE_URL` | 선택. 공유 미리보기(카카오톡 등)에 쓸 사이트 주소. Netlify에서는 자동으로 들어오는 `URL`을 쓰므로 비워 둡니다. 다른 곳에 배포할 때만 넣습니다. |
 | `LAW_API_OC` | 개발할 때만 씀. 국가법령정보 공동활용 Open API 인증값으로 근거 목록(docs/SOURCES.md)을 법령 원문과 대조합니다. 앱 실행에는 필요 없습니다. |
 
 Netlify에는 위 세 값을 환경 변수로 넣습니다(`LAW_API_OC`는 넣지 않음).

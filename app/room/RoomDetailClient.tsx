@@ -44,7 +44,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
     return (
       <main className="container check">
         <h1 className="title">이 방을 찾을 수 없어요</h1>
-        <p className="muted">지운 방이거나, 다른 휴대폰 · 브라우저에서 담은 방일 수 있어요.</p>
+        <p className="muted">지운 방이거나, 다른 기기 · 브라우저에서 담은 방일 수 있어요.</p>
         <Link href="/" className="cta">
           내 후보 방으로
         </Link>
