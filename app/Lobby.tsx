@@ -58,8 +58,8 @@ export default function Lobby() {
         </div>
         <p className="lobby-brand rise rise-1">홈체크</p>
         <h1 className="lobby-title">
-          <span className="rise rise-2">관심 있는 방,</span>
-          <span className="rise rise-3 accent">계약해도 될까요?</span>
+          <span className="rise rise-2">이 방,</span>
+          <span className="rise rise-3 accent">계약해도 될까?</span>
         </h1>
         <p className="lobby-lead rise rise-4">위험부터 확인하고, 그 방에 맞는 계약 방법까지 알려 드려요.</p>
 

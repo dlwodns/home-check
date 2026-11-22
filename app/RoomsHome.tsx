@@ -1,5 +1,5 @@
 "use client";
-// 홈 = 내 후보 방. "관심 있는 방, 계약해도 될까요?" — 방마다 점검 결과(신호등)와 6단계 진행을 한눈에.
+// 홈 = 내 후보 방. "이 방, 계약해도 될까?" — 방마다 점검 결과(신호등)와 6단계 진행을 한눈에.
 import Link from "next/link";
 import BrandMark from "./ui/BrandMark";
 import AccountLink from "./ui/AccountLink";
@@ -35,9 +35,9 @@ export default function RoomsHome() {
         <AccountLink />
       </div>
       <h1>
-        관심 있는 방,
+        이 방,
         <br />
-        <span className="accent">계약해도 될까요?</span>
+        <span className="accent">계약해도 될까?</span>
       </h1>
       <p className="muted lead">위험부터 확인하고, 그 방에 맞는 계약 방법까지 알려 드려요</p>
 

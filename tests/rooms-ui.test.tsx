@@ -308,7 +308,7 @@ describe("로비(입구)", () => {
     const { default: HomeGate } = await import("@/app/HomeGate");
     const user = userEvent.setup();
     render(<HomeGate />);
-    expect(await screen.findByRole("heading", { level: 1, name: /관심 있는 방,\s*계약해도 될까요\?/ })).toBeTruthy();
+    expect(await screen.findByRole("heading", { level: 1, name: /이 방,\s*계약해도 될까\?/ })).toBeTruthy();
     expect(screen.getByText(/법령 원문으로 확인한 근거 \d+개/)).toBeTruthy();
     const doors = screen.getAllByRole("link", { name: "관심 있는 방 담고 시작하기" });
     expect(doors[0].getAttribute("href")).toBe("/rooms/new");

@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "홈체크 · 이 방, 계약해도 될까?",
     short_name: "홈체크",
-    description: "관심 있는 방, 계약해도 될까? 위험부터 확인하고, 그 방에 맞는 계약 방법까지.",
+    description: "이 방, 계약해도 될까? 위험부터 확인하고, 그 방에 맞는 계약 방법까지.",
     start_url: "/",
     scope: "/",
     display: "standalone",
