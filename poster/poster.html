@@ -46,9 +46,13 @@
   .qrbox .u { font-size: 17pt; color: var(--accent); font-weight: 700; margin-top: 2mm; }
   .qrbox .s { font-size: 14pt; color: var(--muted); margin-top: 2mm; line-height: 1.45; }
 
-  .phones { display: flex; gap: 6mm; align-items: flex-start; }
-  .phone { width: 84mm; border: 2.6mm solid #1e232b; border-radius: 9mm; overflow: hidden; background: #fff; box-shadow: 0 4mm 9mm rgba(25,31,40,.16); }
-  .phone img { width: 100%; display: block; }
+  /* 앱 화면은 1m 거리에서 읽히도록 핵심 부분만 크게(본문 글자 약 6mm) */
+  .zooms { width: 136mm; display: grid; gap: 4mm; }
+  .zoom { border: 2.4mm solid #1e232b; border-radius: 8mm; overflow: hidden; background: #fff; box-shadow: 0 4mm 9mm rgba(25,31,40,.16); }
+  .zoom img { width: 100%; display: block; }
+  .zooms figcaption { display: flex; align-items: center; gap: 2.5mm; text-align: left; margin: 0 0 2.5mm; font-size: 16pt; color: var(--text); }
+  .zooms figcaption b { background: var(--accent); color: #fff; border-radius: 50%; width: 7mm; height: 7mm; display: grid; place-items: center; font-size: 12pt; }
+  .zooms .note { font-size: 12pt; color: var(--muted); text-align: right; }
   figure figcaption { font-size: 15pt; font-weight: 700; text-align: center; margin-top: 3mm; color: var(--muted); }
 
   /* 아래: 벤토 카드 */
@@ -78,6 +82,14 @@
   .nums { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm 6mm; }
   .num b { display: block; white-space: nowrap; font-size: 38pt; font-weight: 800; color: var(--accent); line-height: 1.05; letter-spacing: -0.04em; }
   .num span { font-size: 14.5pt; line-height: 1.35; display: block; margin-top: 1mm; }
+  .num.wide { grid-column: 1 / -1; border-top: 0.5mm solid var(--border); padding-top: 4mm; }
+  .num .tag { display: inline-block; margin: 0 0 2mm; font-size: 13pt; font-weight: 800; color: var(--accent); }
+  ol.proof { list-style: none; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm; }
+  ol.proof li { position: relative; padding-left: 0; margin-top: 0; }
+  ol.proof li::before { content: none; }
+  ol.proof li + li b::before { content: "→ "; color: var(--muted); font-size: 18pt; }
+  ol.proof b { font-size: 26pt; }
+  ol.proof span { font-size: 12.5pt; }
 
   .chips { display: flex; flex-wrap: wrap; gap: 2.2mm; margin-top: 2mm; }
   .chips span { background: #fff; border: 0.5mm solid var(--border); border-radius: 20mm; padding: 1mm 4mm; font-size: 14pt; font-weight: 600; }
@@ -118,9 +130,10 @@
         </div>
       </div>
     </div>
-    <div class="phones">
-      <figure><div class="phone"><img src="img/screen-result.png" alt="신호등 판정 결과 화면"></div><figcaption>신호등 판정 · 3줄 요약</figcaption></figure>
-      <figure><div class="phone"><img src="img/screen-next.png" alt="다음에 할 일 화면"></div><figcaption>물어볼 말 · 특약 문장</figcaption></figure>
+    <div class="zooms">
+      <figure><figcaption><b>1</b>신호등 판정과 3줄 요약</figcaption><div class="zoom"><img src="img/zoom-verdict.png" alt="주의 신호등과 계약 전에 확인할 것이 1가지 있어요, 3줄 요약 화면"></div></figure>
+      <figure><figcaption><b>2</b>이 방에 맞춰 물어볼 말 · 특약 문장</figcaption><div class="zoom"><img src="img/zoom-ask.png" alt="집주인 · 중개사에게 물어볼 말과 복사 버튼 화면"></div></figure>
+      <p class="note">실제 앱 화면 · 가짜 샘플 등기부로 점검</p>
     </div>
   </section>
 
@@ -130,9 +143,8 @@
       <p class="quote">"뭐부터 해야 할지<br>아무것도 모르겠다."</p>
       <p>타지역 대학에 붙은 <b>20살</b>, 처음 혼자 원룸을 계약해요. 근저당 · 확정일자는 처음 듣는 말이고, 등기부등본은 읽을 줄 몰라요.</p>
       <ul>
-        <li>익산: 대학생 등 임차인 122명 보증금 약 47억 원 피해 (2019)</li>
-        <li>전주: 방 13개를 36개로 불법 쪼개 대학생에게 임대 (2023)</li>
-        <li>직거래로 20대 7명 피해, 경찰 "등기부로 소유자 확인을" (2024)</li>
+        <li>익산 원룸 임차인 122명, 보증금 약 47억 원 피해 (2019)</li>
+        <li>직거래 20대 7명 피해, 경찰 "등기부로 소유자 확인을" (2024)</li>
       </ul>
       <small>대표 사례는 20살 첫 계약, 처음이든 또 구하든 누구나 쓸 수 있게 만들었어요.</small>
     </div>
@@ -165,8 +177,12 @@
       <div class="nums">
         <div class="num"><b>336개</b><span>자동 테스트<br>(GitHub에 올릴 때마다)</span></div>
         <div class="num"><b>19 / 28</b><span>근거 중 법령 · 공공기관<br>원문으로 확인한 것</span></div>
-        <div class="num"><b>67–80%</b><span>처음 보는 가짜 등기부<br>20건 블라인드 시험(고치기 전)</span></div>
-        <div class="num"><b>60 / 60</b><span>틀린 원인을 고친 뒤<br>다시 틀리지 않게 테스트로 보존</span></div>
+        <div class="num wide"><span class="tag">블라인드 시험</span>
+          <ol class="proof">
+            <li><b>20건</b><span>코드를 모르는 AI가 만든 가짜 등기부</span></li>
+            <li><b>고침</b><span>처음엔 67–80% 맞힘, 틀린 원인을 찾음</span></li>
+            <li><b>60/60</b><span>모두 맞힘, 테스트로 보존</span></li>
+          </ol></div>
       </div>
     </div>
 

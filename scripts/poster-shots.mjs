@@ -37,8 +37,19 @@ await p.waitForURL(/check/);
 await p.waitForTimeout(2000);
 await p.getByRole("button", { name: "주의 샘플" }).click(); // 샘플은 지어낸 가짜 서류
 await p.getByRole("button", { name: "점검하기" }).click();
-await from("result", p.locator("h2,h3", { hasText: "계약 전에 확인할 것이" }).first(), 75);
-await from("next", p.locator("h2,h3", { hasText: "다음에 할 일" }).first(), 16);
+await p.waitForTimeout(1500);
+// 포스터에서 1m 거리로 읽히도록 핵심만 크게 자른 것(zoom-*): 신호등 판정 + 3줄 요약, 집주인에게 물어볼 말
+const box = async (loc) => { const b = await loc.boundingBox(); const y = await p.evaluate(() => scrollY); return { top: b.y + y, bottom: b.y + y + b.height }; };
+const zoom = async (name, top, bottom) => {
+  await p.screenshot({ path: `${OUT}/zoom-${name}.png`, fullPage: true, clip: { x: 8, y: top, width: W - 16, height: bottom - top } });
+  console.log("찍음 zoom", name);
+};
+const verdict = await box(p.locator("h2,h3", { hasText: "계약 전에 확인할 것이" }).first());
+const nextLabel = await box(p.getByText("확인할 것", { exact: true }).first());
+await zoom("verdict", verdict.top - 56, nextLabel.top - 10);
+const ask = await box(p.locator("h2,h3", { hasText: "이렇게 물어보세요" }).first());
+const doNext = await box(p.locator("h2,h3", { hasText: "이렇게 하세요" }).first());
+await zoom("ask", ask.top - 22, doNext.top - 30);
 
 await p.goto(roomUrl, { waitUntil: "networkidle" });
 await p.waitForTimeout(3000); // 동네 시세 응답 기다림
