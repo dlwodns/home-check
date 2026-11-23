@@ -2,8 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import CloudSync from "./ui/CloudSync";
 
-// 공유 미리보기 이미지 주소의 기준. Netlify는 배포 주소를 URL 환경 변수로 넣어 준다.
-const site = process.env.URL ?? process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+// 공유 미리보기 이미지 주소의 기준. 직접 정한 값 → Vercel이 넣어 주는 운영 주소(https 없이 옴) → Netlify의 URL → 내 컴퓨터
+const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+const site = process.env.NEXT_PUBLIC_SITE_URL ?? (vercel ? `https://${vercel}` : undefined) ?? process.env.URL ?? "http://localhost:3000";
 const description = "이 방, 계약해도 될까? 등기부등본으로 위험부터 확인하고, 그 방에 맞는 계약 방법까지 알려 드려요.";
 
 export const metadata: Metadata = {
