@@ -55,6 +55,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   // ?room=방id 로 들어오면 그 방을 점검하고, 결과 요약(판정 · 이유 · 다음 행동)만 그 방에 저장한다
   const [room, setRoom] = useState<Room | null>(null);
   const [savedToRoom, setSavedToRoom] = useState(false);
+  const isSample = samples.some((s) => s.text === text);
 
   useEffect(() => {
     const id = roomIdFrom(window.location.search);
@@ -98,7 +99,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     const asOf = todayKST();
     const out = runCheck(text, form, asOf, { edited: e ?? undefined, confirmed: c });
     setOutcome(out);
-    if (out.ok && room) {
+    // 샘플(지어낸 서류) 결과를 내 방에 저장하면 실제 방이 가짜 판정을 갖게 된다 → 방에는 실제 서류 결과만
+    if (out.ok && room && !isSample) {
       const store = roomsStore();
       const summary = {
         ...summarize(out.result, buildActions(out.read, out.result), asOf, unknownsFor(out.read, out.result).map((u) => u.id)),
@@ -119,7 +121,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   const pickSample = (s: Sample) => {
     setPdfStatus(null);
     setText(s.text);
-    setForm(s.form);
+    // 방에서 해 볼 때는 내 방 보증금을 지킨다(샘플 값으로 덮지 않음)
+    setForm(room ? { ...s.form, myDeposit: form.myDeposit || s.form.myDeposit } : s.form);
     setOutcome(null);
     setEdited(null);
     setConfirmed(false);
@@ -227,7 +230,12 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         </section>
       )}
 
-      {outcome?.ok && room && savedToRoom && (
+      {outcome?.ok && room && isSample && (
+        <p className="card small saved-note" role="status">
+          샘플로 해 본 결과라 이 방에는 저장하지 않았어요. 이 방의 등기부등본을 올리면 결과가 <strong>{room.label}</strong>에 저장돼요.
+        </p>
+      )}
+      {outcome?.ok && room && savedToRoom && !isSample && (
         <p className="card small saved-note" role="status">
           ✓ <strong>{room.label}</strong>에 저장했어요. <Link href={roomHref(room.id)}>이 방으로 돌아가 계약 방법 보기 →</Link>
         </p>

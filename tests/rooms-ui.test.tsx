@@ -2,7 +2,7 @@
 // F4 내 후보 방을 사용자처럼 눌러 보는 테스트: 추가 → 방 화면 → 점검(결과가 방에 저장) → 단계 체크(방마다 따로) → 지우기.
 import { readFileSync } from "node:fs";
 import type { AnchorHTMLAttributes } from "react";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import expected from "@/samples/expected.json";
@@ -45,6 +45,12 @@ const samples: Sample[] = [
   },
 ];
 
+
+// 샘플 결과는 방에 저장하지 않으므로(R1), '실제 서류' 흐름은 샘플로 칸을 채운 뒤 서류 글자를 살짝 바꿔 실제 서류처럼 만든다
+const asRealDoc = () => {
+  const box = screen.getByLabelText(/내용을 그대로 붙여 넣어 주세요/) as HTMLTextAreaElement;
+  fireEvent.change(box, { target: { value: box.value + "\n" } });
+};
 beforeEach(() => {
   localStorage.clear();
   push.mockClear();
@@ -158,6 +164,7 @@ describe("방에서 점검하기", () => {
     expect((screen.getByLabelText("내 보증금 (만 원)") as HTMLInputElement).value).toBe("500");
 
     await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    asRealDoc();
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.getByText(/에 저장했어요/)).toBeTruthy();
     expect(screen.getByRole("link", { name: /이 방으로 돌아가 계약 방법 보기/ }).getAttribute("href")).toBe("/room?id=r1");
@@ -175,6 +182,7 @@ describe("방에서 점검하기", () => {
     at("check?room=r1");
     render(<CheckClient samples={samples} />);
     await user.click(await screen.findByRole("button", { name: "주의 샘플" }));
+    asRealDoc();
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     cleanup();
 
@@ -184,6 +192,24 @@ describe("방에서 점검하기", () => {
     expect(screen.getByText("계약 전에 확인할 것이 1가지 있어요")).toBeTruthy();
     expect(screen.getByText(/계약 상대가 등기부등본의 지금 집주인이에요/)).toBeTruthy();
     expect(screen.getByRole("link", { name: "다시 점검하기" }).getAttribute("href")).toBe("/check?room=r1");
+  });
+});
+
+describe("방에서 샘플로 해 보기 (11/23 리뷰 R1)", () => {
+  it("샘플을 눌러도 내 방 보증금은 그대로이고, 샘플 결과는 내 방에 저장하지 않는다", async () => {
+    const user = userEvent.setup();
+    seedRooms({ ...baseRoom, deposit: 1000 });
+    at("check?room=r1");
+    render(<CheckClient samples={samples} />);
+    expect(await screen.findByText(/방을 점검해요/)).toBeTruthy();
+
+    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    expect((screen.getByLabelText("내 보증금 (만 원)") as HTMLInputElement).value).toBe("1000");
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+
+    expect(screen.getByText(/샘플로 해 본 결과라 이 방에는 저장하지 않았어요/)).toBeTruthy();
+    expect(screen.queryByText(/에 저장했어요/)).toBeNull();
+    expect(JSON.parse(localStorage.getItem(ROOMS)!).rooms[0].check).toBeNull();
   });
 });
 
