@@ -94,6 +94,8 @@
   .chips { display: flex; flex-wrap: wrap; gap: 2.2mm; margin-top: 2mm; }
   .chips span { background: #fff; border: 0.5mm solid var(--border); border-radius: 20mm; padding: 1mm 4mm; font-size: 14pt; font-weight: 600; }
   .span2 { grid-column: span 2; }
+  .card .shot { margin-top: 4mm; border: 0.6mm solid var(--border); border-radius: 5mm; overflow: hidden; background: #fff; }
+  .card .shot img { width: 100%; display: block; }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
 
   /* 아래 띠 */
@@ -150,14 +152,9 @@
     </div>
 
     <div class="card white">
-      <h2>쓰는 순서</h2>
-      <ol class="steps">
-        <li><b>관심 있는 방 담기</b>: 주소 · 보증금 · 월세 3칸</li>
-        <li><b>등기부등본 올리기</b>: PDF 또는 붙여 넣기, 이 기기 안에서만 읽어요</li>
-        <li><b>신호등 판정</b>: 위험 · 주의 · 안전과 3줄 요약, 근거 법령</li>
-        <li><b>다음에 할 일</b>: 집주인 · 중개사에게 물어볼 말, 특약 문장, 요청 목록</li>
-        <li><b>계약 6단계</b>: 서류 · 준비물부터 이사 뒤 할 일까지</li>
-      </ol>
+      <h2>내 후보 방, 한눈에</h2>
+      <p>어디서 찾았든 <b>주소 · 보증금 · 월세</b>만 담으면, 방마다 신호등과 <b>계약 6단계</b> 중 지금 어디인지 보여 줘요.</p>
+      <div class="shot"><img src="img/zoom-home.png" alt="내 후보 방 2개: 역 앞 투룸 위험, 정문 앞 원룸 주의, 6단계 진행 막대"></div>
       <small>동네 시세(국토부 실거래가)는 참고로만 함께 보여 줘요.</small>
     </div>
 
@@ -175,7 +172,7 @@
     <div class="card white">
       <h2>검증</h2>
       <div class="nums">
-        <div class="num"><b>336개</b><span>자동 테스트<br>(GitHub에 올릴 때마다)</span></div>
+        <div class="num"><b>340개</b><span>자동 테스트<br>(GitHub에 올릴 때마다)</span></div>
         <div class="num"><b>19 / 28</b><span>근거 중 법령 · 공공기관<br>원문으로 확인한 것</span></div>
         <div class="num wide"><span class="tag">블라인드 시험</span>
           <ol class="proof">

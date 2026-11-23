@@ -35,8 +35,14 @@ await p.waitForTimeout(2000);
 await p.getByText("등기부등본 올려서 점검하기").click();
 await p.waitForURL(/check/);
 await p.waitForTimeout(2000);
-await p.getByRole("button", { name: "주의 샘플" }).click(); // 샘플은 지어낸 가짜 서류
-await p.getByRole("button", { name: "점검하기" }).click();
+// 샘플은 지어낸 가짜 서류. 샘플 그대로면 방에 저장하지 않으므로(R1) 글자 끝에 줄바꿈 하나를 더해 '올린 서류'처럼 저장되게 한다
+const sampleAsDoc = async (label) => {
+  await p.getByRole("button", { name: label }).click();
+  const box = p.getByLabel(/내용을 그대로 붙여 넣어 주세요/);
+  await box.fill((await box.inputValue()) + "\n");
+  await p.getByRole("button", { name: "점검하기" }).click();
+};
+await sampleAsDoc("주의 샘플");
 await p.waitForTimeout(1500);
 // 포스터에서 1m 거리로 읽히도록 핵심만 크게 자른 것(zoom-*): 신호등 판정 + 3줄 요약, 집주인에게 물어볼 말
 const box = async (loc) => { const b = await loc.boundingBox(); const y = await p.evaluate(() => scrollY); return { top: b.y + y, bottom: b.y + y + b.height }; };
@@ -50,6 +56,25 @@ await zoom("verdict", verdict.top - 56, nextLabel.top - 10);
 const ask = await box(p.locator("h2,h3", { hasText: "이렇게 물어보세요" }).first());
 const doNext = await box(p.locator("h2,h3", { hasText: "이렇게 하세요" }).first());
 await zoom("ask", ask.top - 22, doNext.top - 30);
+
+// 두 번째 방(위험 샘플)까지 담아 홈의 '내 후보 방' 비교 화면을 찍는다
+await p.goto(U + "/rooms/new", { waitUntil: "networkidle" });
+await p.fill("input[placeholder^='예: OO동']", "마포구 서교동 45-6");
+await p.fill("input[placeholder='예: 1000']", "500");
+await p.fill("input[placeholder='전세면 비워 두세요']", "55");
+await p.fill("input[placeholder^='직방 링크']", "역 앞 투룸");
+await p.getByRole("button", { name: /저장하고/ }).click();
+await p.waitForURL(/room\?id=/);
+await p.waitForTimeout(1500);
+await p.getByText("등기부등본 올려서 점검하기").click();
+await p.waitForURL(/check/);
+await p.waitForTimeout(1500);
+await sampleAsDoc("위험 샘플");
+await p.waitForTimeout(1500);
+await p.goto(U + "/", { waitUntil: "networkidle" });
+await p.waitForTimeout(2000);
+await p.screenshot({ path: `${OUT}/screen-home.png`, fullPage: true });
+console.log("찍음 home");
 
 await p.goto(roomUrl, { waitUntil: "networkidle" });
 await p.waitForTimeout(3000); // 동네 시세 응답 기다림
