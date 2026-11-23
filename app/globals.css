@@ -511,3 +511,6 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
 /* 점검 뒤 접힌 입력 칸 (R7) */
 .inputs-folded { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
 .inputs-folded p { margin: 0; }
+
+/* 오류 화면의 버튼을 링크 버튼(.cta)과 같게 */
+button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: pointer; }
