@@ -97,6 +97,8 @@
   .card .shot { margin-top: 4mm; border: 0.6mm solid var(--border); border-radius: 5mm; overflow: hidden; background: #fff; }
   .card .shot img { width: 100%; display: block; }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .card p.next { margin-top: 3mm; }
+  .card ol.steps + .shot { margin-top: 3mm; }
 
   /* 아래 띠 */
   footer { background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 18mm; font-size: 14pt; }
@@ -152,10 +154,14 @@
     </div>
 
     <div class="card white">
-      <h2>내 후보 방, 한눈에</h2>
-      <p>어디서 찾았든 <b>주소 · 보증금 · 월세</b>만 담으면, 방마다 신호등과 <b>계약 6단계</b> 중 지금 어디인지 보여 줘요.</p>
-      <div class="shot"><img src="img/zoom-home.png" alt="내 후보 방 2개: 역 앞 투룸 위험, 정문 앞 원룸 주의, 6단계 진행 막대"></div>
-      <small>동네 시세(국토부 실거래가)는 참고로만 함께 보여 줘요.</small>
+      <h2>핵심 기능</h2>
+      <ol class="steps">
+        <li><b>내 후보 방</b>: 방마다 신호등 · 6단계 진행</li>
+        <li><b>등기부 점검</b>: 신호등 · 3줄 요약</li>
+        <li><b>다음에 할 일</b>: 물어볼 말 · 특약 · 가족 요약</li>
+        <li><b>서류 · 준비물 · 동네 시세</b></li>
+      </ol>
+      <div class="shot"><img src="img/zoom-home.png" alt="내 후보 방 카드: 역 앞 투룸 위험, 6단계 진행 막대"></div>
     </div>
 
     <div class="card green">
@@ -167,12 +173,13 @@
         <tr><td>AI가 판단</td><td>정해진 규칙 + 근거 법령 링크, 결과가 매번 같아요</td></tr>
         <tr><td>"확인하세요"로 끝</td><td>이 방에 맞는 질문 · 특약 문장까지</td></tr>
       </table>
+      <small>등기부 원문 · 집주인 이름은 저장하지 않고, 서류는 이 기기 안에서만 읽어요.</small>
     </div>
 
     <div class="card white">
       <h2>검증</h2>
       <div class="nums">
-        <div class="num"><b>340개</b><span>자동 테스트<br>(GitHub에 올릴 때마다)</span></div>
+        <div class="num"><b>340+</b><span>자동 테스트<br>(GitHub에 올릴 때마다)</span></div>
         <div class="num"><b>19 / 28</b><span>근거 중 법령 · 공공기관<br>원문으로 확인한 것</span></div>
         <div class="num wide"><span class="tag">블라인드 시험</span>
           <ol class="proof">
@@ -181,21 +188,27 @@
             <li><b>60/60</b><span>모두 맞힘, 테스트로 보존</span></li>
           </ol></div>
       </div>
+      <small>배포 사이트를 끝까지 눌러 보는 자동 점검 7항목 통과</small>
+    </div>
+
+    <div class="card green">
+      <h2>기대 효과</h2>
+      <ul>
+        <li><b>계약 전</b> 위험 신호를 스스로 알아채요</li>
+        <li><b>무엇을 물을지</b> 문장으로 준비해요</li>
+        <li>가족과 <b>같은 요약</b>으로 함께 판단해요</li>
+        <li>필요하면 <b>무료 상담</b>(132 · 1533-8119)으로</li>
+      </ul>
+      <p class="next">20살 첫 계약을 기준으로 만들고, 처음 집을 구하는 누구나 · 이사하는 사람도 쓸 수 있어요.</p>
+      <small>법률 판단이 아니라 참고용 안내예요. 최종 확인은 전문가와 함께.</small>
     </div>
 
     <div class="card">
-      <h2>만든 방식</h2>
-      <p>Claude Code로 <b>바이브 코딩</b>, 완성된 앱 안에서는 <b>AI를 부르지 않아요</b>. 판정이 규칙이라 근거를 댈 수 있어요.</p>
-      <div class="chips"><span>Next.js</span><span>TypeScript</span><span>Supabase 로그인 · RLS</span><span>공공데이터 실거래가</span><span>Netlify</span><span>PWA</span></div>
-      <small>등기부 원문 · 집주인 이름은 저장하지 않고 판정 요약만 저장해요.</small>
-    </div>
-
-    <div class="card white">
-      <h2>하지 않은 것 · 다음</h2>
-      <div class="two">
-        <ul><li>매물 검색 · 추천</li><li>법률 판단 · 계약 대행</li><li>등기부 원문 저장</li><li>점수 매기기</li></ul>
-        <ul><li>실제 인터넷등기소 PDF로 정확도 다시 재기</li><li>건축물대장 연결</li><li>자주 묻는 질문 도우미</li></ul>
-      </div>
+      <h2>만든 방식 · 다음</h2>
+      <p>Claude Code로 <b>바이브 코딩</b>, 앱 안에서는 <b>AI를 부르지 않아요</b>.</p>
+      <div class="chips"><span>Next.js</span><span>TypeScript</span><span>Supabase · RLS</span><span>공공데이터</span><span>Vercel</span><span>PWA</span></div>
+      <p class="next"><b>다음</b>: 실제 PDF로 정확도 재기 · 건축물대장</p>
+      <small>하지 않은 것: 매물 검색 · 법률 판단 · 계약 대행 · 점수 매기기</small>
     </div>
   </section>
 </main>
