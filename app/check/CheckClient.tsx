@@ -208,7 +208,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         <div className="field">
           <label htmlFor={ids.market}>이 건물 시세 (만 원)</label>
           <input id={ids.market} inputMode="numeric" value={form.marketPrice} onChange={set("marketPrice")} placeholder="모르면 비워 두세요. 예: 8억" />
-          <p className="hint">HUG 안심전세 앱에서 주소로 시세를 볼 수 있어요.</p>
+          <p className="hint">HUG 안심전세 앱에서 주소로 시세를 볼 수 있어요. 모르면 비워 두면 '계산하지 못했어요'로 따로 알려 드리고, 안전하다고 하지 않아요.</p>
         </div>
         <div className="field">
           <label htmlFor={ids.party}>계약하러 올 사람 이름</label>

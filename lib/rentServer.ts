@@ -1,5 +1,6 @@
 // F6 동네 시세 서버 처리 (app/api/rent/route.ts가 부름): 브라우저 → 이 서버 → 국토부. 키(DATA_GO_KR_API_KEY)는 서버에서만 읽고 응답 · 로그에 남기지 않는다.
 // 5주차 원칙: 15초 타임아웃, 429 · 5xx만 한 번 다시 시도, 같은 지역 · 같은 달은 저장해 두고 다시 쓰기(캐시).
+// 캐시는 두 겹: 응답의 Cache-Control(CDN에 12시간)이 주로 막아 주고, 아래 메모리 캐시는 같은 서버 인스턴스가 살아 있는 동안만 효과가 있다(Netlify 함수는 자주 새로 뜸).
 // 받는 값은 시군구 코드 + 동 이름뿐(번지 · 등기부 내용은 받지 않음). 표에 없는 지역은 거절해 아무 주소나 대신 부르는 통로가 되지 않게.
 import { isKnownRegion } from "@/lib/region";
 import { monthsBack, parseRentXml, summarizeRent, type RentDeal } from "@/lib/rent";
