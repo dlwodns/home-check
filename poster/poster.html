@@ -28,12 +28,12 @@
   header .who { margin-left: auto; text-align: right; font-size: 17pt; line-height: 1.55; opacity: .92; }
   header .who b { font-size: 22pt; font-weight: 700; }
 
-  main { padding: 9mm 18mm 8mm; display: grid; grid-template-rows: auto 1fr; gap: 7mm; min-height: 0; }
+  main { padding: 11mm 18mm 10mm; display: grid; grid-template-rows: auto 1fr; gap: 9mm; min-height: 0; }
 
   /* 빌보드: 핵심 한 문장 + 화면 + QR */
   .billboard { display: grid; grid-template-columns: 1fr auto; gap: 12mm; align-items: center; }
   .lead .q { font-size: 30pt; font-weight: 700; color: var(--accent); }
-  .lead h1 { font-size: 56pt; font-weight: 800; line-height: 1.22; letter-spacing: -0.045em; margin: 3mm 0 7mm; }
+  .lead h1 { font-size: 60pt; font-weight: 800; line-height: 1.22; letter-spacing: -0.045em; margin: 3mm 0 7mm; }
   .lead h1 em { font-style: normal; color: var(--accent); }
   .lead .flow { display: flex; align-items: center; gap: 2.2mm; font-size: 17pt; font-weight: 700; flex-wrap: wrap; }
   .lead .flow span { background: var(--soft); border-radius: 30mm; padding: 2.2mm 4.5mm; white-space: nowrap; }
@@ -58,7 +58,7 @@
 
   /* 아래: 벤토 카드 */
   .bento { display: grid; grid-template-columns: 1.05fr 1fr 1fr; grid-auto-rows: 1fr; gap: 7mm; align-content: stretch; min-height: 0; }
-  .card { background: var(--soft); border-radius: 7mm; padding: 7mm 8mm 6mm; font-size: 16.5pt; line-height: 1.5; }
+  .card { background: var(--soft); border-radius: 7mm; padding: 8mm 8mm 7mm; font-size: 16.5pt; line-height: 1.5; }
   .card h2 { display: flex; align-items: center; gap: 3.5mm; font-size: 25pt; font-weight: 800; margin-bottom: 4mm; letter-spacing: -0.03em; }
   /* DKUG 양식의 ■ 섹션 표시 */
   .bento { counter-reset: card; }
@@ -160,10 +160,9 @@
     <div class="card">
       <h2>문제</h2>
       <p class="quote">"뭐부터 해야 할지<br>아무것도 모르겠다."</p>
-      <p><b>대상</b>: 처음 혼자 원룸을 계약하는 <b>20살</b></p>
+      <p><b>대상</b>: 처음 혼자 원룸을 계약하는 <b>20살</b> (→ 첫 계약 누구나 · 이사하는 사람)</p>
       <p>근저당 · 확정일자는 처음 듣는 말이고, 등기부등본은 읽을 줄 몰라요. "중개사가 있으니 괜찮겠지" 하고 확인을 건너뛰어요.</p>
       <p class="stat"><b>122명 · 47억 원</b> 익산 원룸 임대업자 한 명에게 대학생 등 임차인이 떼인 보증금 <i>(뉴시스, 2019)</i></p>
-      <p class="link">→ 등기부에 나오지 않는 앞선 세입자 보증금, 홈체크는 <b>확인하는 방법</b>까지 알려 줘요</p>
       <ul>
         <li>직거래 20대 · 사회초년생 7명 피해, 경찰 "등기부로 실제 소유자 확인을" <i>(매일신문, 2024)</i></li>
       </ul>
@@ -173,9 +172,9 @@
       <h2>핵심 기능</h2>
       <ol class="steps">
         <li><b>내 후보 방</b>: 방마다 신호등 · 6단계 진행</li>
-        <li><b>등기부 점검</b>: 신호등 · 3줄 요약, 모르는 값은 '안전'으로 치지 않음</li>
+        <li><b>등기부 점검</b>: 신호등 · 3줄 요약</li>
         <li><b>다음에 할 일</b>: 물어볼 말 · 특약 · 가족 요약</li>
-        <li><b>서류 · 준비물 · 동네 시세</b>: 언제 무엇을 챙길지 · 실거래 참고</li>
+        <li><b>서류 · 준비물 · 동네 시세</b></li>
       </ol>
       <div class="shot"><img src="img/zoom-home.png" alt="내 후보 방 카드: 역 앞 투룸 위험, 6단계 진행 막대"></div>
     </div>
@@ -188,18 +187,14 @@
         <tr><td>위험하다는데 뭘 할지 모름</td><td>집주인에게 보낼 말 · 특약 문장</td></tr>
         <tr><td>무엇을 놓쳤는지 모름</td><td>등기부로 알 수 없는 것 5가지까지</td></tr>
       </table>
-      <div class="arch">
-        <span class="lbl">동작 구조</span>
-        <p><b>이 기기 안</b>: 등기부 PDF → 글자 읽기 → 규칙 18 → 신호등 · 다음 할 일</p>
-        <p><b>서버</b>: 동네 시세(공공데이터)만 · 등기부 원문은 보내지 않음</p>
-      </div>
+      <small>등기부 원문 · 집주인 이름은 저장하지 않고, 서류는 이 기기 안에서만 읽어요.</small>
     </div>
 
     <div class="card white span2">
       <h2>검증 · 만든 과정</h2>
       <div class="nums">
-        <div class="num"><b>340+</b><span>자동 테스트<br>(읽기 · 판정 · 화면)</span></div>
-        <div class="num"><b>근거 29</b><span>법령 원문 대조 20개<br>· 판정마다 근거 표시</span></div>
+        <div class="num"><b>340+</b><span>자동 테스트<br>(GitHub에 올릴 때마다)</span></div>
+        <div class="num"><b>근거 29</b><span>법령 · 공공기관 원문<br>확인 20개</span></div>
         <div class="num"><b>규칙 18</b><span>집주인 4 · 권리 기록 9<br>빚 비율 4 · 읽기 확인 1</span></div>
         <div class="num wide"><span class="tag">블라인드 시험</span>
           <ol class="proof">
@@ -208,21 +203,18 @@
             <li><b>60/60</b><span>고친 뒤 전 항목 일치, 회귀 테스트로 지킴</span></li>
           </ol></div>
       </div>
-      <ol class="path"><li>기획(PRD)</li><li>화면 조사 · 시안 3개</li><li>규칙 판정</li><li>AI 에이전트로 블라인드 시험</li><li>배포 · 자동 점검</li></ol>
-      <p class="aiuse">개발은 <b>Claude Code(바이브 코딩)</b>, 완성된 앱은 <b>AI 없이 규칙</b>으로 판정해 결과가 매번 같아요.</p>
-      <p class="limit"><b>다음 검증</b>: 실제 인터넷등기소 PDF로 정확도 측정 · 실제 사용자 테스트</p>
+      <ol class="path"><li>기획(PRD)</li><li>화면 조사</li><li>규칙 판정</li><li>블라인드 시험</li><li>배포 · 자동 점검</li></ol>
     </div>
 
     <div class="card green">
-      <h2>기대 효과 · 목표</h2>
+      <h2>기대 효과</h2>
       <ul>
         <li><b>계약 전</b>, 이 방의 위험 신호를 혼자서도 확인</li>
         <li><b>무엇을 물을지</b> 문장으로 준비</li>
         <li>가족과 <b>같은 요약</b>으로 함께 판단</li>
         <li>필요하면 <b>무료 상담</b>(132 · 1533-8119)으로 연결</li>
       </ul>
-      <p class="next"><b>활용</b>: 대학 신입생 오리엔테이션 · 주거 상담 창구 · 계약 전 안내</p>
-      <p class="next"><b>다음</b>: 건축물대장 연결 · 공유 지분 비율 읽기</p>
+      <p class="next"><b>다음</b>: 실제 인터넷등기소 PDF로 정확도 측정 · 건축물대장 연결</p>
     </div>
 
   </section>
