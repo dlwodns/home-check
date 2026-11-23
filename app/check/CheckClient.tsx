@@ -56,6 +56,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   // ?room=방id 로 들어오면 그 방을 점검하고, 결과 요약(판정 · 이유 · 다음 행동)만 그 방에 저장한다
   const [room, setRoom] = useState<Room | null>(null);
   const [savedToRoom, setSavedToRoom] = useState(false);
+  // 점검이 되면 입력 칸을 한 줄로 접어 결과가 바로 보이게 한다(R7: 한 페이지가 너무 길었음). '고쳐서 다시 점검'으로 다시 펼친다
+  const [inputsOpen, setInputsOpen] = useState(true);
   const isSample = samples.some((s) => s.text === text);
 
   useEffect(() => {
@@ -114,6 +116,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   };
 
   const start = () => {
+    setInputsOpen(false);
     setRun((n) => n + 1);
     setEdited(null);
     setConfirmed(false);
@@ -133,6 +136,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   const set = (k: keyof CheckForm) => (ev: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: ev.target.value }));
 
+  const showInputs = inputsOpen || !outcome?.ok;
   return (
     <main className="container check">
       <nav className="topbar">
@@ -153,6 +157,21 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         🔒 서류 내용은 이 기기(브라우저) 안에서만 읽어요. 어디에도 보내거나 저장하지 않아요. <Link href="/privacy">자세히</Link>
       </p>
 
+      {!showInputs && (
+        <section className="card small inputs-folded" aria-label="넣은 서류 · 내 계약 정보">
+          <p>
+            ✓ <strong>{isSample ? samples.find((x) => x.text === text)?.label : "넣은 서류"}</strong> · 내 보증금 {form.myDeposit || "?"}만 원
+            {form.marketPrice ? ` · 시세 ${form.marketPrice}만 원` : " · 시세 모름"}
+            {form.priorDeposits ? ` · 앞선 보증금 ${form.priorDeposits}만 원` : ""}
+          </p>
+          <button type="button" className="ghost" onClick={() => setInputsOpen(true)}>
+            고쳐서 다시 점검
+          </button>
+        </section>
+      )}
+
+      {showInputs && (
+      <>
       <section className="card">
         <h2>1. 서류 넣기</h2>
         <label htmlFor={ids.file} className="file-pick">
@@ -220,6 +239,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           점검하기
         </button>
       </section>
+      </>
+      )}
 
       {outcome && !outcome.ok && (
         <section className="card errors" role="alert">

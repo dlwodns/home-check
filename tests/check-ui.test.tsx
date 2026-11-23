@@ -47,6 +47,20 @@ describe("등기부등본 점검 화면", () => {
     expect(screen.getByText(/법으로 정한 기준이 아니라 많이 쓰는 참고선/)).toBeTruthy();
   });
 
+  it("점검하면 입력 칸은 한 줄로 접히고, '고쳐서 다시 점검'으로 같은 값이 다시 펼쳐진다 (R7)", async () => {
+    const user = userEvent.setup();
+    render(<CheckClient samples={samples} />);
+    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(screen.queryByRole("button", { name: "점검하기" })).toBeNull();
+    expect(screen.getByLabelText("넣은 서류 · 내 계약 정보").textContent).toMatch(/주의 샘플 · 내 보증금 500만 원/);
+    await user.click(screen.getByRole("button", { name: "고쳐서 다시 점검" }));
+    expect((screen.getByLabelText("내 보증금 (만 원)") as HTMLInputElement).value).toBe("500");
+    expect(verdictLabel()).toBe("주의"); // 펼쳐도 결과는 그대로
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(screen.queryByRole("button", { name: "점검하기" })).toBeNull();
+  });
+
   it("3줄 요약은 짧은 제목을 쓴다 (R8: 줄마다 두 줄로 넘치지 않게)", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);

@@ -50,6 +50,7 @@ await step("샘플로 해 보면 판정은 나오지만 방에는 저장하지 �
 });
 
 await step("서류를 올린 것처럼 점검하면 방에 저장되고 홈 카드에 신호등이 보인다", async () => {
+  await p.getByRole("button", { name: "고쳐서 다시 점검" }).click(); // 점검 뒤 접힌 입력 칸 펼치기
   const box = p.getByLabel(/내용을 그대로 붙여 넣어 주세요/);
   await box.fill((await box.inputValue()) + "\n");
   await p.getByRole("button", { name: "점검하기" }).click();
