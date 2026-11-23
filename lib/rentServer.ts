@@ -18,6 +18,30 @@ export function _resetCache() {
   cache.clear();
 }
 
+// 요청 횟수 제한: 남이 계속 불러 공공데이터 키의 하루 한도를 다 쓰지 못하게, 같은 IP는 1분에 RATE_MAX번까지.
+// shortcut: 서버 인스턴스마다 따로 세는 메모리 카운터라 여러 대로 나뉘면 느슨해진다. 실제 서비스면 Netlify 속도 제한 규칙이나 공용 저장소(예: Redis)로.
+const RATE_MAX = 20;
+const RATE_WINDOW_MS = 60_000;
+const hits = new Map<string, { start: number; n: number }>();
+
+/** 이 IP의 요청을 받아도 되면 0, 아니면 다시 시도까지 남은 초 */
+export function rateLimit(ip: string, nowMs = Date.now()): number {
+  const h = hits.get(ip);
+  if (!h || nowMs - h.start >= RATE_WINDOW_MS) {
+    if (hits.size >= 5000) hits.clear(); // 메모리가 끝없이 늘지 않게
+    hits.set(ip, { start: nowMs, n: 1 });
+    return 0;
+  }
+  if (h.n >= RATE_MAX) return Math.ceil((h.start + RATE_WINDOW_MS - nowMs) / 1000);
+  h.n++;
+  return 0;
+}
+
+/** 테스트용 */
+export function _resetRate() {
+  hits.clear();
+}
+
 class UpstreamError extends Error {
   constructor(public reason: string) {
     super(reason);

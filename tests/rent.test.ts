@@ -2,7 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { findRegions, isKnownRegion, regionLabel } from "@/lib/region";
 import { compareRoom, monthsBack, parseRentXml, spread, summarizeRent, type RentStats } from "@/lib/rent";
-import { _resetCache, handleRent } from "@/lib/rentServer";
+import { _resetCache, _resetRate, handleRent, rateLimit } from "@/lib/rentServer";
 import { parseRegion, validateRoomInput } from "@/lib/store/rooms";
 
 const item = (dong: string, deposit: string, rent: string, type = "다가구") =>
@@ -192,5 +192,16 @@ describe("동 이름 경계", () => {
   it("붙여 써도(마포구서교동) · 번지가 붙어도(서교동123) 찾는다", () => {
     expect(findRegions("마포구서교동").map(regionLabel)).toContain("서울특별시 마포구 서교동");
     expect(findRegions("마포구 서교동123-4").map(regionLabel)).toEqual(["서울특별시 마포구 서교동"]);
+  });
+});
+
+describe("시세 API 요청 횟수 제한 (R4)", () => {
+  it("같은 IP는 1분에 20번까지, 넘으면 남은 초를 알려 주고, 1분 뒤에는 다시 받는다 · 다른 IP는 따로 센다", () => {
+    _resetRate();
+    const t = 1_000_000;
+    for (let i = 0; i < 20; i++) expect(rateLimit("1.1.1.1", t + i)).toBe(0);
+    expect(rateLimit("1.1.1.1", t + 30_000)).toBe(30);
+    expect(rateLimit("2.2.2.2", t + 30_000)).toBe(0);
+    expect(rateLimit("1.1.1.1", t + 60_000)).toBe(0);
   });
 });
