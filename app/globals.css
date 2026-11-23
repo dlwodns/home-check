@@ -514,3 +514,9 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
 
 /* 오류 화면의 버튼을 링크 버튼(.cta)과 같게 */
 button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: pointer; }
+
+/* 등기부 떼는 법 (첫 사용자) */
+.howto { margin: 4px 0 12px; }
+.howto summary { cursor: pointer; font-weight: 700; color: var(--accent); }
+.howto ol { margin: 8px 0 4px; padding-left: 20px; }
+.howto li { margin: 4px 0; }

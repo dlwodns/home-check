@@ -261,7 +261,7 @@ describe("동네 시세 (F6)", () => {
     const user = userEvent.setup();
     render(<RoomAddClient />);
     await user.type(screen.getByLabelText("주소"), "가상시 새내동 202-7");
-    expect(await screen.findByText(/동네\(법정동\)를 못 찾았어요/)).toBeTruthy();
+    expect(await screen.findByText(/동 이름을 못 찾았어요.*예: 신촌 → 창천동/)).toBeTruthy();
     await user.type(screen.getByLabelText("보증금 (만 원)"), "500");
     await user.click(screen.getByRole("button", { name: "저장하고 이 방 보기" }));
     expect(savedRooms().rooms[0].region).toBeNull();

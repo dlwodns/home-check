@@ -46,6 +46,7 @@ describe("괜찮은 점", () => {
 
   it("큰 제목: 확인할 것 개수 → 없으면 판정별 문장", () => {
     expect(headline("caution", 2)).toBe("계약 전에 확인할 것이 2가지 있어요");
+    expect(headline("danger", 3)).toBe("이대로 계약하면 위험해요 · 확인할 것 3가지");
     expect(headline("safe", 0)).toBe("확인한 범위 안에서는 큰 위험 신호가 없어요");
     expect(headline("caution", 0)).toBe("계약 전에 한 번 더 확인해 주세요");
   });

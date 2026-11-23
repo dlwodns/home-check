@@ -53,12 +53,23 @@ describe("등기부등본 점검 화면", () => {
     await user.click(screen.getByRole("button", { name: "주의 샘플" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.queryByRole("button", { name: "점검하기" })).toBeNull();
-    expect(screen.getByLabelText("넣은 서류 · 내 계약 정보").textContent).toMatch(/주의 샘플 · 내 보증금 500만 원/);
+    expect(screen.getByLabelText("넣은 서류 · 내 계약 정보").textContent).toMatch(/주의 샘플 · 내 보증금 500만 원 · 시세 \d+억/);
     await user.click(screen.getByRole("button", { name: "고쳐서 다시 점검" }));
     expect((screen.getByLabelText("내 보증금 (만 원)") as HTMLInputElement).value).toBe("500");
     expect(verdictLabel()).toBe("주의"); // 펼쳐도 결과는 그대로
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.queryByRole("button", { name: "점검하기" })).toBeNull();
+  });
+
+  it("첫 사용자용: 등기부 떼는 법이 있고, 결과 화면에 '원문 확인 중' 같은 내부 표시는 없다", async () => {
+    const user = userEvent.setup();
+    render(<CheckClient samples={samples} />);
+    expect(screen.getByText(/등기부등본이 아직 없나요/)).toBeTruthy();
+    expect(screen.getByRole("link", { name: "인터넷등기소" }).getAttribute("href")).toBe("https://www.iros.go.kr");
+    await user.click(screen.getByRole("button", { name: "위험 샘플" }));
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(screen.getByRole("heading", { name: /^이대로 계약하면 위험해요 · 확인할 것 \d+가지$/ })).toBeTruthy();
+    expect(screen.queryByText(/원문 확인 중/)).toBeNull();
   });
 
   it("3줄 요약은 짧은 제목을 쓴다 (R8: 줄마다 두 줄로 넘치지 않게)", async () => {
@@ -85,7 +96,7 @@ describe("등기부등본 점검 화면", () => {
     render(<CheckClient samples={samples} />);
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     const alert = screen.getByRole("alert");
-    expect(alert.textContent).toContain("등기부등본 내용을 붙여 넣어 주세요");
+    expect(alert.textContent).toContain("등기부등본 PDF를 올리거나 내용을 붙여 넣어 주세요");
     expect(alert.textContent).toContain("내 보증금을 적어 주세요");
     expect(verdictLabel()).toBeUndefined();
   });

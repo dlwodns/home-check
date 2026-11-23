@@ -120,7 +120,7 @@ export default function RoomAddClient() {
             )}
             {regionMod && !chosen && options.length === 0 && input.address.trim().length >= 3 && (
               <p className="hint" role="status">
-                동네(법정동)를 못 찾았어요. 이대로 저장해도 되고, 동 이름을 넣으면 시세도 볼 수 있어요.
+                동 이름을 못 찾았어요. 이대로 저장해도 되고, '창천동'처럼 주소의 동 이름을 넣으면 동네 시세도 볼 수 있어요. (예: 신촌 → 창천동 · 대현동, 홍대 앞 → 서교동)
               </p>
             )}
           </div>

@@ -90,7 +90,7 @@ export default function LoginClient() {
 
       {loaded && enabled && !user && (
         <>
-          <h1 className="title">{mode === "login" ? "다시 오셨네요" : "다른 기기에서도 이어 보기"}</h1>
+          <h1 className="title">{mode === "login" ? "로그인" : "가입하고 다른 기기에서도 이어 보기"}</h1>
           <p className="muted">로그인하면 후보 방과 체크가 계정에도 저장돼서 휴대폰 · PC 어디서나 이어서 볼 수 있어요. 로그인하지 않아도 모든 기능을 쓸 수 있어요.</p>
 
           <div className="seg-choice" role="tablist" aria-label="로그인 또는 가입">

@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { itemKey } from "@/lib/store/progress";
-import { formatWon, runCheck, todayKST, type CheckForm, type CheckOutcome, type FlagView } from "@/lib/registry/check";
+import { formatWon, parseManwon, runCheck, todayKST, type CheckForm, type CheckOutcome, type FlagView } from "@/lib/registry/check";
 import type { Mortgage, RegistryRead } from "@/lib/registry/types";
 import { buildActions, todoFor } from "@/lib/registry/actions";
 import { readRegistry } from "@/lib/registry/read";
@@ -35,7 +35,7 @@ const LEVEL_LABEL = { danger: "위험", caution: "주의", info: "참고" } as c
 
 const STATUS_LABEL = {
   confirmed: "법령 원문 확인",
-  check: "원문 확인 중",
+  check: "", // 근거 목록 화면에서만 '원문 확인 중'을 보여 준다(결과 화면에서는 불안만 줌)
   not_legal: "법정 기준 아님",
   unknown: "",
 } as const;
@@ -160,9 +160,9 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       {!showInputs && (
         <section className="card small inputs-folded" aria-label="넣은 서류 · 내 계약 정보">
           <p>
-            ✓ <strong>{isSample ? samples.find((x) => x.text === text)?.label : "넣은 서류"}</strong> · 내 보증금 {form.myDeposit || "?"}만 원
-            {form.marketPrice ? ` · 시세 ${form.marketPrice}만 원` : " · 시세 모름"}
-            {form.priorDeposits ? ` · 앞선 보증금 ${form.priorDeposits}만 원` : ""}
+            ✓ <strong>{isSample ? samples.find((x) => x.text === text)?.label : "넣은 서류"}</strong> · 내 보증금 {money(form.myDeposit) ?? "?"}
+            {money(form.marketPrice) ? ` · 시세 ${money(form.marketPrice)}` : " · 시세 모름"}
+            {money(form.priorDeposits) ? ` · 앞선 보증금 ${money(form.priorDeposits)}` : ""}
           </p>
           <button type="button" className="ghost" onClick={() => setInputsOpen(true)}>
             고쳐서 다시 점검
@@ -174,6 +174,20 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       <>
       <section className="card">
         <h2>1. 서류 넣기</h2>
+        <details className="howto">
+          <summary>등기부등본이 아직 없나요? (5분 · 열람 700원)</summary>
+          <ol>
+            <li>
+              <a href="https://www.iros.go.kr" target="_blank" rel="noopener noreferrer">
+                인터넷등기소
+              </a>
+              에서 로그인 → <strong>부동산 등기 → 열람하기</strong>
+            </li>
+            <li>방 주소로 검색해서 <strong>건물</strong> · <strong>전부(말소사항 포함)</strong>를 골라요</li>
+            <li>700원을 결제하고 열람 화면에서 <strong>PDF로 저장</strong>해 여기에 올려요</li>
+          </ol>
+          <p className="small muted">아직 방이 없어도 아래 샘플로 어떻게 보이는지 먼저 해 볼 수 있어요.</p>
+        </details>
         <label htmlFor={ids.file} className="file-pick">
           <span>등기부등본 PDF 올리기</span>
           <span className="small muted">인터넷등기소에서 받은 PDF 그대로 · 이 기기 안에서만 읽어요</span>
@@ -228,7 +242,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         </div>
         <div className="field">
           <label htmlFor={ids.market}>이 건물 시세 (만 원)</label>
-          <input id={ids.market} inputMode="numeric" value={form.marketPrice} onChange={set("marketPrice")} placeholder="모르면 비워 두세요. 예: 8억" />
+          <input id={ids.market} inputMode="numeric" value={form.marketPrice} onChange={set("marketPrice")} placeholder="예: 80000 또는 8억 · 모르면 비워 두세요" />
           <p className="hint">HUG 안심전세 앱에서 주소로 시세를 볼 수 있어요. 모르면 비워 두면 '계산하지 못했어요'로 따로 알려 드리고, 안전하다고 하지 않아요.</p>
         </div>
         <div className="field">
@@ -286,6 +300,12 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       </p>
     </main>
   );
+}
+
+/** 입력한 금액(만 원 · '8억')을 '9억 원'처럼 읽기 쉽게. 비었거나 이상하면 null */
+function money(raw: string): string | null {
+  const p = parseManwon(raw, "금액");
+  return p.ok && p.won !== null ? formatWon(p.won) : null;
 }
 
 /** 사용자가 고친 칸 이름 (없으면 빈 배열) */

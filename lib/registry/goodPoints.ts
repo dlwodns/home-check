@@ -21,7 +21,8 @@ export function goodPoints(result: Pick<CheckResult, "flags" | "ratio">, lines: 
 
 /** 위험 · 주의 이유 개수 → 큰 제목 */
 export function headline(verdict: CheckResult["verdict"], count: number): string {
-  if (count > 0) return `계약 전에 확인할 것이 ${count}가지 있어요`;
+  // 위험은 주의와 같은 말투면 '확인만 하면 되는구나'로 읽혀서 판정을 먼저 말한다
+  if (count > 0) return verdict === "danger" ? `이대로 계약하면 위험해요 · 확인할 것 ${count}가지` : `계약 전에 확인할 것이 ${count}가지 있어요`;
   return verdict === "safe" ? "확인한 범위 안에서는 큰 위험 신호가 없어요" : "계약 전에 한 번 더 확인해 주세요";
 }
 

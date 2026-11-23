@@ -2,6 +2,7 @@
 import rules from "@/data/judge.json";
 import type { Branch as BranchContent, Step } from "@/lib/content";
 import { toFlagView, type FlagView } from "@/lib/registry/check";
+import { headline } from "@/lib/registry/goodPoints";
 import type { FlagCode } from "@/lib/registry/types";
 import type { Mode } from "@/lib/store/progress";
 import { roomProgress, type CheckSummary, type Room } from "@/lib/store/rooms";
@@ -27,7 +28,7 @@ export function checkLine(summary: CheckSummary | null): string {
   if (!summary) return "등기부등본을 올리면 바로 알려 드려요";
   const n = toCheckCount(summary);
   if (n === 0) return VERDICT_TEXT[summary.verdict].line;
-  return `계약 전에 확인할 것이 ${n}가지 있어요`;
+  return headline(summary.verdict, n);
 }
 
 export type Seg = "done" | "current" | "todo" | "skipped";

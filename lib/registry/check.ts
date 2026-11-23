@@ -100,7 +100,7 @@ export function runCheck(
   options: { edited?: RegistryRead; confirmed?: boolean } = {},
 ): CheckOutcome {
   const errors: string[] = [];
-  if (!options.edited && text.trim() === "") errors.push("등기부등본 내용을 붙여 넣어 주세요.");
+  if (!options.edited && text.trim() === "") errors.push("등기부등본 PDF를 올리거나 내용을 붙여 넣어 주세요. 아직 없으면 위의 '등기부등본이 아직 없나요?'를 보거나 샘플로 먼저 해 보세요.");
 
   const my = parseManwon(form.myDeposit, "내 보증금");
   const prior = parseManwon(form.priorDeposits, "앞선 세입자 보증금");
