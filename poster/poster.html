@@ -28,12 +28,12 @@
   header .who { margin-left: auto; text-align: right; font-size: 17pt; line-height: 1.55; opacity: .92; }
   header .who b { font-size: 22pt; font-weight: 700; }
 
-  main { padding: 11mm 18mm 10mm; display: grid; grid-template-rows: auto 1fr; gap: 9mm; min-height: 0; }
+  main { padding: 9mm 18mm 8mm; display: grid; grid-template-rows: auto 1fr; gap: 7mm; min-height: 0; }
 
   /* 빌보드: 핵심 한 문장 + 화면 + QR */
   .billboard { display: grid; grid-template-columns: 1fr auto; gap: 12mm; align-items: center; }
   .lead .q { font-size: 30pt; font-weight: 700; color: var(--accent); }
-  .lead h1 { font-size: 60pt; font-weight: 800; line-height: 1.22; letter-spacing: -0.045em; margin: 3mm 0 7mm; }
+  .lead h1 { font-size: 56pt; font-weight: 800; line-height: 1.22; letter-spacing: -0.045em; margin: 3mm 0 7mm; }
   .lead h1 em { font-style: normal; color: var(--accent); }
   .lead .flow { display: flex; align-items: center; gap: 2.2mm; font-size: 17pt; font-weight: 700; flex-wrap: wrap; }
   .lead .flow span { background: var(--soft); border-radius: 30mm; padding: 2.2mm 4.5mm; white-space: nowrap; }
@@ -58,7 +58,7 @@
 
   /* 아래: 벤토 카드 */
   .bento { display: grid; grid-template-columns: 1.05fr 1fr 1fr; grid-auto-rows: 1fr; gap: 7mm; align-content: stretch; min-height: 0; }
-  .card { background: var(--soft); border-radius: 7mm; padding: 8mm 8mm 7mm; font-size: 16.5pt; line-height: 1.5; }
+  .card { background: var(--soft); border-radius: 7mm; padding: 7mm 8mm 6mm; font-size: 16.5pt; line-height: 1.5; }
   .card h2 { display: flex; align-items: center; gap: 3.5mm; font-size: 25pt; font-weight: 800; margin-bottom: 4mm; letter-spacing: -0.03em; }
   /* DKUG 양식의 ■ 섹션 표시 */
   .bento { counter-reset: card; }
@@ -102,7 +102,12 @@
   .card p.next { margin-top: 3mm; }
   .card p.stat { margin: 3mm 0; font-size: 15pt; }
   .card p.stat b { display: block; font-size: 30pt; font-weight: 800; color: var(--danger); letter-spacing: -0.03em; }
-  .card p.limit { margin-top: 4mm; padding: 3mm 4mm; background: var(--caution-bg); border-radius: 3mm; font-size: 14.5pt; }
+  .card p.link { margin-top: 1mm; font-size: 14.5pt; color: var(--accent-dark); }
+  .card .arch { margin-top: 4mm; background: #fff; border-radius: 4mm; padding: 3.5mm 4mm; font-size: 14pt; line-height: 1.45; }
+  .card .arch .lbl { font-size: 12.5pt; font-weight: 800; color: var(--accent); }
+  .card .arch p { margin-top: 1mm; }
+  .card p.aiuse { margin-top: 3mm; font-size: 15pt; }
+  .card p.limit { margin-top: 3mm; padding: 3mm 4mm; background: var(--safe-bg); border-radius: 3mm; font-size: 14.5pt; }
   .card ul i { color: var(--muted); font-style: normal; font-size: 13pt; }
   ol.path { list-style: none; display: flex; flex-wrap: wrap; gap: 2mm; margin: 5mm 0 3mm; }
   ol.path li { background: #fff; border: 0.5mm solid var(--accent); color: var(--accent-dark); border-radius: 20mm; padding: 1mm 3.5mm; font-size: 13.5pt; font-weight: 700; margin: 0; }
@@ -147,7 +152,7 @@
     <div class="zooms">
       <figure><figcaption><b>2</b>등기부 점검 · 신호등 판정과 3줄 요약</figcaption><div class="zoom"><img src="img/zoom-verdict.png" alt="주의 신호등과 계약 전에 확인할 것이 1가지 있어요, 3줄 요약 화면"></div></figure>
       <figure><figcaption><b>3</b>다음에 할 일 · 이 방에 맞춘 물어볼 말</figcaption><div class="zoom"><img src="img/zoom-ask.png" alt="집주인 · 중개사에게 물어볼 말과 복사 버튼 화면"></div></figure>
-      <p class="note">실제 앱 화면 · 지어낸 샘플 등기부로 점검</p>
+      <p class="note">실제 앱 화면 · 테스트용 가상 등기부</p>
     </div>
   </section>
 
@@ -155,9 +160,10 @@
     <div class="card">
       <h2>문제</h2>
       <p class="quote">"뭐부터 해야 할지<br>아무것도 모르겠다."</p>
-      <p><b>대상</b>: 처음 혼자 원룸을 계약하는 <b>20살</b> (→ 첫 계약 누구나 · 이사하는 사람)</p>
+      <p><b>대상</b>: 처음 혼자 원룸을 계약하는 <b>20살</b></p>
       <p>근저당 · 확정일자는 처음 듣는 말이고, 등기부등본은 읽을 줄 몰라요. "중개사가 있으니 괜찮겠지" 하고 확인을 건너뛰어요.</p>
       <p class="stat"><b>122명 · 47억 원</b> 익산 원룸 임대업자 한 명에게 대학생 등 임차인이 떼인 보증금 <i>(뉴시스, 2019)</i></p>
+      <p class="link">→ 등기부에 나오지 않는 앞선 세입자 보증금, 홈체크는 <b>확인하는 방법</b>까지 알려 줘요</p>
       <ul>
         <li>직거래 20대 · 사회초년생 7명 피해, 경찰 "등기부로 실제 소유자 확인을" <i>(매일신문, 2024)</i></li>
       </ul>
@@ -167,9 +173,9 @@
       <h2>핵심 기능</h2>
       <ol class="steps">
         <li><b>내 후보 방</b>: 방마다 신호등 · 6단계 진행</li>
-        <li><b>등기부 점검</b>: 신호등 · 3줄 요약</li>
+        <li><b>등기부 점검</b>: 신호등 · 3줄 요약, 모르는 값은 '안전'으로 치지 않음</li>
         <li><b>다음에 할 일</b>: 물어볼 말 · 특약 · 가족 요약</li>
-        <li><b>서류 · 준비물 · 동네 시세</b></li>
+        <li><b>서류 · 준비물 · 동네 시세</b>: 언제 무엇을 챙길지 · 실거래 참고</li>
       </ol>
       <div class="shot"><img src="img/zoom-home.png" alt="내 후보 방 카드: 역 앞 투룸 위험, 6단계 진행 막대"></div>
     </div>
@@ -177,50 +183,53 @@
     <div class="card green">
       <h2>이렇게 달라요</h2>
       <table class="vs">
-        <tr><th>흔한 방식</th><th>홈체크</th></tr>
-        <tr><td>0–100 점수 · 등급</td><td>신호등과 바로 할 행동</td></tr>
-        <tr><td>"안전"이라고만 표시</td><td>등기부로 알 수 없는 것도 함께 보여 줌</td></tr>
-        <tr><td>판단 근거가 안 보임</td><td>근거 법령을 함께 보여 주고, 같은 서류면 결과가 같아요</td></tr>
-        <tr><td>"확인하세요"로 끝</td><td>이 방에 맞는 질문 · 특약 문장까지</td></tr>
+        <tr><th>홈체크 전</th><th>홈체크로</th></tr>
+        <tr><td>체크리스트를 읽고 혼자 판단</td><td>이 방의 신호등 · 이유 · 근거 법령</td></tr>
+        <tr><td>위험하다는데 뭘 할지 모름</td><td>집주인에게 보낼 말 · 특약 문장</td></tr>
+        <tr><td>무엇을 놓쳤는지 모름</td><td>등기부로 알 수 없는 것 5가지까지</td></tr>
       </table>
-      <small>등기부 원문 · 집주인 이름은 저장하지 않고, 서류는 이 기기 안에서만 읽어요.</small>
+      <div class="arch">
+        <span class="lbl">동작 구조</span>
+        <p><b>이 기기 안</b>: 등기부 PDF → 글자 읽기 → 규칙 18 → 신호등 · 다음 할 일</p>
+        <p><b>서버</b>: 동네 시세(공공데이터)만 · 등기부 원문은 보내지 않음</p>
+      </div>
     </div>
 
     <div class="card white span2">
       <h2>검증 · 만든 과정</h2>
       <div class="nums">
-        <div class="num"><b>340+</b><span>자동 테스트<br>(GitHub에 올릴 때마다)</span></div>
-        <div class="num"><b>근거 29</b><span>법령 · 공공기관 원문<br>확인 20개</span></div>
-        <div class="num"><b>규칙 18</b><span>위험 · 주의 · 참고<br>판정 규칙 (AI 없이)</span></div>
+        <div class="num"><b>340+</b><span>자동 테스트<br>(읽기 · 판정 · 화면)</span></div>
+        <div class="num"><b>근거 29</b><span>법령 원문 대조 20개<br>· 판정마다 근거 표시</span></div>
+        <div class="num"><b>규칙 18</b><span>집주인 4 · 권리 기록 9<br>빚 비율 4 · 읽기 확인 1</span></div>
         <div class="num wide"><span class="tag">블라인드 시험</span>
           <ol class="proof">
-            <li><b>20건</b><span>실제 양식대로 만든 처음 보는 가짜 등기부</span></li>
-            <li><b>고침</b><span>처음엔 일부 놓침(67–80%), 원인을 찾아 고침</span></li>
-            <li><b>60/60</b><span>모두 맞힘, 테스트로 보존</span></li>
+            <li><b>20건</b><span>실제 양식을 따른 테스트용 가상 등기부(개발자가 보지 않은 것)</span></li>
+            <li><b>원인 13</b><span>블라인드로 찾은 오류 원인, 모두 고침</span></li>
+            <li><b>60/60</b><span>고친 뒤 전 항목 일치, 회귀 테스트로 지킴</span></li>
           </ol></div>
       </div>
-      <ol class="path"><li>기획(PRD)</li><li>화면 조사</li><li>규칙 판정</li><li>블라인드 시험</li><li>배포 · 자동 점검</li></ol>
-      <p class="limit"><b>아직 못 한 것</b>: 실제 인터넷등기소 PDF로는 검증 전이에요. 다음 단계에서 다시 잽니다.</p>
+      <ol class="path"><li>기획(PRD)</li><li>화면 조사 · 시안 3개</li><li>규칙 판정</li><li>AI 에이전트로 블라인드 시험</li><li>배포 · 자동 점검</li></ol>
+      <p class="aiuse">개발은 <b>Claude Code(바이브 코딩)</b>, 완성된 앱은 <b>AI 없이 규칙</b>으로 판정해 결과가 매번 같아요.</p>
+      <p class="limit"><b>다음 검증</b>: 실제 인터넷등기소 PDF로 정확도 측정 · 실제 사용자 테스트</p>
     </div>
 
     <div class="card green">
-      <h2>기대 효과</h2>
+      <h2>기대 효과 · 목표</h2>
       <ul>
-        <li><b>계약 전</b> 위험 신호를 스스로 알아채요</li>
-        <li><b>무엇을 물을지</b> 문장으로 준비해요</li>
-        <li>가족과 <b>같은 요약</b>으로 함께 판단해요</li>
-        <li>필요하면 <b>무료 상담</b>(132 · 1533-8119)으로</li>
+        <li><b>계약 전</b>, 이 방의 위험 신호를 혼자서도 확인</li>
+        <li><b>무엇을 물을지</b> 문장으로 준비</li>
+        <li>가족과 <b>같은 요약</b>으로 함께 판단</li>
+        <li>필요하면 <b>무료 상담</b>(132 · 1533-8119)으로 연결</li>
       </ul>
-      <p class="next">20살 첫 계약을 기준으로 만들고, 처음 집을 구하는 누구나 · 이사하는 사람도 쓸 수 있어요.</p>
-      <p class="next"><b>다음</b>: 실제 PDF로 정확도 다시 재기 · 건축물대장 연결</p>
-      <small>법률 판단이 아니라 참고용 안내예요. 최종 확인은 전문가와 함께.</small>
+      <p class="next"><b>활용</b>: 대학 신입생 오리엔테이션 · 주거 상담 창구 · 계약 전 안내</p>
+      <p class="next"><b>다음</b>: 건축물대장 연결 · 공유 지분 비율 읽기</p>
     </div>
 
   </section>
 </main>
 
 <footer>
-  <span><b>참고용 안내예요.</b> 최종 확인은 공인중개사 · 전문가와 함께 하세요. 70% · 80%는 법정 기준이 아닌 참고선이에요.</span>
+  <span><b>참고용 안내</b> · 판정 기준 70 · 80%는 업계 참고선 · 계약 전 최종 확인은 공인중개사 · 전문가와</span>
   <span><b>home-check-pi.vercel.app</b></span>
 </footer>
 
