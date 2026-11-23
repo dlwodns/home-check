@@ -50,6 +50,7 @@
   .zooms { width: 136mm; display: grid; gap: 4mm; }
   .zoom { border: 2.4mm solid #1e232b; border-radius: 8mm; overflow: hidden; background: #fff; box-shadow: 0 4mm 9mm rgba(25,31,40,.16); }
   .zoom img { width: 100%; display: block; }
+  .zooms figure + figure { width: 82%; margin-left: auto; }
   .zooms figcaption { display: flex; align-items: center; gap: 2.5mm; text-align: left; margin: 0 0 2.5mm; font-size: 16pt; color: var(--text); }
   .zooms figcaption b { background: #fff; color: var(--accent); border: 0.5mm solid var(--accent); border-radius: 50%; width: 7mm; height: 7mm; display: grid; place-items: center; font-size: 12pt; }
   .zooms .note { font-size: 14pt; color: var(--text); font-weight: 700; text-align: right; }
@@ -80,7 +81,7 @@
   table.vs td:first-child { color: var(--muted); width: 42%; padding-right: 3mm; }
   table.vs td:last-child { font-weight: 700; }
 
-  .nums { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm 6mm; }
+  .nums { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4mm 6mm; }
   .num b { display: block; white-space: nowrap; font-size: 38pt; font-weight: 800; color: var(--accent); line-height: 1.05; letter-spacing: -0.04em; }
   .num span { font-size: 14.5pt; line-height: 1.35; display: block; margin-top: 1mm; }
   .num.wide { grid-column: 1 / -1; border-top: 0.5mm solid var(--border); padding-top: 4mm; }
@@ -99,9 +100,11 @@
   .card .shot img { width: 100%; display: block; }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; }
   .card p.next { margin-top: 3mm; }
+  .card p.stat { margin: 3mm 0; font-size: 15pt; }
+  .card p.stat b { display: block; font-size: 30pt; font-weight: 800; color: var(--danger); letter-spacing: -0.03em; }
   .card p.limit { margin-top: 4mm; padding: 3mm 4mm; background: var(--caution-bg); border-radius: 3mm; font-size: 14.5pt; }
   .card ul i { color: var(--muted); font-style: normal; font-size: 13pt; }
-  ol.path { list-style: none; display: flex; flex-wrap: wrap; gap: 2mm; margin-bottom: 3mm; }
+  ol.path { list-style: none; display: flex; flex-wrap: wrap; gap: 2mm; margin: 5mm 0 3mm; }
   ol.path li { background: #fff; border: 0.5mm solid var(--accent); color: var(--accent-dark); border-radius: 20mm; padding: 1mm 3.5mm; font-size: 13.5pt; font-weight: 700; margin: 0; }
   ol.path li::before { content: none; }
   ol.path li + li::before { content: "→ "; position: static; color: var(--muted); }
@@ -154,9 +157,9 @@
       <p class="quote">"뭐부터 해야 할지<br>아무것도 모르겠다."</p>
       <p><b>대상</b>: 처음 혼자 원룸을 계약하는 <b>20살</b> (→ 첫 계약 누구나 · 이사하는 사람)</p>
       <p>근저당 · 확정일자는 처음 듣는 말이고, 등기부등본은 읽을 줄 몰라요. "중개사가 있으니 괜찮겠지" 하고 확인을 건너뛰어요.</p>
+      <p class="stat"><b>122명 · 47억 원</b> 익산 원룸 임대업자 한 명에게 대학생 등 임차인이 떼인 보증금 <i>(뉴시스, 2019)</i></p>
       <ul>
         <li>직거래 20대 · 사회초년생 7명 피해, 경찰 "등기부로 실제 소유자 확인을" <i>(매일신문, 2024)</i></li>
-        <li>원룸 임차인 122명 보증금 약 47억 원 피해 <i>(뉴시스, 2019)</i></li>
       </ul>
     </div>
 
@@ -183,11 +186,12 @@
       <small>등기부 원문 · 집주인 이름은 저장하지 않고, 서류는 이 기기 안에서만 읽어요.</small>
     </div>
 
-    <div class="card white">
-      <h2>검증</h2>
+    <div class="card white span2">
+      <h2>검증 · 만든 과정</h2>
       <div class="nums">
         <div class="num"><b>340+</b><span>자동 테스트<br>(GitHub에 올릴 때마다)</span></div>
         <div class="num"><b>근거 28</b><span>법령 · 공공기관 원문<br>확인 19개</span></div>
+        <div class="num"><b>규칙 18</b><span>위험 · 주의 · 참고<br>판정 규칙 (AI 없이)</span></div>
         <div class="num wide"><span class="tag">블라인드 시험</span>
           <ol class="proof">
             <li><b>20건</b><span>실제 양식대로 만든 처음 보는 가짜 등기부</span></li>
@@ -195,6 +199,7 @@
             <li><b>60/60</b><span>모두 맞힘, 테스트로 보존</span></li>
           </ol></div>
       </div>
+      <ol class="path"><li>기획(PRD)</li><li>화면 조사</li><li>규칙 판정</li><li>블라인드 시험</li><li>배포 · 자동 점검</li></ol>
       <p class="limit"><b>아직 못 한 것</b>: 실제 인터넷등기소 PDF로는 검증 전이에요. 다음 단계에서 다시 잽니다.</p>
     </div>
 
@@ -207,17 +212,10 @@
         <li>필요하면 <b>무료 상담</b>(132 · 1533-8119)으로</li>
       </ul>
       <p class="next">20살 첫 계약을 기준으로 만들고, 처음 집을 구하는 누구나 · 이사하는 사람도 쓸 수 있어요.</p>
+      <p class="next"><b>다음</b>: 실제 PDF로 정확도 다시 재기 · 건축물대장 연결</p>
       <small>법률 판단이 아니라 참고용 안내예요. 최종 확인은 전문가와 함께.</small>
     </div>
 
-    <div class="card">
-      <h2>만든 과정 · 다음</h2>
-      <ol class="path"><li>기획(PRD)</li><li>화면 조사</li><li>규칙 판정</li><li>블라인드 시험</li><li>배포 · 점검</li></ol>
-      <p>Claude Code로 <b>바이브 코딩</b>, 완성된 앱은 <b>AI 없이 규칙</b>으로 판정해요. <b>가입 없이 무료</b> · 휴대폰 · PC.</p>
-      <div class="chips"><span>Next.js</span><span>Supabase</span><span>공공데이터</span><span>Vercel</span></div>
-      <p class="next"><b>다음</b>: 실제 PDF로 정확도 재기 · 건축물대장</p>
-      <small>하지 않은 것: 매물 검색 · 법률 판단 · 계약 대행 · 점수 매기기</small>
-    </div>
   </section>
 </main>
 
