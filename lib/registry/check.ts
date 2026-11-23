@@ -52,6 +52,8 @@ export interface FlagView {
   code: FlagCode;
   level: "danger" | "caution" | "info";
   title: string;
+  /** 3줄 요약용 짧은 제목 (judge.json의 short, 없으면 title) */
+  short: string;
   /** 무슨 뜻 · 왜 위험한지 (data/judge.json) */
   meaning: string;
   why: string;
@@ -71,11 +73,12 @@ export type CheckOutcome =
     };
 
 export function toFlagView(code: FlagCode): FlagView {
-  const f = rules.flags[code] as { level: string; title: string; meaning: string; why: string; sources: string[]; basis?: string };
+  const f = rules.flags[code] as { level: string; title: string; short?: string; meaning: string; why: string; sources: string[]; basis?: string };
   return {
     code,
     level: levelOf(code),
     title: f.title,
+    short: f.short ?? f.title,
     meaning: f.meaning,
     why: f.why,
     sources: f.sources.map((id) => {

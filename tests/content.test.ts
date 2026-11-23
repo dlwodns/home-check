@@ -95,3 +95,14 @@ describe("용어 사전", () => {
     expect(findTerm("근저당권")?.id).toBe("mortgage");
   });
 });
+
+describe("판정 제목 (judge.json)", () => {
+  it("3줄 요약용 short는 22자 이하이고 title보다 짧다", async () => {
+    const judge = (await import("@/data/judge.json")).default as { flags: Record<string, { title: string; short?: string }> };
+    for (const [code, f] of Object.entries(judge.flags)) {
+      const short = f.short ?? f.title;
+      expect(short.length, code).toBeLessThanOrEqual(f.title.length);
+      expect(short.length, code).toBeLessThanOrEqual(22);
+    }
+  });
+});

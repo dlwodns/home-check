@@ -47,6 +47,14 @@ describe("등기부등본 점검 화면", () => {
     expect(screen.getByText(/법으로 정한 기준이 아니라 많이 쓰는 참고선/)).toBeTruthy();
   });
 
+  it("3줄 요약은 짧은 제목을 쓴다 (R8: 줄마다 두 줄로 넘치지 않게)", async () => {
+    const user = userEvent.setup();
+    render(<CheckClient samples={samples} />);
+    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(screen.getByText(/가장 먼저: 빚과 보증금이 시세의 70%를 넘어요/)).toBeTruthy();
+  });
+
   it("위험 샘플 → 위험, 첫 이유는 '예전 집주인', 근거 링크가 있다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);

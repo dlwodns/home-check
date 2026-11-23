@@ -1,5 +1,5 @@
 {
-  "_note": "F2 위험 판정 규칙. 기준값과 이유 문구는 코드가 아니라 이 파일에만 둔다. level: danger(위험) · caution(주의) · info(참고, 등급에 영향 없음). sources는 docs/SOURCES.md 번호. sources가 비어 있는 이유는 basis(홈체크 자체 원칙)에 적는다.",
+  "_note": "F2 위험 판정 규칙. 기준값과 이유 문구는 코드가 아니라 이 파일에만 둔다. level: danger(위험) · caution(주의) · info(참고, 등급에 영향 없음). sources는 docs/SOURCES.md 번호. sources가 비어 있는 이유는 basis(홈체크 자체 원칙)에 적는다. short: 3줄 요약에 쓰는 짧은 제목(없으면 title).",
   "ratio": {
     "caution_from": 70,
     "danger_from": 80,
@@ -22,6 +22,7 @@
     "owner_mismatch_previous_owner": {
       "level": "danger",
       "title": "계약할 사람이 지금 집주인이 아니라 예전 집주인이에요",
+      "short": "계약 상대가 예전 집주인이에요",
       "sources": [
         "S11"
       ],
@@ -31,6 +32,7 @@
     "read_incomplete": {
       "level": "caution",
       "title": "등기부등본을 다 읽지 못했어요. 못 읽은 칸을 확인하기 전에는 안전하다고 할 수 없어요",
+      "short": "서류에서 못 읽은 칸이 있어요",
       "sources": [],
       "basis": "홈체크 판정 원칙: 못 읽은 값을 0이나 '문제없음'으로 치지 않는다",
       "meaning": "등기부등본에서 읽지 못한 칸이 있어요.",
@@ -48,6 +50,7 @@
     "owner_unchecked": {
       "level": "info",
       "title": "계약할 사람 이름을 넣으면 집주인과 같은지 확인해 드려요",
+      "short": "집주인과 같은 사람인지 아직 몰라요",
       "sources": [
         "S11"
       ],
@@ -57,6 +60,7 @@
     "trust": {
       "level": "danger",
       "title": "신탁등기가 있어요 (실제 권한이 신탁회사에 있을 수 있어요)",
+      "short": "신탁등기가 있어요",
       "sources": [
         "S13"
       ],
@@ -102,6 +106,7 @@
     "lease_registration": {
       "level": "danger",
       "title": "이전 세입자가 보증금을 못 받고 올린 임차권등기가 남아 있어요",
+      "short": "앞 세입자의 임차권등기가 남아 있어요",
       "sources": [
         "S14"
       ],
@@ -111,6 +116,7 @@
     "jeonse": {
       "level": "caution",
       "title": "먼저 설정된 전세권이 있어요. 전세금은 내 보증금보다 먼저 돌려받는 돈이라 빚처럼 계산했어요",
+      "short": "먼저 설정된 전세권이 있어요",
       "sources": [
         "S25"
       ],
@@ -120,6 +126,7 @@
     "ratio_danger": {
       "level": "danger",
       "title": "빚과 보증금을 합치면 건물 시세의 80% 이상이에요",
+      "short": "빚과 보증금이 시세의 80%를 넘어요",
       "sources": [
         "S8"
       ],
@@ -129,6 +136,7 @@
     "ratio_caution": {
       "level": "caution",
       "title": "빚과 보증금을 합치면 건물 시세의 70% 이상이에요",
+      "short": "빚과 보증금이 시세의 70%를 넘어요",
       "sources": [
         "S8"
       ],
@@ -138,6 +146,7 @@
     "ratio_unknown": {
       "level": "caution",
       "title": "건물 시세를 몰라서 빚 비율을 계산하지 못했어요",
+      "short": "시세를 몰라 빚 비율을 못 냈어요",
       "sources": [
         "S8",
         "S10"
@@ -148,6 +157,7 @@
     "prior_deposits_unknown": {
       "level": "caution",
       "title": "먼저 들어온 세입자들의 보증금을 몰라서, 빚 비율이 실제보다 낮게 보일 수 있어요",
+      "short": "앞선 세입자 보증금을 몰라요",
       "sources": [
         "S6",
         "S7"
@@ -158,6 +168,7 @@
     "past_lease_registration": {
       "level": "info",
       "title": "예전에 보증금 문제로 임차권등기가 있었다가 지워진 기록이 있어요",
+      "short": "지워진 임차권등기 기록이 있어요",
       "sources": [
         "S14"
       ],

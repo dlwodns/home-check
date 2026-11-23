@@ -2,7 +2,7 @@
   "_note": "F3 다음 행동 카드. 판정 이유(data/judge.json의 flags)마다 '이렇게 물어보세요'(ask) · '이렇게 하세요'(todo) · 특약(clauses)을 정한다. {owner} 지금 집주인, {party} 계약하러 올 사람, {transferDate} 최근 소유권 이전일, {mortgageTotal} 근저당 합계, {ratio} 비율. 특약은 법정 문구가 아니라 예시이므로 sources 또는 basis로 출처를 밝힌다.",
   "always": {
     "todo": [
-      "계약하는 날 등기부등본을 다시 떼서, 오늘 점검한 뒤로 바뀐 게 없는지 확인해요"
+      "계약하는 날 등기부등본을 다시 떼서 바뀐 게 없는지 확인해요"
     ],
     "clauses": [
       "undisclosed_info"

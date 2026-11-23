@@ -294,7 +294,7 @@ function Result({
   const good = goodPoints(result, ratioLines);
   const unknowns = unknownsFor(read, result);
   const actions = buildActions(read, result);
-  const summary = summaryLines(toCheck[0]?.title ?? null, actions.todos[0] ?? null, good.length, unknowns.length);
+  const summary = summaryLines(toCheck[0]?.short ?? null, actions.todos[0] ?? null, good.length, unknowns.length);
   // 이 결과 화면의 이유 문장들: 같은 용어는 처음 나올 때만 누를 수 있게
   const segs = splitAll(flags.map((f) => f.title));
   const segOf = (code: string) => segs[flags.findIndex((f) => f.code === code)];
