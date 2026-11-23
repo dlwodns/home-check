@@ -31,6 +31,8 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: system-ui, -apple-system, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+  /* 무료 배포(Netlify)가 오른쪽 아래에 붙이는 배지가 마지막 카드 · 버튼을 가리지 않게 맨 아래 여백을 둔다 (배지는 숨기지 않음) */
+  padding-bottom: calc(72px + env(safe-area-inset-bottom));
 }
 
 .container {
