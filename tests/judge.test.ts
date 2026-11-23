@@ -49,10 +49,11 @@ describe("집주인 확인", () => {
     expect(r.verdict).toBe("caution"); // B는 비율 76%라 원래 주의
   });
 
-  it("공동 소유인데 그중 한 명과 계약하면 주의", () => {
+  it("공동 소유인데 그중 한 명과만 계약하면 위험 (민법 제265조: 임대 같은 관리는 지분 과반수, S29)", () => {
     const r = judge(readB({ current_owner: "김도윤, 김하나" }), inputsB(), AS_OF);
     expect(r.flags).toContain("co_owned");
     expect(r.flags).not.toContain("owner_mismatch");
+    expect(r.verdict).toBe("danger");
   });
 });
 
