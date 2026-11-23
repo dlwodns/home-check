@@ -118,6 +118,64 @@
   /* 아래 띠 */
   footer { background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 18mm; font-size: 14pt; }
   footer b { font-weight: 800; }
+
+  /* 9차: 히어로 = 헤드라인 + QR, 그 아래 휴대폰 3대(흐름과 1:1) */
+  main { padding: 9mm 18mm 8mm; gap: 7mm; grid-template-rows: auto auto 1fr; }
+  .top { display: grid; grid-template-columns: 1fr auto; gap: 10mm; align-items: center; }
+  .lead .q { font-size: 28pt; }
+  .lead h1 { font-size: 54pt; line-height: 1.2; margin: 2mm 0 3mm; }
+  .lead .subcopy { font-size: 22pt; font-weight: 600; color: var(--muted); }
+  .qrbox { margin-top: 0; }
+  .qrbox img { width: 60mm; height: 60mm; }
+  .qrbox .s { font-size: 15pt; color: #3d4652; }
+  .phones { display: grid; grid-template-columns: 1fr auto 1.2fr auto 1fr; align-items: end; gap: 4mm; }
+  .phones .arrow { font-size: 34pt; color: var(--muted); padding-bottom: 60mm; font-weight: 800; }
+  .phone { text-align: center; }
+  .phone .lbl { display: inline-flex; align-items: center; gap: 2.5mm; background: var(--soft); border-radius: 20mm; padding: 1.8mm 5mm; font-size: 17pt; font-weight: 800; margin-bottom: 3mm; }
+  .phone .frame { border: 2.6mm solid #1e232b; border-radius: 9mm; overflow: hidden; background: #fff; box-shadow: 0 4mm 9mm rgba(25,31,40,.16); aspect-ratio: 1 / 1.32; }
+  .phone .frame img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+  .phone.main .frame { border-width: 3mm; }
+  .phones-note { text-align: right; font-size: 14pt; font-weight: 700; margin-top: -3mm; }
+  .card { font-size: 17pt; }
+  .card ul.feat li { margin-top: 2.2mm; }
+  .card .lead1 { font-size: 20pt; font-weight: 800; color: var(--accent-dark); margin-bottom: 3mm; line-height: 1.35; }
+  .card p.stat b { font-size: 40pt; }
+  .card .cases { font-size: 14pt; color: #3d4652; margin-top: 2mm; }
+  table.vs3 { width: 100%; border-collapse: collapse; font-size: 15pt; line-height: 1.35; }
+  table.vs3 th { text-align: left; font-size: 13.5pt; color: #3d4652; font-weight: 800; padding-bottom: 1.5mm; }
+  table.vs3 td { padding: 2mm 2mm 2mm 0; border-top: 0.4mm solid #cfd6dc; vertical-align: top; }
+  table.vs3 td:first-child { color: #3d4652; }
+  table.vs3 td:nth-child(2) { font-weight: 800; }
+  .blindline { font-size: 17pt; margin-top: 4mm; padding-top: 4mm; border-top: 0.5mm solid var(--border); }
+  .blindline b { color: var(--accent); font-size: 22pt; }
+  .card .tag2 { font-size: 14pt; font-weight: 800; color: var(--accent); display: block; margin-bottom: 1mm; }
+  ol.road { list-style: none; display: grid; gap: 2mm; margin-top: 3mm; }
+  ol.road li { padding-left: 0; margin-top: 0; font-size: 15pt; }
+  ol.road li::before { content: none; }
+  ol.road b { display: inline-block; min-width: 18mm; color: var(--accent); }
+  footer { font-size: 15pt; }
+
+  /* 9차 레이아웃 보정 */
+  .top { display: block; }
+  .lead h1 { font-size: 50pt; }
+  .phones { grid-template-columns: 1fr auto 1.22fr auto 1fr 92mm; gap: 3.5mm; align-items: end; }
+  .phones .arrow { font-size: 28pt; padding-bottom: 50mm; }
+  .phone .lbl { font-size: 16pt; padding: 1.5mm 4.5mm; }
+  .qrcol { align-self: stretch; display: flex; flex-direction: column; justify-content: flex-end; gap: 3mm; padding-left: 3mm; }
+  .qrcol .qrbox { flex-direction: column; align-items: flex-start; gap: 3mm; width: auto; padding: 5mm; }
+  .qrcol .qrbox img { width: 56mm; height: 56mm; }
+  .qrcol .qrbox .t { font-size: 22pt; }
+  .qrcol .qrbox .u { font-size: 15pt; }
+  .qrcol .qrbox .s { font-size: 13.5pt; }
+  .phones-note { text-align: left; margin: 0; font-size: 13.5pt; }
+  .card { font-size: 16pt; padding: 7mm 7.5mm 6mm; }
+  .card h2 { font-size: 24pt; margin-bottom: 3mm; }
+  .card .lead1 { font-size: 18.5pt; }
+  .card p.stat { margin: 2mm 0; }
+  .card p.stat b { font-size: 36pt; }
+  table.vs3 { font-size: 14pt; }
+  .bento { gap: 6mm; }
+  .phone.main .frame img { object-position: 50% 1.5%; }
 </style>
 </head>
 <body>
@@ -128,100 +186,97 @@
     <div class="name">홈체크</div>
     <div class="sub">이 방, 계약해도 될까?</div>
   </div>
-  <div class="who"><b>6팀 · 단국대학교 · 이재운</b><br>CHEONAN AX 개인 프로젝트 · 2026. 11</div>
+  <div class="who"><b>6팀 · 이재운 (단국대학교)</b><br>CHEONAN AX 개인 프로젝트 · 2026. 11</div>
 </header>
 
 <main>
-  <section class="billboard">
+  <section class="top">
     <div class="lead">
       <p class="q">20살, 첫 집 계약</p>
-      <h1>등기부등본 한 장으로<br><em>이 방의 위험</em>과<br><em>계약 방법</em>까지, 쉬운 말로</h1>
-      <div class="flow">
-        <span>방 담기</span><i>→</i><span>등기부 올리기</span><i>→</i>
-        <span><span class="light"><b style="background:#e5484d"></b><b style="background:#f5a524"></b><b style="background:#30a46c"></b></span>&nbsp; 신호등</span><i>→</i><span>다음에 할 일</span>
-      </div>
-      <div class="qrbox">
-        <img src="img/qr.svg" alt="홈체크 주소 QR 코드">
-        <div>
-          <div class="t">휴대폰으로<br>바로 써 보세요</div>
-          <div class="u">home-check-pi.vercel.app</div>
-          <div class="s">가입 없이 시작 · 샘플 서류로 체험<br>등기부 원문은 기기 밖으로 보내지 않아요</div>
-        </div>
+      <h1>등기부등본 한 장 올리면<br><em>이 방의 위험 신호</em>와 <em>다음 할 일</em>까지</h1>
+      <p class="subcopy">어려운 서류를 쉬운 말로 풀어 드려요</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="phones">
+      <figure class="phone"><span class="lbl">방 담기</span><div class="frame"><img src="img/screen-home-top.png" alt="홈: 내 후보 방 목록, 방마다 신호등과 진행 막대"></div></figure>
+      <span class="arrow">→</span>
+      <figure class="phone main"><span class="lbl"><span class="light"><b style="background:#e5484d"></b><b style="background:#f5a524"></b><b style="background:#30a46c"></b></span> 신호등 판정</span><div class="frame"><img src="img/screen-result.png" alt="주의 신호등, 계약 전에 확인할 것이 1가지 있어요, 3줄 요약"></div></figure>
+      <span class="arrow">→</span>
+      <figure class="phone"><span class="lbl">다음에 할 일</span><div class="frame"><img src="img/screen-next.png" alt="집주인 · 중개사에게 물어볼 말과 특약 문장"></div></figure>
+      <div class="qrcol">
+        <div class="qrbox">
+      <img src="img/qr.svg" alt="홈체크 주소 QR 코드">
+      <div>
+        <div class="t">휴대폰으로<br>바로 써 보세요</div>
+        <div class="u">home-check-pi.vercel.app</div>
+        <div class="s">가입 없이 시작 · 샘플 서류로 체험<br>등기부 원문은 기기 밖으로 보내지 않아요</div>
       </div>
     </div>
-    <div class="zooms">
-      <figure><figcaption><b>2</b>등기부 점검 · 신호등 판정과 3줄 요약</figcaption><div class="zoom"><img src="img/zoom-verdict.png" alt="주의 신호등과 계약 전에 확인할 것이 1가지 있어요, 3줄 요약 화면"></div></figure>
-      <figure><figcaption><b>3</b>다음에 할 일 · 이 방에 맞춘 물어볼 말</figcaption><div class="zoom"><img src="img/zoom-ask.png" alt="집주인 · 중개사에게 물어볼 말과 복사 버튼 화면"></div></figure>
-      <p class="note">실제 앱 화면 · 테스트용 가상 등기부</p>
+        <p class="phones-note">← 실제 앱 화면<br>테스트용 가상 등기부</p>
+      </div>
     </div>
   </section>
 
   <section class="bento">
     <div class="card">
       <h2>문제</h2>
-      <p class="quote">"뭐부터 해야 할지<br>아무것도 모르겠다."</p>
-      <p><b>대상</b>: 처음 혼자 원룸을 계약하는 <b>20살</b> (→ 첫 계약 누구나 · 이사하는 사람)</p>
-      <p>근저당 · 확정일자는 처음 듣는 말이고, 등기부등본은 읽을 줄 몰라요. "중개사가 있으니 괜찮겠지" 하고 확인을 건너뛰어요.</p>
-      <p class="stat"><b>122명 · 47억 원</b> 익산 원룸 임대업자 한 명에게 대학생 등 임차인이 떼인 보증금 <i>(뉴시스, 2019)</i></p>
-      <ul>
-        <li>직거래 20대 · 사회초년생 7명 피해, 경찰 "등기부로 실제 소유자 확인을" <i>(매일신문, 2024)</i></li>
-      </ul>
+      <p class="lead1">뭐부터 해야 할지 모른 채<br>첫 계약을 해요</p>
+      <p><b>대상</b>: 처음 혼자 원룸을 계약하는 20살. 나아가 첫 계약을 하는 누구나</p>
+      <p class="stat"><b>76%</b> 전세사기 피해자 중 20 · 30대 (누적 4만 2,039건) <i>(국토교통부 발표, 이투데이 2026.11)</i></p>
+      <p class="cases">실제 사례: 익산 원룸 임대업자 한 명에게 122명 · 47억 원 <i>(뉴시스 2019)</i> · 직거래 20대 7명 피해 <i>(매일신문 2024)</i></p>
     </div>
 
     <div class="card white">
       <h2>핵심 기능</h2>
-      <ol class="steps">
-        <li><b>내 후보 방</b>: 방마다 신호등 · 6단계 진행</li>
-        <li><b>등기부 점검</b>: 신호등 · 3줄 요약</li>
-        <li><b>다음에 할 일</b>: 물어볼 말 · 특약 · 가족 요약</li>
-        <li><b>서류 · 준비물 · 동네 시세</b></li>
-      </ol>
-      <div class="shot"><img src="img/zoom-home.png" alt="내 후보 방 카드: 역 앞 투룸 위험, 6단계 진행 막대"></div>
+      <ul class="feat">
+        <li><b>내 후보 방</b> — 여러 방을 신호등으로 한눈에 비교</li>
+        <li><b>등기부 점검</b> — 어려운 등기부를 신호등과 3줄 요약으로</li>
+        <li><b>다음에 할 일</b> — 집주인 · 중개사에게 보낼 문장, 특약, 가족용 요약</li>
+        <li><b>서류 · 준비물 · 동네 시세</b> — 계약 날 챙길 것과 실거래 시세 참고</li>
+      </ul>
+      <p class="next"><b>언제</b>: 방 보러 가기 전, 계약 전날 한 번 더</p>
     </div>
 
     <div class="card green">
       <h2>이렇게 달라요</h2>
-      <table class="vs">
-        <tr><th>홈체크 전</th><th>홈체크로</th></tr>
-        <tr><td>체크리스트를 읽고 혼자 판단</td><td>이 방의 신호등 · 이유 · 근거 법령</td></tr>
-        <tr><td>위험하다는데 뭘 할지 모름</td><td>집주인에게 보낼 말 · 특약 문장</td></tr>
-        <tr><td>무엇을 놓쳤는지 모름</td><td>등기부로 알 수 없는 것 5가지까지</td></tr>
+      <p class="lead1">위험을 알려 주는 데서 끝나지 않고, 무엇을 물어볼지까지</p>
+      <table class="vs3">
+        <tr><th>기존 방법</th><th>홈체크</th><th>그래서</th></tr>
+        <tr><td>체크리스트 · 안내서</td><td>이 방 등기부를 자동 점검</td><td>무엇이 걸리는지 바로 앎</td></tr>
+        <tr><td>위험도 점수 · 예측</td><td>신호등 + 이유 + 근거 법령</td><td>왜 위험한지 설명할 수 있음</td></tr>
+        <tr><td>"확인하세요"에서 끝</td><td>물어볼 말 · 특약 문장</td><td>바로 행동</td></tr>
       </table>
-      <small>등기부 원문 · 집주인 이름은 저장하지 않고, 서류는 이 기기 안에서만 읽어요.</small>
     </div>
 
     <div class="card white span2">
       <h2>검증 · 만든 과정</h2>
       <div class="nums">
-        <div class="num"><b>340+</b><span>자동 테스트<br>(GitHub에 올릴 때마다)</span></div>
-        <div class="num"><b>근거 29</b><span>법령 · 공공기관 원문<br>확인 20개</span></div>
-        <div class="num"><b>규칙 18</b><span>집주인 4 · 권리 기록 9<br>빚 비율 4 · 읽기 확인 1</span></div>
-        <div class="num wide"><span class="tag">블라인드 시험</span>
-          <ol class="proof">
-            <li><b>20건</b><span>실제 양식을 따른 테스트용 가상 등기부(개발자가 보지 않은 것)</span></li>
-            <li><b>원인 13</b><span>블라인드로 찾은 오류 원인, 모두 고침</span></li>
-            <li><b>60/60</b><span>고친 뒤 전 항목 일치, 회귀 테스트로 지킴</span></li>
-          </ol></div>
+        <div class="num"><b>340+</b><span>자동 테스트<br>(코드를 고칠 때마다 자동 실행)</span></div>
+        <div class="num"><b>29개</b><span>근거<br>(법령 · 공공기관 원문 20개 포함)</span></div>
+        <div class="num"><b>18개</b><span>판정 규칙<br>(같은 서류면 결과가 같아요)</span></div>
       </div>
-      <ol class="path"><li>기획(PRD)</li><li>화면 조사</li><li>규칙 판정</li><li>블라인드 시험</li><li>배포 · 자동 점검</li></ol>
+      <p class="blindline"><span class="tag2">블라인드 시험</span>개발자가 보지 않은 가상 등기부 <b>20건</b>으로 시험 → 오류 원인 <b>13개</b> 발견 · 수정 → 재시험 <b>120개 항목</b> 모두 일치</p>
+      <ol class="path"><li>기획</li><li>화면 조사</li><li>판정 규칙</li><li>블라인드 시험</li><li>배포 · 자동 점검</li></ol>
     </div>
 
     <div class="card green">
       <h2>기대 효과</h2>
       <ul>
-        <li><b>계약 전</b>, 이 방의 위험 신호를 혼자서도 확인</li>
+        <li>법무사 · 전문가를 찾기 <b>전에</b>, 혼자서도 먼저 위험 신호 확인</li>
         <li><b>무엇을 물을지</b> 문장으로 준비</li>
         <li>가족과 <b>같은 요약</b>으로 함께 판단</li>
-        <li>필요하면 <b>무료 상담</b>(132 · 1533-8119)으로 연결</li>
+        <li>무료 상담: 대한법률구조공단 132 · HUG 전세피해지원센터 1533-8119</li>
       </ul>
-      <p class="next"><b>다음</b>: 실제 인터넷등기소 PDF로 정확도 측정 · 건축물대장 연결</p>
+      <p class="next"><b>활용처</b>: 대학 학생처 신입생 주거 안내 · 청년 주거 상담 창구 · 가족 공동 확인</p>
+      <ol class="road"><li><b>지금</b> 가상 등기부로 검증</li><li><b>다음</b> 실제 인터넷등기소 PDF 정확도 측정</li><li><b>그다음</b> 건축물대장 · 공유 지분 비율 읽기</li></ol>
     </div>
-
   </section>
 </main>
 
 <footer>
-  <span><b>참고용 안내</b> · 판정 기준 70 · 80%는 업계 참고선 · 계약 전 최종 확인은 공인중개사 · 전문가와</span>
+  <span><b>참고용 안내</b> · 빚 비율 기준: 빚 + 보증금이 시세의 70% 이상이면 주의, 80% 이상이면 위험 (업계 참고선) · 최종 확인은 공인중개사 · 전문가와</span>
   <span><b>home-check-pi.vercel.app</b></span>
 </footer>
 
