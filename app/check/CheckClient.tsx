@@ -3,6 +3,7 @@
 // 모든 계산은 이 브라우저 안에서만 하고, 서류 내용은 어디에도 보내거나 저장하지 않는다.
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { itemKey } from "@/lib/store/progress";
 import { formatWon, runCheck, todayKST, type CheckForm, type CheckOutcome, type FlagView } from "@/lib/registry/check";
 import type { Mortgage, RegistryRead } from "@/lib/registry/types";
 import { buildActions, todoFor } from "@/lib/registry/actions";
@@ -106,7 +107,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         ...summarize(out.result, buildActions(out.read, out.result), asOf, unknownsFor(out.read, out.result).map((u) => u.id)),
         edited: editedFieldsOf(text.trim() ? readRegistry(text).read : null, e ?? null),
       };
-      store.save(updateRoom(store.load(), room.id, (r) => ({ ...r, check: summary })));
+      // 등기부를 점검했으니 4단계 '등기부등본 점검하기'도 한 일로 (사용자가 단계 화면에서 다시 끌 수 있음)
+      store.save(updateRoom(store.load(), room.id, (r) => ({ ...r, check: summary, checked: { ...r.checked, [itemKey("documents", "registry")]: true } })));
       setSavedToRoom(true);
     }
   };

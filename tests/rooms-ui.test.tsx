@@ -176,6 +176,19 @@ describe("방에서 점검하기", () => {
     expect(raw).not.toContain("【 갑 구 】");
   });
 
+  it("실제 서류로 점검하면 4단계 '등기부등본 점검하기'도 이 방에서 한 일로 체크된다", async () => {
+    const user = userEvent.setup();
+    seedRooms(baseRoom);
+    at("check?room=r1");
+    render(<CheckClient samples={samples} />);
+    await user.click(await screen.findByRole("button", { name: "주의 샘플" }));
+    asRealDoc();
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(JSON.parse(localStorage.getItem(ROOMS)!).rooms[0].checked["documents.registry"]).toBe(true);
+    // 단계 데이터의 id가 바뀌면 여기서 알 수 있게
+    expect(steps.find((x) => x.id === "documents")?.items.some((i) => i.id === "registry")).toBe(true);
+  });
+
   it("저장된 결과가 방 상세에 신호등 · 다음 행동으로 보인다", async () => {
     const user = userEvent.setup();
     seedRooms(baseRoom);
