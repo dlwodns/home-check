@@ -4,12 +4,12 @@
 import { createRequire } from "node:module";
 const { chromium } = createRequire(process.env.NODE_PATH + "/")("playwright-core");
 
-const U = process.argv[2] ?? "https://home-checkapp.netlify.app";
+const U = process.argv[2] ?? "https://home-check-pi.vercel.app";
 const OUT = "poster/img";
 const W = 390, H = 780;
 const b = await chromium.launch({ executablePath: process.env.CHROME_PATH });
 const ctx = await b.newContext({ viewport: { width: W, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true, locale: "ko-KR" });
-await ctx.route(/\.netlify\/scripts\/hud/, (r) => r.abort()); // 무료 요금제가 붙이는 'Powered by Netlify' 배지
+await ctx.route(/\.netlify\/scripts\/hud/, (r) => r.abort()); // (Netlify에 올렸을 때) 무료 요금제 배지 숨김
 const p = await ctx.newPage();
 const from = async (name, loc, pad) => {
   await p.waitForTimeout(1200);

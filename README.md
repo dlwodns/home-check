@@ -8,7 +8,7 @@
 
 - 형태: 모바일 우선 웹 + PWA (설치 없이 링크로 열고, 홈 화면에 추가 가능)
 - 제출: 포스터 11/23(월) · 최종 코드 11/28(토)
-- **배포 주소: https://home-checkapp.netlify.app** (11/21 배포)
+- **배포 주소: https://home-check-pi.vercel.app** (11/21 배포)
 - 현재 단계: **배포 완료 · 포스터 제출(11/23), 최종 코드 다듬는 중** — F1 길잡이 → F2 등기부등본 점검(PDF 올리기 포함) → F3 다음 행동까지 동작. 근거 · 용어 법령 원문 대조 완료(근거 15/24 ✅ · 용어 16/16 확인). 자동 테스트 340개, GitHub에 올릴 때마다 CI. **11/16 중심 전환**: 홈을 '내 후보 방'(주소 · 보증금/월세 · 링크 메모 3칸으로 담고, 방마다 점검 → 이 방 계약 방법 → 진행)으로 다시 만드는 중(PRD v0.6). 다음은 화면 재구성(11/17–18) → 동네 시세(11/19) → 로그인(11/20) → 배포(11/21) → 포스터(맨 마지막).
 - 기획 문서: [7주차 점검표 결과](docs/CHECK_7W.md) · [미니 PRD](docs/PRD.md) · [외부 데이터 API 메모](docs/DATA_APIS.md) · [외부 서비스 지도](docs/SERVICES.md) · [화면 흐름](docs/FLOW.md) · [근거 목록](docs/SOURCES.md) (법 · 제도 안내의 공식 확인 링크) · [아이디어 보관함](docs/IDEAS.md) · [개발 일정](docs/SCHEDULE.md)
 
@@ -92,8 +92,9 @@ FONT_PATH=/경로/NanumGothic-Regular.ttf npm run samples:pdf
 
 ## 배포
 
-- **Netlify**로 배포합니다(8주차 강의 기준). GitHub 저장소를 연결하면 `main`에 올릴 때마다 자동으로 다시 배포됩니다. 설정은 `netlify.toml`에 있습니다.
-- 주소: https://home-checkapp.netlify.app · 환경 변수 3개(아래 '필요한 키'의 Supabase 2개 · 공공데이터 키)는 Netlify 화면에 넣습니다. `NEXT_PUBLIC_` 두 개는 브라우저로 가는 공개용 값이라 secret으로 표시하지 않습니다(표시하면 빌드가 실패할 수 있음). 키를 바꾸면 **Clear cache and deploy**로 다시 배포해야 반영됩니다.
+- **Vercel**(Hobby, 무료)로 배포합니다. 주소: **https://home-check-pi.vercel.app** · GitHub `main`에 올릴 때마다 자동으로 다시 배포됩니다. 서버 함수 위치는 서울(`vercel.json`의 `icn1`).
+- 환경 변수 3개(아래 '필요한 키'의 Supabase 2개 · 공공데이터 키)는 Vercel 프로젝트 → Settings → Environment Variables에 넣습니다. 공공데이터 키만 Sensitive로 잠그고, `NEXT_PUBLIC_` 두 개는 브라우저로 가는 공개용 값이라 잠그지 않습니다. 값을 붙여 넣을 때 앞뒤 줄바꿈이 들어가지 않게 합니다. 값을 바꾸면 Deployments에서 Redeploy해야 반영됩니다.
+- 왜 Vercel인가(11/23): 처음엔 8주차 강의대로 Netlify(`netlify.toml`이 남아 있음)에 올렸지만, 2025-09 이후 무료 계정은 월 300 크레딧(운영 배포 1번 = 15)이라 연결 이틀 만에 배포가 멈췄고, 크레딧을 다 쓰면 사이트 전체가 정지돼 포스터 QR이 끊길 위험이 있었습니다. Vercel Hobby는 하루 배포 100번 · 잠들지 않음 · 비상업 개인용 조건이라 과제에 맞습니다.
 - GitHub에 올릴 때마다 **자동 테스트(CI)**가 돕니다: 타입 검사 → 테스트 → 빌드 (`.github/workflows/ci.yml`).
 - 배포 뒤 점검(E2E): `scripts/smoke.mjs`가 배포 주소를 휴대폰 크기 브라우저로 처음부터 끝까지 눌러 봅니다(로비 · 방 담기 · 동네 시세 · 샘플은 저장 안 함 · 실제 점검 저장 · 로그인 · 404 · 화면 오류). 하나라도 다르면 실패. 실행법은 파일 맨 위에 있습니다.
 

@@ -54,6 +54,9 @@
 - [x] B1 Netlify: 저장소 연결, 환경 변수 3개(Supabase 2개 · 공공데이터 키), Make public (11/21 완료: https://home-checkapp.netlify.app. 확인: https · http→https 이동 · 보안 헤더 · 부제 · 공유 이미지 · 시세 API 실제 응답 · CSP에 Supabase 주소 · 공공데이터 키가 공개 파일에 없음 · 저장소엔 빈 .env.sample만)
 - [ ] B2 8주차 완료 체크 6개(https · 스마트폰 · 기능 · 데이터 · GitHub에 .env 없음 · RLS) + 휴대폰으로 처음부터 끝까지
 
+- [x] B3 (11/23) **Netlify → Vercel로 옮김**: Netlify 무료 월 300 크레딧(배포 1번 15)이 이틀 만에 바닥나 배포가 멈춤 → Vercel Hobby, https://home-check-pi.vercel.app , 서버 서울(icn1). 배포본 점검 7개 통과, 시세 · 키 비노출 확인. Netlify는 자동 배포 잠금(사용자)
+  - [ ] (선택) 공공데이터 키 재발급: 11/23 Vercel 설정 캡처에 키 값이 보여 대화에 남음 → 재발급 후 .env · Vercel 갱신
+
 ### C. 포스터 · 제출
 - [ ] C1 포스터(맨 마지막): 포스터 제작 스킬 → A2, 배포 주소 QR — ★ 11/23(월) 제출
   - [x] 11/21 초안: 스킬 `.claude/skills/poster/SKILL.md`, `poster/poster.html` → `poster/homecheck-poster-A2.pdf` (DKUG 띠 · ■ 표시 + #BetterPoster 한 문장 · QR + 벤토 카드 6장, 앱 화면은 배포본에서 주의 샘플로 캡처)

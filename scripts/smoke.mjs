@@ -5,7 +5,7 @@
 import { createRequire } from "node:module";
 const { chromium } = createRequire(process.env.NODE_PATH + "/")("playwright-core");
 
-const U = process.argv[2] ?? "https://home-checkapp.netlify.app";
+const U = process.argv[2] ?? "https://home-check-pi.vercel.app";
 const results = [];
 const step = async (name, fn) => {
   try {

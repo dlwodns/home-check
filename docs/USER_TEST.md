@@ -2,7 +2,7 @@
 
 20살 첫 계약자라고 생각하고, **설명을 안 읽어도 따라갈 수 있는지**를 봐 주세요. 막히거나 이상한 곳은 맨 아래 '발견한 것'에 한 줄씩 적으면 됩니다.
 
-- 여는 법: 배포 주소 **https://home-checkapp.netlify.app** (PC · 휴대폰 모두). 내 컴퓨터에서 켰다면 `npm run dev`가 알려 주는 주소(기본 `http://localhost:3000`)
+- 여는 법: 배포 주소 **https://home-check-pi.vercel.app** (PC · 휴대폰 모두). 내 컴퓨터에서 켰다면 `npm run dev`가 알려 주는 주소(기본 `http://localhost:3000`)
 - PC에서 휴대폰 화면을 보려면 브라우저 창을 좁게 하거나, 크롬 F12 → 휴대폰 아이콘
 - 시험용 PDF는 VS Code 왼쪽 파일 목록에서 `samples/blind/pdf`, `samples/blind2/pdf`의 파일을 **오른쪽 클릭 → 다운로드**해서 내 PC로 받은 뒤 올리면 됩니다. 각 서류가 무엇을 시험하는지는 같은 폴더의 `CASES.md`에 있어요.
 
@@ -50,7 +50,7 @@
 ## 6. 안내 · 기타
 
 - [ ] 홈 아래 '개인정보 · 데이터 안내'를 읽어 보고 이해된다
-- [ ] 없는 주소(예: `https://home-checkapp.netlify.app/abc`)로 가면 한글 안내가 나온다
+- [ ] 없는 주소(예: `https://home-check-pi.vercel.app/abc`)로 가면 한글 안내가 나온다
 
 ## 발견한 것
 
