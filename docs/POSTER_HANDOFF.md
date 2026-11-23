@@ -130,3 +130,31 @@ cp poster/homecheck-poster-A2.pdf ~/6팀-단국대학교-이재운-홈체크.pdf
 - 배포본 점검을 CI에 연결 · 접근성 검사(선택)
 - 저장소 공개 여부 결정(지금 PRIVATE), README 포트폴리오 정리, `v1.0` 태그
 - 11/28 실습 서버 종료 전 백업(저장소는 GitHub에 모두 있음, `.env` 키 값은 사용자가 따로 보관)
+
+## 12. GitHub
+
+| 항목 | 내용 |
+| --- | --- |
+| 저장소 | **https://github.com/dlwodns/home-check** (`dlwodns/home-check`) |
+| 공개 여부 | **PRIVATE**(비공개). 코드 제출 방식에 맞춰 11/28 전에 공개 · 멘토 초대 중 결정 |
+| 브랜치 | `main` 하나. 작업은 `main`에 바로 커밋 · 푸시(개인 프로젝트) |
+| 커밋 수 | 93개 (11/23 밤 기준), 태그 없음 → 제출 때 `v1.0` 태그 |
+| 자동 검사(CI) | `.github/workflows/ci.yml`: 푸시마다 `npm ci` → 타입 검사 → 테스트 → 빌드. 최근 모두 통과. 확인: `gh run list --limit 3` |
+| 자동 배포 | **Vercel**이 GitHub `main` 푸시를 받아 자동 배포(Vercel GitHub 앱은 `home-check` 저장소 하나에만 권한). Netlify는 자동 배포를 잠가 둠(다시 켜면 무료 크레딧이 줄어듦) |
+| 키 | `.env`는 `.gitignore`에 있고 커밋 기록 전체에서 키 0건 확인(11/21). 저장소엔 이름만 든 `.env.sample` |
+
+**커밋 규칙** (저장소 `CLAUDE.md`)
+- 기능 하나가 동작하는 것을 확인하면 바로 커밋 · 푸시
+- 커밋 메시지는 한국어로, **무엇을 바꿨는지와 왜**
+- 기능을 바꾸면 README도 같이(주요 기능 · 실행 방법 · 필요한 키 이름, 값은 적지 않음)
+- 키 값은 코드 · 로그에 쓰지 않고 환경 변수로만
+
+**새로 받아서 이어 하기**
+```bash
+gh repo clone dlwodns/home-check
+cd home-check && cp .env.sample .env   # 값은 사용자가 따로 보관한 것으로
+npm install && npm test && npm run build
+```
+
+**포스터 관련 커밋** (최신이 위)
+`e67a950` 9차 최종 수정 가이드 · `6ef1110` 8차 수상작에 없는 항목 빼기 · `be195d9` 7차 · `4f2718a` 6차 수상작 공통점 · `52b724a` 5차 · `48d6427` 4차 공지 순서 · `5b886e0` 3차 · `0c68683` 2차 · `1021b6e` 초안 · 인수인계 `351ee16` · `b4d6870`
