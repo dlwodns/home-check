@@ -202,17 +202,21 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       <>
       <section className="card">
         <h2>1. 서류 넣기</h2>
+        <p className="get-registry">
+          등기부등본이 없다면 →{" "}
+          <a href="https://www.iros.go.kr" target="_blank" rel="noopener noreferrer">
+            인터넷등기소에서 떼기 ↗
+          </a>{" "}
+          <span className="small muted">(5분 · 열람 1,100원)</span>
+        </p>
         <details className="howto">
-          <summary>등기부등본이 아직 없나요? (5분 · 열람 1,100원)</summary>
+          <summary>떼는 순서 보기</summary>
           <ol>
             <li>
-              <a href="https://www.iros.go.kr" target="_blank" rel="noopener noreferrer">
-                인터넷등기소
-              </a>
-              에서 로그인 → <strong>부동산 등기 → 열람하기</strong>
+              인터넷등기소에서 로그인 → <strong>부동산 등기 → 열람하기</strong>
             </li>
             <li>방 주소로 검색해서 <strong>건물</strong> · <strong>전부(말소사항 포함)</strong>를 골라요</li>
-            <li>1,100원을 결제하고 열람 화면에서 <strong>PDF로 저장</strong>해 여기에 올려요</li>
+            <li>1,100원을 결제하고 열람 화면에서 <strong>인쇄 → &apos;PDF로 저장&apos;</strong>해 여기에 올려요</li>
           </ol>
           <p className="small muted">아직 방이 없어도 아래 샘플로 어떻게 보이는지 먼저 해 볼 수 있어요.</p>
         </details>

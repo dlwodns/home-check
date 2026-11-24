@@ -67,8 +67,11 @@ describe("등기부등본 점검 화면", () => {
   it("첫 사용자용: 등기부 떼는 법이 있고, 결과 화면에 '원문 확인 중' 같은 내부 표시는 없다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
-    expect(screen.getByText(/등기부등본이 아직 없나요/)).toBeTruthy();
-    expect(screen.getByRole("link", { name: "인터넷등기소" }).getAttribute("href")).toBe("https://www.iros.go.kr");
+    // 접힌 안내를 펼치지 않아도 어디서 떼는지 보여야 한다(접힌 <details> 안에 있으면 안 보임)
+    const iros = screen.getByRole("link", { name: /인터넷등기소에서 떼기/ });
+    expect(iros.getAttribute("href")).toBe("https://www.iros.go.kr");
+    expect(iros.closest("details")).toBeNull();
+    expect(screen.getByText("떼는 순서 보기")).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "위험 샘플" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.getByRole("heading", { name: /^이대로 계약하면 위험해요 · 확인할 것 \d+가지$/ })).toBeTruthy();
