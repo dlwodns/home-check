@@ -25,6 +25,7 @@ export default function OcrReview({
   original,
   current,
   missed,
+  readWarnings,
   state,
   editedFields,
   onDone,
@@ -36,6 +37,8 @@ export default function OcrReview({
   /** 지금 쓰는 값(고쳤으면 고친 값) */
   current: RegistryRead;
   missed: string[];
+  /** 읽기 규칙이 못 읽은 칸 경고(예: 갑구를 못 찾음). 첫 문장만 짧게 보여 준다 */
+  readWarnings: string[];
   state: OcrReviewState;
   editedFields: string[];
   onDone: (state: "ok" | "differs", read: RegistryRead) => void;
@@ -51,7 +54,7 @@ export default function OcrReview({
       <p className={`card small ocr-review-done${state === "differs" ? " differs" : ""}`} role="status">
         {state === "ok"
           ? `✓ 원본과 맞춰 봤어요${editedFields.length ? ` (고친 값: ${editedFields.join(" · ")})` : ""}`
-          : "원본과 다른 값이 있다고 표시했어요. '안전'은 나오지 않아요. 등기부를 직접 확인해 주세요."}{" "}
+          : "다른 값이 있다고 표시했어요. '안전'은 나오지 않아요."}{" "}
         <button type="button" className="ghost" onClick={onReopen}>
           다시 보기
         </button>
@@ -63,9 +66,18 @@ export default function OcrReview({
   const owners = ev.filter((e) => e.label === "지금 집주인");
   const mortgageEv = ev.filter((e) => e.label === "근저당 채권최고액");
   const others = ev.filter((e) => !owners.includes(e) && !mortgageEv.includes(e));
-  const doubtful = ev.filter((e) => e.doubtful).length;
+  const ownerDoubt = !owners.length || owners.some((e) => e.doubtful);
+  // 못 읽은 항목도 줄로 보여 준다(빠지면 '없나 보다' 하고 넘어가기 쉬움)
+  const noTransfer = !original.last_ownership_transfer;
+  const total = 1 + mortgages.length + others.length + (noTransfer ? 1 : 0);
+  const doubtful = (ownerDoubt ? 1 : 0) + mortgages.filter((_, i) => !mortgageEv[i] || mortgageEv[i].doubtful).length + others.filter((e) => e.doubtful).length + (noTransfer ? 1 : 0);
+  const notices = [...new Set(readWarnings.map((w) => w.split(/(?<=요\.)\s/)[0]))].filter((w) => !/집주인 이름을 읽지 못했어요/.test(w) || owners.length);
 
   const finish = (s: "ok" | "differs") => {
+    if (s === "ok" && !owner.trim()) {
+      setError("집주인 이름을 적어 주세요. 원본 갑구의 마지막 소유자예요.");
+      return;
+    }
     const parsed = parseMortgageRows(mortgages);
     if (!parsed) {
       setError("근저당 금액은 원 단위 숫자로 적어 주세요. 예: 120,000,000");
@@ -77,25 +89,25 @@ export default function OcrReview({
 
   return (
     <section className="card ocr-evidence" aria-label="원본과 맞춰 보기">
-      <h3>원본과 맞춰 보기 ({ev.length}개)</h3>
+      <h3>원본과 맞춰 보기 ({total}개)</h3>
       <p className="small muted">
-        판정에 쓰일 값만 모았어요. 값과 오른쪽 원본 조각이 같은지 보고, 다르면 바로 고쳐 주세요.
-        {doubtful > 0 && <> <strong>⚠ 표시 {doubtful}개</strong>는 흐리게 읽혔거나 원본 자리를 못 찾은 것이라 특히 꼼꼼히 봐 주세요.</>}
+        원본 조각과 같은지만 보면 돼요. 다르면 바로 고쳐요.
+        {doubtful > 0 && <> <strong>⚠ {doubtful}개</strong>는 꼼꼼히 봐 주세요.</>}
       </p>
-      {missed.length > 0 && (
+      {(notices.length > 0 || missed.length > 0) && (
         <ul className="ocr-missed" role="status">
-          {missed.map((m) => (
+          {[...notices, ...missed].map((m) => (
             <li key={m}>⚠ {m}</li>
           ))}
         </ul>
       )}
       <ul>
-        <li className={owners.some((e) => e.doubtful) || !owners.length ? "doubtful" : undefined}>
-          <span className="ocr-value">
+        <li className={ownerDoubt ? "doubtful" : undefined}>
+          <span className="ocr-value wide">
             <label htmlFor={ownerId} className="small muted">
-              {owners.some((e) => e.doubtful) || !owners.length ? "⚠ " : ""}지금 집주인 (갑구의 마지막 소유자)
+              {ownerDoubt ? "⚠ " : ""}지금 집주인 (갑구의 마지막 소유자)
             </label>
-            <input id={ownerId} value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="못 읽었어요. 원본에서 보고 적어 주세요" />
+            <input id={ownerId} value={owner} onChange={(e) => setOwner(e.target.value)} placeholder="원본에서 보고 적어 주세요" />
           </span>
           {owners.map((e, i) => (
             <CropOrMissing key={i} e={e} ocr={ocr} />
@@ -113,12 +125,12 @@ export default function OcrReview({
                     value={m.amount}
                     onChange={(v) => setMortgages((ms) => ms.map((x, j) => (j === i ? { ...x, amount: v } : x)))}
                   />
-                  <button type="button" className="ghost" aria-label={`근저당 ${i + 1} 지우기`} onClick={() => setMortgages((ms) => ms.filter((_, j) => j !== i))}>
+                  <button type="button" className="ghost small-btn" aria-label={`근저당 ${i + 1} 지우기`} onClick={() => setMortgages((ms) => ms.filter((_, j) => j !== i))}>
                     지우기
                   </button>
                 </span>
               </span>
-              {e ? <CropOrMissing e={e} ocr={ocr} /> : <span className="small muted">직접 추가한 근저당</span>}
+              {e ? <CropOrMissing e={e} ocr={ocr} /> : <span className="small muted">직접 추가함</span>}
             </li>
           );
         })}
@@ -134,6 +146,15 @@ export default function OcrReview({
             <CropOrMissing e={e} ocr={ocr} />
           </li>
         ))}
+        {noTransfer && (
+          <li className="doubtful">
+            <span className="ocr-value">
+              <span className="small muted">마지막 소유권 이전</span>
+              <strong>⚠ 못 읽었어요</strong>
+            </span>
+            <span className="small muted">원본 갑구에서 확인해 주세요</span>
+          </li>
+        )}
       </ul>
       <button type="button" className="ghost" onClick={() => setMortgages((ms) => [...ms, { amount: "", creditor: "" }])}>
         + 빠진 근저당 추가
@@ -145,11 +166,12 @@ export default function OcrReview({
       )}
       <div className="ocr-review-actions">
         <button type="button" className="primary" onClick={() => finish("ok")}>
-          ✓ 원본과 같아요(고친 값 포함)
+          ✓ 원본과 같아요
         </button>
         <button type="button" className="ghost" onClick={() => finish("differs")}>
           날짜 · 위험 기록이 원본과 달라요
         </button>
+        <p className="small muted">고친 값은 그대로 점검에 써요.</p>
       </div>
     </section>
   );
@@ -159,7 +181,7 @@ function CropOrMissing({ e, ocr }: { e: Evidence; ocr: OcrPdfResult }) {
   return e.box ? (
     <Crop page={ocr.pages[e.box.page]} box={e.box} label={`${e.label} 원본 조각`} />
   ) : (
-    <span className="small muted">원본에서 자리를 못 찾았어요. PDF에서 직접 찾아봐 주세요.</span>
+    <span className="small muted">원본에서 자리를 못 찾았어요</span>
   );
 }
 

@@ -539,3 +539,11 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 :root { color-scheme: light dark; }
 .raw-text { margin: 8px 0; }
 .raw-text summary { cursor: pointer; font-size: 14px; color: var(--muted, inherit); }
+.ocr-value.wide { flex: 1 1 100%; }
+.ocr-value input { width: 100%; }
+.small-btn { min-height: 36px; padding: 4px 12px; font-size: 13px; width: auto; flex: 0 0 auto; }
+.ocr-evidence .row { display: flex; gap: 8px; align-items: flex-start; }
+.ocr-evidence .row .money-input { flex: 1; }
+.ocr-evidence .ocr-missed { display: grid; gap: 4px; }
+.ocr-evidence .ocr-missed li { display: block; border: 0; padding: 0; border-radius: 0; }
+.ocr-evidence ul.ocr-missed { padding: 10px 12px; margin: 10px 0 0; border-radius: 12px; }

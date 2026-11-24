@@ -26,8 +26,8 @@ import { missedEntries } from "@/lib/registry/ocrCheck";
 import OcrReview, { type OcrReviewState } from "./OcrReview";
 
 /** 그림 PDF를 OCR로 읽고 아직 원본과 맞춰 보지 않았을 때. 맞춰 보기 전에는 '안전'을 내지 않는다 */
-export const OCR_WARNING = "그림(스캔) PDF라 글자를 그림에서 읽었어요(OCR). 위 '원본과 맞춰 보기'에서 확인하면 최종 결과가 나와요.";
-export const OCR_DIFFERS = "원본과 다른 값(날짜 · 위험 기록)이 있다고 표시했어요. 등기부를 직접 확인해 주세요.";
+export const OCR_WARNING = "그림(스캔) PDF라 OCR로 읽었어요. 위 '원본과 맞춰 보기'를 마치면 최종 결과가 나와요.";
+export const OCR_DIFFERS = "원본과 다른 값이 있다고 표시했어요. 등기부를 직접 확인해 주세요.";
 import HomeLink from "../ui/HomeLink";
 import MoneyInput from "../ui/MoneyInput";
 
@@ -115,7 +115,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         setConfirmed(false);
         setText(o.text);
         setOutcome(null);
-        setPdfStatus({ kind: "ok", message: `그림 PDF ${o.pages.length}쪽을 OCR로 읽었어요. 잘못 읽을 수 있어서, 바로 아래에서 원본과 맞춰 봐 주세요.` });
+        setPdfStatus({ kind: "ok", message: `그림 PDF ${o.pages.length}쪽을 읽었어요. 아래에서 원본과 맞춰 봐 주세요.` });
         return;
       }
       setText(r.text);
@@ -173,6 +173,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         original={original}
         current={edited ?? original}
         missed={missedEntries(ocr.raw, original)}
+        readWarnings={readRegistry(text).warnings}
         state={ocrReview}
         editedFields={editedFields}
         onReopen={() => setOcrReview("pending")}

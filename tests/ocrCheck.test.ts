@@ -34,9 +34,9 @@ describe("ocrCheck: OCR 결과 확인 돕기", () => {
       "주요 등기사항 요약",
       "1 근저당권설정 2019년",
     ].join("\n");
-    expect(missedEntries(text, empty)).toEqual(["원본에 근저당 기록이 1개 보이는데 0개만 읽었어요. 을구를 직접 확인해 주세요."]);
+    expect(missedEntries(text, empty)).toEqual(["근저당이 원본엔 1개, 읽은 건 0개예요. 을구를 확인해 주세요."]);
     expect(missedEntries("3\n임의경매개시결정\n4\n3번임의경매개시결정등기말소\n5 가압류 2025년", empty)).toEqual([
-      "원본에 말소되지 않은 '가압류' 기록이 보이는데 읽은 기록에 없어요. 직접 확인해 주세요.",
+      "원본에 '가압류' 기록이 보이는데 못 읽었어요. 확인해 주세요.",
     ]);
   });
   it("tesseract 결과 모양을 줄 목록으로 바꾼다", () => {

@@ -222,7 +222,7 @@ describe("PDF 올리기", () => {
     });
     render(<CheckClient samples={samples} />);
     await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
-    await screen.findByText(/그림 PDF 1쪽을 OCR로 읽었어요/);
+    await screen.findByText(/그림 PDF 1쪽을 읽었어요/);
     for (const [label, k] of [["내 보증금 (원)", "myDeposit"], [/먼저 들어온 세입자들의 보증금/, "priorDeposits"], ["이 건물 시세 (원)", "marketPrice"], ["계약하러 올 사람 이름", "contractParty"]] as const) {
       const v = s.form[k];
       // 샘플 폼 값은 만 원 단위 → 화면 칸에는 원으로 적는다
@@ -241,7 +241,7 @@ describe("PDF 올리기", () => {
     // 맞춰 보지 않고 점검 → '안전' 막힘, 결과의 '직접 확인했어요'로는 풀리지 않음
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(verdictLabel()).not.toBe("안전");
-    expect(screen.getByText(/위 '원본과 맞춰 보기'에서 확인하면 최종 결과가 나와요/)).toBeTruthy();
+    expect(screen.getByText(/위 '원본과 맞춰 보기'를 마치면 최종 결과가 나와요/)).toBeTruthy();
 
     // 맞춰 보기 '같아요' → 카드가 한 줄로 접히고 결과가 바로 다시 계산됨
     await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
@@ -262,8 +262,25 @@ describe("PDF 올리기", () => {
 
     await user.click(screen.getByRole("button", { name: "다시 보기" }));
     await user.click(screen.getByRole("button", { name: /원본과 달라요/ }));
-    expect(screen.getAllByText(/원본과 다른 값이 있다고 표시했어요/).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/다른 값이 있다고 표시했어요/).length).toBeGreaterThan(0);
     expect(verdictLabel()).not.toBe("안전");
+  });
+
+  it("갑구를 못 읽으면 맞춰 보기에 알리고, 못 읽은 이전일도 줄로 보이며, 집주인을 적기 전에는 '같아요'가 안 된다", async () => {
+    const user = userEvent.setup();
+    const eul = safe().text.slice(safe().text.search(/【\s*을\s*구\s*】/));
+    readPdfFile.mockResolvedValueOnce({ text: "", pages: 1, hasText: false });
+    ocrPdfFile.mockResolvedValueOnce({ text: "【 표 제 부 】\n" + eul, raw: eul, lines: [], pages: [] });
+    render(<CheckClient samples={samples} />);
+    await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
+    const card = await screen.findByRole("region", { name: "원본과 맞춰 보기" });
+    expect(within(card).getByText(/갑구\(소유자 기록\)를 찾지 못했어요/)).toBeTruthy();
+    expect(within(card).getByText("⚠ 못 읽었어요")).toBeTruthy();
+    await user.click(within(card).getByRole("button", { name: /원본과 같아요/ }));
+    expect(within(card).getByRole("alert").textContent).toContain("집주인 이름을 적어 주세요");
+    await user.type(within(card).getByLabelText(/지금 집주인 \(갑구/), "홍길동");
+    await user.click(within(card).getByRole("button", { name: /원본과 같아요/ }));
+    expect(screen.getByText("✓ 원본과 맞춰 봤어요 (고친 값: 집주인)")).toBeTruthy();
   });
 
   it("OCR로도 글자를 거의 못 읽으면 안내하고 내용을 바꾸지 않는다", async () => {

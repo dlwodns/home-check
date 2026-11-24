@@ -107,7 +107,7 @@ export function missedEntries(ocrText: string, read: RegistryRead): string[] {
   const out: string[] = [];
   const mortgages = rows("근저당권설정");
   const readMortgages = read.active_mortgages.length + read.erased_mortgages.length;
-  if (mortgages > readMortgages) out.push(`원본에 근저당 기록이 ${mortgages}개 보이는데 ${readMortgages}개만 읽었어요. 을구를 직접 확인해 주세요.`);
+  if (mortgages > readMortgages) out.push(`근저당이 원본엔 ${mortgages}개, 읽은 건 ${readMortgages}개예요. 을구를 확인해 주세요.`);
   const readCount: Record<string, number> = {
     가압류: read.seizures.filter((x) => x.type === "가압류").length,
     압류: read.seizures.filter((x) => x.type === "압류").length,
@@ -118,7 +118,7 @@ export function missedEntries(ocrText: string, read: RegistryRead): string[] {
     // 가등기에 의한 본등기가 되면 그 가등기는 끝난 것(읽기 규칙도 위험으로 치지 않음)
     if (w === "가등기" && /가등기에\s*의한\s*본등기/.test(t)) continue;
     const alive = rows(w) - erased(w);
-    if (alive > (readCount[w] ?? 0)) out.push(`원본에 말소되지 않은 '${w}' 기록이 보이는데 읽은 기록에 없어요. 직접 확인해 주세요.`);
+    if (alive > (readCount[w] ?? 0)) out.push(`원본에 '${w}' 기록이 보이는데 못 읽었어요. 확인해 주세요.`);
   }
   return out;
 }
