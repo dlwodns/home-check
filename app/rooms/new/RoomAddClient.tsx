@@ -8,6 +8,7 @@ import { addRoom, MAX_ROOMS, newRoomId, roomHref, validateRoomInput, type RoomIn
 import { todayKST } from "@/lib/registry/check";
 import { useRooms } from "../../ui/useRooms";
 import HomeLink from "../../ui/HomeLink";
+import MoneyInput from "../../ui/MoneyInput";
 
 type Field = "address" | "deposit" | "rent" | "note";
 const EMPTY: RoomInput = { address: "", deposit: "", rent: "", note: "" };
@@ -127,25 +128,25 @@ export default function RoomAddClient() {
 
           <div className="row-2">
             <div className="field">
-              <label htmlFor={ids.deposit}>보증금 (만 원)</label>
-              <input
+              <label htmlFor={ids.deposit}>보증금 (원)</label>
+              <MoneyInput
                 id={ids.deposit}
-                inputMode="numeric"
+                hintId={`${ids.deposit}-h`}
                 value={input.deposit}
-                onChange={set("deposit")}
-                placeholder="예: 1000"
+                onChange={(v) => setInput((x) => ({ ...x, deposit: v }))}
+                placeholder="예: 10,000,000"
                 aria-invalid={Boolean(errors.deposit)}
                 aria-describedby={described("deposit")}
               />
               {err("deposit")}
             </div>
             <div className="field">
-              <label htmlFor={ids.rent}>월세 (만 원)</label>
-              <input
+              <label htmlFor={ids.rent}>월세 (원)</label>
+              <MoneyInput
                 id={ids.rent}
-                inputMode="numeric"
+                hintId={`${ids.rent}-h`}
                 value={input.rent}
-                onChange={set("rent")}
+                onChange={(v) => setInput((x) => ({ ...x, rent: v }))}
                 placeholder="전세면 비워 두세요"
                 aria-invalid={Boolean(errors.rent)}
                 aria-describedby={described("rent")}

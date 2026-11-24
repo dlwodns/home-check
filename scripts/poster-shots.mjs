@@ -25,8 +25,8 @@ await p.screenshot({ path: `${OUT}/screen-lobby.png`, clip: { x: 0, y: 110, widt
 
 await p.goto(U + "/rooms/new", { waitUntil: "networkidle" });
 await p.fill("input[placeholder^='예: OO동']", "마포구 서교동 123-4");
-await p.fill("input[placeholder='예: 1000']", "1000");
-await p.fill("input[placeholder='전세면 비워 두세요']", "60");
+await p.fill("input[placeholder='예: 10,000,000']", "10000000");
+await p.fill("input[placeholder='전세면 비워 두세요']", "600000");
 await p.fill("input[placeholder^='직방 링크']", "정문 앞 원룸");
 await p.getByRole("button", { name: /저장하고/ }).click();
 await p.waitForURL(/room\?id=/);
@@ -63,8 +63,8 @@ await zoom("ask", ask.top - 22, doNext.top - 30);
 // 두 번째 방(위험 샘플)까지 담아 홈의 '내 후보 방' 비교 화면을 찍는다
 await p.goto(U + "/rooms/new", { waitUntil: "networkidle" });
 await p.fill("input[placeholder^='예: OO동']", "마포구 서교동 45-6");
-await p.fill("input[placeholder='예: 1000']", "500");
-await p.fill("input[placeholder='전세면 비워 두세요']", "55");
+await p.fill("input[placeholder='예: 10,000,000']", "5000000");
+await p.fill("input[placeholder='전세면 비워 두세요']", "550000");
 await p.fill("input[placeholder^='직방 링크']", "역 앞 투룸");
 await p.getByRole("button", { name: /저장하고/ }).click();
 await p.waitForURL(/room\?id=/);

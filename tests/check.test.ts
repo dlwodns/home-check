@@ -1,7 +1,7 @@
 // F2 화면 흐름 테스트: 20살이 입력칸에 칠 법한 값과 이상한 입력(7주차 점검표 ⑤)을 다룬다.
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { formatWon, parseManwon, runCheck, todayKST, type CheckForm } from "@/lib/registry/check";
+import { formatWon, parseManwon, readWon, runCheck, todayKST, type CheckForm } from "@/lib/registry/check";
 
 const load = (f: string) => readFileSync(`samples/${f}`, "utf8");
 const AS_OF = "2026-11-13";
@@ -126,6 +126,18 @@ describe("이상한 입력 (7주차 점검표 ⑤)", () => {
     expect(josa("월세", "은", "는")).toBe("월세는");
     expect(josa("건물 시세", "이", "가")).toBe("건물 시세가");
     const r = parseManwon("abc", "월세");
-    expect(!r.ok && r.message).toBe("월세는 숫자로 적어 주세요. 예: 500 (만 원 단위)");
+    expect(!r.ok && r.message).toBe("월세는 숫자로 적어 주세요. 예: 5,000,000 (원)");
   });
+});
+
+describe("원 금액 읽어 주기(입력 칸 옆 힌트)", () => {
+  it.each([
+    [5, "5원"],
+    [50_000, "5만 원"],
+    [1_234, "1,234원"],
+    [50_000_000, "5,000만 원"],
+    [800_000_000, "8억 원"],
+    [812_345_678, "8억 1,234만 5,678원"],
+    [0, "0원"],
+  ])("%d → %s", (won, text) => expect(readWon(won)).toBe(text));
 });

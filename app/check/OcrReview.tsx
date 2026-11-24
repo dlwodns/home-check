@@ -5,10 +5,11 @@ import { useId, useState } from "react";
 import { evidenceFor, type Evidence } from "@/lib/registry/ocrCheck";
 import type { Mortgage, RegistryRead } from "@/lib/registry/types";
 import type { OcrPdfResult } from "./ocrPdf";
+import MoneyInput from "../ui/MoneyInput";
 
 export type OcrReviewState = "pending" | "ok" | "differs";
 
-/** 근저당 입력 칸(만 원) → 원. 숫자가 아니면 null */
+/** 근저당 입력 칸 값(MoneyInput이 넘겨 준 만 원 단위 글자) → 원. 숫자가 아니면 null */
 export function parseMortgageRows(rows: { amount: string; creditor: string }[]): Mortgage[] | null {
   const out: Mortgage[] = [];
   for (const m of rows) {
@@ -67,7 +68,7 @@ export default function OcrReview({
   const finish = (s: "ok" | "differs") => {
     const parsed = parseMortgageRows(mortgages);
     if (!parsed) {
-      setError("근저당 금액은 만 원 단위 숫자로 적어 주세요.");
+      setError("근저당 금액은 원 단위 숫자로 적어 주세요. 예: 120,000,000");
       return;
     }
     setError("");
@@ -105,13 +106,12 @@ export default function OcrReview({
           return (
             <li key={i} className={!e || e.doubtful ? "doubtful" : undefined}>
               <span className="ocr-value">
-                <span className="small muted">{!e || e.doubtful ? "⚠ " : ""}근저당 채권최고액 (만 원)</span>
+                <span className="small muted">{!e || e.doubtful ? "⚠ " : ""}근저당 채권최고액 (원)</span>
                 <span className="row">
-                  <input
-                    aria-label={`근저당 ${i + 1} 금액 (만 원)`}
-                    inputMode="numeric"
+                  <MoneyInput
+                    aria-label={`근저당 ${i + 1} 금액 (원)`}
                     value={m.amount}
-                    onChange={(ev) => setMortgages((ms) => ms.map((x, j) => (j === i ? { ...x, amount: ev.target.value } : x)))}
+                    onChange={(v) => setMortgages((ms) => ms.map((x, j) => (j === i ? { ...x, amount: v } : x)))}
                   />
                   <button type="button" className="ghost" aria-label={`근저당 ${i + 1} 지우기`} onClick={() => setMortgages((ms) => ms.filter((_, j) => j !== i))}>
                     지우기

@@ -28,11 +28,11 @@ export function parseManwon(raw: string, label: string): ParsedAmount {
   if (s === "") return { ok: true, won: null };
   const m = /^(?:(\d+(?:\.\d+)?)억)?(?:(\d+(?:\.\d+)?)(?:만)?)?$/.exec(s);
   if (!m || (m[1] === undefined && m[2] === undefined)) {
-    return { ok: false, message: `${josa(label, "은", "는")} 숫자로 적어 주세요. 예: 500 (만 원 단위)` };
+    return { ok: false, message: `${josa(label, "은", "는")} 숫자로 적어 주세요. 예: 5,000,000 (원)` };
   }
   const manwon = Number(m[1] ?? 0) * 10_000 + Number(m[2] ?? 0);
   if (!Number.isFinite(manwon) || manwon > 1_000_000) {
-    return { ok: false, message: `${josa(label, "이", "가")} 너무 커요. 만 원 단위로 적었는지 확인해 주세요.` };
+    return { ok: false, message: `${josa(label, "이", "가")} 너무 커요. 금액을 다시 확인해 주세요.` };
   }
   return { ok: true, won: Math.round(manwon * MANWON) };
 }
@@ -113,7 +113,7 @@ export function runCheck(
   const prior = parseManwon(form.priorDeposits, "앞선 세입자 보증금");
   const market = parseManwon(form.marketPrice, "건물 시세");
   for (const p of [my, prior, market]) if (!p.ok) errors.push(p.message);
-  if (my.ok && my.won === null) errors.push("내 보증금을 적어 주세요. 예: 500 (만 원 단위)");
+  if (my.ok && my.won === null) errors.push("내 보증금을 적어 주세요. 예: 5,000,000 (원)");
   if (form.contractParty.trim().length > 30) errors.push("계약할 사람 이름이 너무 길어요.");
   if (errors.length || !my.ok || !prior.ok || !market.ok) return { ok: false, errors };
 
@@ -157,4 +157,14 @@ export function formatWon(won: number): string {
   if (eok && rest) return `${eok}억 ${rest.toLocaleString("ko-KR")}만 원`;
   if (eok) return `${eok}억 원`;
   return `${rest.toLocaleString("ko-KR")}만 원`;
+}
+
+/** 원 금액을 한국어로 끊어 읽기 쉽게: 5 → "5원", 50,000,000 → "5,000만 원", 812,345,678 → "8억 1,234만 5,678원" */
+export function readWon(won: number): string {
+  const eok = Math.floor(won / 100_000_000);
+  const man = Math.floor((won % 100_000_000) / MANWON);
+  const rest = won % MANWON;
+  const parts = [eok && `${eok.toLocaleString("ko-KR")}억`, man && `${man.toLocaleString("ko-KR")}만`, rest && rest.toLocaleString("ko-KR")].filter(Boolean);
+  if (!parts.length) return "0원";
+  return parts.join(" ") + (rest ? "원" : " 원");
 }

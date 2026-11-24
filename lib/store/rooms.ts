@@ -215,7 +215,7 @@ export function validateRoomInput(input: RoomInput): { ok: true; draft: RoomDraf
 
   const dep = parseManwon(input.deposit, "보증금");
   if (!dep.ok) errors.deposit = dep.message;
-  else if (dep.won === null) errors.deposit = "보증금을 적어 주세요. 예: 1000 (만 원 단위)";
+  else if (dep.won === null) errors.deposit = "보증금을 적어 주세요. 예: 10,000,000 (원)";
 
   const rent = parseManwon(input.rent, "월세");
   if (!rent.ok) errors.rent = rent.message;

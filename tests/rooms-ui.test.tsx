@@ -82,8 +82,8 @@ describe("후보 방 추가", () => {
     const user = userEvent.setup();
     render(<RoomAddClient />);
     await user.type(screen.getByLabelText("주소"), "OO동 123-4");
-    await user.type(screen.getByLabelText("보증금 (만 원)"), "1,000");
-    await user.type(screen.getByLabelText("월세 (만 원)"), "50");
+    await user.type(screen.getByLabelText("보증금 (원)"), "10,000,000");
+    await user.type(screen.getByLabelText("월세 (원)"), "500000");
     await user.type(screen.getByLabelText(/매물 링크 · 메모/), "정문 원룸 https://example.com/r/1");
     await user.click(screen.getByRole("button", { name: "저장하고 이 방 보기" }));
     const [r] = savedRooms().rooms;
@@ -161,7 +161,7 @@ describe("방에서 점검하기", () => {
     at("check?room=r1");
     render(<CheckClient samples={samples} />);
     expect(await screen.findByText(/방을 점검해요/)).toBeTruthy();
-    expect((screen.getByLabelText("내 보증금 (만 원)") as HTMLInputElement).value).toBe("500");
+    expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("5,000,000");
 
     await user.click(screen.getByRole("button", { name: "주의 샘플" }));
     asRealDoc();
@@ -217,7 +217,7 @@ describe("방에서 샘플로 해 보기 (11/23 리뷰 R1)", () => {
     expect(await screen.findByText(/방을 점검해요/)).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "주의 샘플" }));
-    expect((screen.getByLabelText("내 보증금 (만 원)") as HTMLInputElement).value).toBe("1000");
+    expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("10,000,000");
     await user.click(screen.getByRole("button", { name: "점검하기" }));
 
     expect(screen.getByText(/샘플로 해 본 결과라 이 방에는 저장하지 않았어요/)).toBeTruthy();
@@ -251,8 +251,8 @@ describe("동네 시세 (F6)", () => {
     const group = await screen.findByRole("radiogroup", { name: "어느 동네인가요?" });
     await user.click(within(group).getByRole("radio", { name: /강남구 신사동/ }));
     expect(screen.getByText(/강남구 신사동 · 이 동네 시세를 찾아 드려요/)).toBeTruthy();
-    await user.type(screen.getByLabelText("보증금 (만 원)"), "1000");
-    await user.type(screen.getByLabelText("월세 (만 원)"), "60");
+    await user.type(screen.getByLabelText("보증금 (원)"), "10000000");
+    await user.type(screen.getByLabelText("월세 (원)"), "600000");
     await user.click(screen.getByRole("button", { name: "저장하고 이 방 보기" }));
     expect(savedRooms().rooms[0].region).toEqual({ sgg: "11680", dong: "신사동" });
   });
@@ -262,7 +262,7 @@ describe("동네 시세 (F6)", () => {
     render(<RoomAddClient />);
     await user.type(screen.getByLabelText("주소"), "가상시 새내동 202-7");
     expect(await screen.findByText(/동 이름을 못 찾았어요.*예: 신촌 → 창천동/)).toBeTruthy();
-    await user.type(screen.getByLabelText("보증금 (만 원)"), "500");
+    await user.type(screen.getByLabelText("보증금 (원)"), "5000000");
     await user.click(screen.getByRole("button", { name: "저장하고 이 방 보기" }));
     expect(savedRooms().rooms[0].region).toBeNull();
   });
@@ -335,7 +335,7 @@ describe("이상한 입력 (7주차 점검표 ⑤)", () => {
     const user = userEvent.setup();
     render(<RoomAddClient />);
     await user.type(screen.getByLabelText("주소"), "OO동 1");
-    await user.type(screen.getByLabelText("보증금 (만 원)"), "500");
+    await user.type(screen.getByLabelText("보증금 (원)"), "5000000");
     await user.dblClick(screen.getByRole("button", { name: "저장하고 이 방 보기" }));
     expect(savedRooms().rooms).toHaveLength(1);
     expect(push).toHaveBeenCalledTimes(1);

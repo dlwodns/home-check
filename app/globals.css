@@ -534,3 +534,8 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .ocr-review-actions { display: grid; gap: 8px; margin-top: 12px; }
 .ocr-review-done { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .ocr-review-done.differs { border-color: var(--caution, #c98a00); }
+.money-input { display: grid; gap: 2px; }
+.money-hint { min-height: 1.2em; font-size: 13px; color: var(--accent); font-weight: 600; }
+:root { color-scheme: light dark; }
+.raw-text { margin: 8px 0; }
+.raw-text summary { cursor: pointer; font-size: 14px; color: var(--muted, inherit); }

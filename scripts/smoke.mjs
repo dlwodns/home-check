@@ -32,8 +32,8 @@ await step("https로 열리고 처음 온 사람에게 로비가 보인다", asy
 await step("방을 담으면 그 방 화면으로 가고 동네 시세가 나온다(공공데이터 키 · /api/rent)", async () => {
   await p.goto(U + "/rooms/new", { waitUntil: "networkidle" });
   await p.fill("input[placeholder^='예: OO동']", "마포구 서교동 123-4");
-  await p.fill("input[placeholder='예: 1000']", "1000");
-  await p.fill("input[placeholder='전세면 비워 두세요']", "60");
+  await p.fill("input[placeholder='예: 10,000,000']", "10000000");
+  await p.fill("input[placeholder='전세면 비워 두세요']", "600000");
   await p.fill("input[placeholder^='직방 링크']", "점검용 방");
   await p.getByRole("button", { name: /저장하고/ }).click();
   await p.waitForURL(/room\?id=/);

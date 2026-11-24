@@ -58,10 +58,24 @@ describe("등기부등본 점검 화면", () => {
     expect(screen.queryByRole("button", { name: "점검하기" })).toBeNull();
     expect(screen.getByLabelText("넣은 서류 · 내 계약 정보").textContent).toMatch(/주의 샘플 · 내 보증금 500만 원 · 시세 \d+억/);
     await user.click(screen.getByRole("button", { name: "고쳐서 다시 점검" }));
-    expect((screen.getByLabelText("내 보증금 (만 원)") as HTMLInputElement).value).toBe("500");
+    expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("5,000,000");
     expect(verdictLabel()).toBe("주의"); // 펼쳐도 결과는 그대로
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.queryByRole("button", { name: "점검하기" })).toBeNull();
+  });
+
+  it("금액 칸은 원 단위로 쉼표를 넣고, 옆에 읽기 쉬운 금액을 바로바로 보여 준다", async () => {
+    const user = userEvent.setup();
+    render(<CheckClient samples={samples} />);
+    const dep = screen.getByLabelText("내 보증금 (원)") as HTMLInputElement;
+    await user.type(dep, "5");
+    expect(screen.getByText("= 5원")).toBeTruthy();
+    await user.type(dep, "0000000");
+    expect(dep.value).toBe("50,000,000");
+    expect(screen.getByText("= 5,000만 원")).toBeTruthy();
+    await user.clear(dep);
+    await user.type(dep, "8억");
+    expect(screen.getByText("= 8억 원")).toBeTruthy();
   });
 
   it("첫 사용자용: 등기부 떼는 법이 있고, 결과 화면에 '원문 확인 중' 같은 내부 표시는 없다", async () => {
@@ -130,9 +144,9 @@ describe("등기부등본 점검 화면", () => {
     render(<CheckClient samples={samples} />);
     await user.click(screen.getByRole("button", { name: "주의 샘플" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
-    const first = screen.getByLabelText("근저당 1 금액 (만 원)");
+    const first = screen.getByLabelText("근저당 1 금액 (원)");
     await user.clear(first);
-    await user.type(first, "60000");
+    await user.type(first, "600000000");
     await user.click(screen.getByRole("button", { name: "다시 점검" }));
     expect(verdictLabel()).toBe("위험");
   });
@@ -185,8 +199,12 @@ describe("PDF 올리기", () => {
     render(<CheckClient samples={samples} />);
     await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
     expect(await screen.findByText(/PDF 1쪽에서 글자를 읽었어요/)).toBeTruthy();
-    expect((screen.getByLabelText(/내용을 그대로 붙여 넣어 주세요/) as HTMLTextAreaElement).value).toContain("【 을 구 】");
-    await user.type(screen.getByLabelText("내 보증금 (만 원)"), "500");
+    // 읽은 글자 칸은 접혀 있다(펼치면 고칠 수 있음)
+    const raw = screen.getByLabelText(/읽은 글자\(서류와 다르면 고쳐도 돼요\)/) as HTMLTextAreaElement;
+    expect(raw.closest("details")?.open).toBe(false);
+    expect(raw.value).toContain("【 을 구 】");
+    expect(screen.getByText("다른 PDF 올리기")).toBeTruthy();
+    await user.type(screen.getByLabelText("내 보증금 (원)"), "5000000");
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(document.querySelector(".verdict-label")?.textContent).not.toBe("안전"); // 시세 · 앞선 보증금을 몰라 주의
   });
@@ -205,8 +223,11 @@ describe("PDF 올리기", () => {
     render(<CheckClient samples={samples} />);
     await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
     await screen.findByText(/그림 PDF 1쪽을 OCR로 읽었어요/);
-    for (const [label, k] of [["내 보증금 (만 원)", "myDeposit"], [/먼저 들어온 세입자들의 보증금/, "priorDeposits"], ["이 건물 시세 (만 원)", "marketPrice"], ["계약하러 올 사람 이름", "contractParty"]] as const)
-      await user.type(screen.getByLabelText(label), s.form[k]);
+    for (const [label, k] of [["내 보증금 (원)", "myDeposit"], [/먼저 들어온 세입자들의 보증금/, "priorDeposits"], ["이 건물 시세 (원)", "marketPrice"], ["계약하러 올 사람 이름", "contractParty"]] as const) {
+      const v = s.form[k];
+      // 샘플 폼 값은 만 원 단위 → 화면 칸에는 원으로 적는다
+      if (v) await user.type(screen.getByLabelText(label), k === "contractParty" || !/^\d+$/.test(v) ? v : String(Number(v) * 10_000));
+    }
     return r;
   };
 
@@ -233,7 +254,7 @@ describe("PDF 올리기", () => {
     await uploadOcr(user);
     await user.click(screen.getByRole("button", { name: /빠진 근저당 추가/ }));
     const amounts = screen.getAllByLabelText(/근저당 \d+ 금액/);
-    await user.type(amounts[amounts.length - 1], "100000"); // 10억: 빚 비율이 크게 올라감
+    await user.type(amounts[amounts.length - 1], "1000000000"); // 10억: 빚 비율이 크게 올라감
     await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
     expect(screen.getByText(/원본과 맞춰 봤어요 \(고친 값: 근저당\)/)).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "점검하기" }));

@@ -29,6 +29,7 @@ import OcrReview, { type OcrReviewState } from "./OcrReview";
 export const OCR_WARNING = "그림(스캔) PDF라 글자를 그림에서 읽었어요(OCR). 위 '원본과 맞춰 보기'에서 확인하면 최종 결과가 나와요.";
 export const OCR_DIFFERS = "원본과 다른 값(날짜 · 위험 기록)이 있다고 표시했어요. 등기부를 직접 확인해 주세요.";
 import HomeLink from "../ui/HomeLink";
+import MoneyInput from "../ui/MoneyInput";
 
 export interface Sample {
   label: string;
@@ -65,6 +66,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   const [savedToRoom, setSavedToRoom] = useState(false);
   // 그림 PDF를 OCR로 읽은 경우: 원본 쪽 그림 · 단어 자리(확인 화면용). 새 서류를 넣으면 비운다
   const [ocr, setOcr] = useState<OcrPdfResult | null>(null);
+  // PDF로 넣었으면 읽은 글자 칸을 접는다(붙여 넣는 사람에게는 그대로)
+  const [fromPdf, setFromPdf] = useState(false);
   const [ocrReview, setOcrReview] = useState<OcrReviewState>("pending");
   const clearOcr = () =>
     setOcr((o) => {
@@ -106,6 +109,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           return;
         }
         setOcr(o);
+        setFromPdf(true);
         setOcrReview("pending");
         setEdited(null);
         setConfirmed(false);
@@ -115,6 +119,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         return;
       }
       setText(r.text);
+      setFromPdf(true);
       setOutcome(null);
       setPdfStatus({ kind: "ok", message: `PDF ${r.pages}쪽에서 글자를 읽었어요. 아래 내용이 서류와 맞는지 확인한 뒤 점검해 주세요.` });
     } catch (e) {
@@ -181,6 +186,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
 
   const pickSample = (s: Sample) => {
     setPdfStatus(null);
+    setFromPdf(false);
     clearOcr();
     setText(s.text);
     // 방에서 해 볼 때는 내 방 보증금을 지킨다(샘플 값으로 덮지 않음)
@@ -190,10 +196,19 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     setConfirmed(false);
   };
 
+  const setMoney = (k: keyof CheckForm) => (manwon: string) => setForm((f) => ({ ...f, [k]: manwon }));
   const set = (k: keyof CheckForm) => (ev: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: ev.target.value }));
 
   const showInputs = inputsOpen || !outcome?.ok;
+  const pasteBox = (
+    <>
+      <label htmlFor={ids.text} className="field-label">
+        {fromPdf ? "읽은 글자(서류와 다르면 고쳐도 돼요)" : "또는 등기부등본(등기사항전부증명서) 내용을 그대로 붙여 넣어 주세요"}
+      </label>
+      <textarea id={ids.text} value={text} onChange={(e) => setText(e.target.value)} rows={7} placeholder="【 표 제 부 】 … 【 갑 구 】 … 【 을 구 】 …" />
+    </>
+  );
   return (
     <main className="container check">
       <nav className="topbar">
@@ -251,7 +266,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           <p className="small muted">아직 방이 없어도 아래 샘플로 어떻게 보이는지 먼저 해 볼 수 있어요.</p>
         </details>
         <label htmlFor={ids.file} className="file-pick">
-          <span>등기부등본 PDF 올리기</span>
+          <span>{fromPdf ? "다른 PDF 올리기" : "등기부등본 PDF 올리기"}</span>
           <span className="small muted">인터넷등기소에서 받은 PDF 그대로 · 이 기기 안에서만 읽어요</span>
         </label>
         <input
@@ -269,16 +284,15 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
             {pdfStatus.message}
           </p>
         )}
-        <label htmlFor={ids.text} className="field-label">
-          또는 등기부등본(등기사항전부증명서) 내용을 그대로 붙여 넣어 주세요
-        </label>
-        <textarea
-          id={ids.text}
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          rows={7}
-          placeholder="【 표 제 부 】 … 【 갑 구 】 … 【 을 구 】 …"
-        />
+        {fromPdf ? (
+          // PDF에서 읽은 글자는 사람이 읽을 용도가 아니라 접어 둔다(OCR 원문은 특히 지저분함). 고칠 때만 펼친다
+          <details className="raw-text">
+            <summary>읽은 글자 보기 (고칠 때만)</summary>
+            {pasteBox}
+          </details>
+        ) : (
+          pasteBox
+        )}
         <div className="samples">
           <span className="muted small">샘플로 해 보기:</span>
           {samples.map((s) => (
@@ -295,18 +309,18 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       <section className="card">
         <h2>2. 내 계약 정보</h2>
         <div className="field">
-          <label htmlFor={ids.my}>내 보증금 (만 원)</label>
-          <input id={ids.my} inputMode="numeric" value={form.myDeposit} onChange={set("myDeposit")} placeholder="예: 500" />
+          <label htmlFor={ids.my}>내 보증금 (원)</label>
+          <MoneyInput id={ids.my} hintId={`${ids.my}-h`} value={form.myDeposit} onChange={setMoney("myDeposit")} placeholder="예: 5,000,000" />
         </div>
         <div className="field">
-          <label htmlFor={ids.prior}>먼저 들어온 세입자들의 보증금 합계 (만 원)</label>
-          <input id={ids.prior} inputMode="numeric" value={form.priorDeposits} onChange={set("priorDeposits")} placeholder="모르면 비워 두세요" />
+          <label htmlFor={ids.prior}>먼저 들어온 세입자들의 보증금 합계 (원)</label>
+          <MoneyInput id={ids.prior} hintId={`${ids.prior}-h`} value={form.priorDeposits} onChange={setMoney("priorDeposits")} placeholder="모르면 비워 두세요" />
           <p className="hint">다가구 원룸은 등기부등본에 안 나와요. 모르면 비워 두면 '모름'으로 따로 알려 드려요.</p>
           <PriorDepositGuide />
         </div>
         <div className="field">
-          <label htmlFor={ids.market}>이 건물 시세 (만 원)</label>
-          <input id={ids.market} inputMode="numeric" value={form.marketPrice} onChange={set("marketPrice")} placeholder="예: 80000 또는 8억 · 모르면 비워 두세요" />
+          <label htmlFor={ids.market}>이 건물 시세 (원)</label>
+          <MoneyInput id={ids.market} hintId={`${ids.market}-h`} value={form.marketPrice} onChange={setMoney("marketPrice")} placeholder="예: 800,000,000 또는 8억 · 모르면 비워 두세요" />
           <p className="hint">HUG 안심전세 앱에서 주소로 시세를 볼 수 있어요. 모르면 비워 두면 '계산하지 못했어요'로 따로 알려 드리고, 안전하다고 하지 않아요.</p>
         </div>
         <div className="field">
@@ -587,7 +601,7 @@ function ReadEditor({
     for (const m of mortgages) {
       const n = Number(m.amount.replace(/[,\s]/g, ""));
       if (!Number.isFinite(n) || n < 0 || m.amount.trim() === "") {
-        setError("근저당 금액은 만 원 단위 숫자로 적어 주세요.");
+        setError("근저당 금액은 원 단위 숫자로 적어 주세요. 예: 120,000,000");
         return;
       }
       parsed.push({ max_claim: Math.round(n * 10_000), creditor: m.creditor.trim() });
@@ -604,15 +618,14 @@ function ReadEditor({
         <label htmlFor={ownerId}>지금 집주인 (갑구의 마지막 소유자)</label>
         <input id={ownerId} value={owner} onChange={(e) => setOwner(e.target.value)} />
       </div>
-      <p className="field-label">말소되지 않은 근저당 (채권최고액, 만 원)</p>
+      <p className="field-label">말소되지 않은 근저당 (채권최고액, 원)</p>
       {mortgages.length === 0 && <p className="small muted">읽은 근저당이 없어요.</p>}
       {mortgages.map((m, i) => (
         <div className="row" key={i}>
-          <input
-            aria-label={`근저당 ${i + 1} 금액 (만 원)`}
-            inputMode="numeric"
+          <MoneyInput
+            aria-label={`근저당 ${i + 1} 금액 (원)`}
             value={m.amount}
-            onChange={(e) => setMortgages((ms) => ms.map((x, j) => (j === i ? { ...x, amount: e.target.value } : x)))}
+            onChange={(v) => setMortgages((ms) => ms.map((x, j) => (j === i ? { ...x, amount: v } : x)))}
           />
           <input
             aria-label={`근저당 ${i + 1} 근저당권자`}
