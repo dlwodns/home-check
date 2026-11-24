@@ -181,8 +181,8 @@ describe("카드 · 상세 표시 계산", () => {
   });
 
   it("금액 줄: 전세면 월세를 빼고 쉼표를 붙인다", () => {
-    expect(moneyLine({ deposit: 1000, rent: 50 })).toBe("보증금 1,000 · 월세 50");
-    expect(moneyLine({ deposit: 20000, rent: null })).toBe("보증금 20,000");
+    expect(moneyLine({ deposit: 1000, rent: 50 })).toBe("보증금 1,000만 원 · 월세 50만 원");
+    expect(moneyLine({ deposit: 20000, rent: null })).toBe("보증금 2억 원");
   });
 
   it("진행 막대: 방 안에서는 1 · 2단계를 건너뛰고 3단계(집 보러 가기)부터, 해 봤어요면 1–3단계 건너뜀", () => {

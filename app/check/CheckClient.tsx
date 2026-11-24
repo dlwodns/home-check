@@ -140,7 +140,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     const asOf = todayKST();
     // 그림 PDF: 원본과 맞춰 보기('같아요')를 마쳐야 '안전'이 풀린다. 놓친 기록 경고는 맞춰 보기 카드에서 보여 줬으므로 같이 풀림
     const extraWarnings = !ocr || review === "ok" ? [] : review === "differs" ? [OCR_DIFFERS] : [OCR_WARNING, ...missedEntries(ocr.raw, readRegistry(text).read)];
-    const out = runCheck(text, form, asOf, { edited: e ?? undefined, confirmed: c, extraWarnings });
+    // 맞춰 보기 카드에서 읽기 경고(갑구 못 찾음 등)를 보여 주고 '같아요'를 받았으므로 읽기 경고도 확인한 것으로 본다
+    const out = runCheck(text, form, asOf, { edited: e ?? undefined, confirmed: c || (Boolean(ocr) && review === "ok"), extraWarnings });
     setOutcome(out);
     // 샘플(지어낸 서류) 결과를 내 방에 저장하면 실제 방이 가짜 판정을 갖게 된다 → 방에는 실제 서류 결과만
     if (out.ok && room && !isSample) {
@@ -165,6 +166,16 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     check({ edited: keep, confirmed: false });
   };
 
+  // 지금 어느 단계인지: 처음 쓰는 사람이 다음에 뭘 할지 한 줄로 알게
+  const stepNames = ["서류 넣기", ...(ocr ? ["원본과 맞춰 보기"] : []), "내 계약 정보", "결과 보기"];
+  const stepNow = !text.trim() ? "서류 넣기" : ocr && ocrReview === "pending" ? "원본과 맞춰 보기" : outcome?.ok && !inputsOpen ? "결과 보기" : "내 계약 정보";
+  const STEP_HINT: Record<string, string> = {
+    "서류 넣기": "등기부등본 PDF를 올려 주세요. 없으면 샘플로 먼저 해 봐도 돼요.",
+    "원본과 맞춰 보기": "읽은 값이 원본과 같은지 봐 주세요.",
+    "내 계약 정보": "내 보증금을 적고 '점검하기'를 눌러 주세요.",
+    "결과 보기": "결과가 나왔어요. 아래에서 확인해요.",
+  };
+  const stepNo = (name: string) => stepNames.indexOf(name) + 1;
   const review =
     ocr && original ? (
       <OcrReview
@@ -174,6 +185,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         current={edited ?? original}
         missed={missedEntries(ocr.raw, original)}
         readWarnings={readRegistry(text).warnings}
+        stepNo={stepNo("원본과 맞춰 보기")}
         state={ocrReview}
         editedFields={editedFields}
         onReopen={() => setOcrReview("pending")}
@@ -202,6 +214,18 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     setForm((f) => ({ ...f, [k]: ev.target.value }));
 
   const showInputs = inputsOpen || !outcome?.ok;
+  const savedNote =
+    outcome?.ok && room ? (
+      isSample ? (
+        <p className="saved-note" role="status">
+          샘플로 해 본 결과라 이 방에는 저장하지 않았어요. 이 방의 등기부등본을 올리면 결과가 <strong>{room.label}</strong>에 저장돼요.
+        </p>
+      ) : savedToRoom ? (
+        <p className="saved-note" role="status">
+          ✓ <strong>{room.label}</strong>에 저장했어요. <Link href={roomHref(room.id)}>이 방으로 돌아가 계약 방법 보기 →</Link>
+        </p>
+      ) : null
+    ) : null;
   const pasteBox = (
     <>
       <label htmlFor={ids.text} className="field-label">
@@ -220,34 +244,44 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         <HomeLink />
       </nav>
 
-      {room && (
-        <p className="card small room-banner">
-          <strong>{room.label}</strong> 방을 점검해요. 결과는 이 방에 <strong>판정 요약만</strong> 저장돼요(서류 원문 · 집주인 이름은 저장하지 않아요).
+      <nav className="check-steps" aria-label="점검 단계">
+        <ol>
+          {stepNames.map((n, i) => (
+            <li key={n} aria-current={n === stepNow ? "step" : undefined} className={stepNames.indexOf(stepNow) > i ? "done" : undefined}>
+              <span className="step-no">{stepNames.indexOf(stepNow) > i ? "✓" : i + 1}</span>
+              {n}
+            </li>
+          ))}
+        </ol>
+        <p className="step-now" role="status">
+          <strong>지금 할 일</strong> {STEP_HINT[stepNow]}
         </p>
-      )}
+      </nav>
 
       <p className="privacy">
-        🔒 서류 내용은 이 기기(브라우저) 안에서만 읽어요. 어디에도 보내거나 저장하지 않아요. <Link href="/privacy">자세히</Link>
+        🔒 {room ? <><strong>{room.label}</strong> 점검 · </> : null}서류는 이 기기 안에서만 읽어요{room ? ". 이 방엔 판정 요약만 저장해요" : ". 어디에도 보내지 않아요"}. <Link href="/privacy">자세히</Link>
       </p>
 
       {!showInputs && (
         <section className="card small inputs-folded" aria-label="넣은 서류 · 내 계약 정보">
           <p>
-            ✓ <strong>{isSample ? samples.find((x) => x.text === text)?.label : "넣은 서류"}</strong> · 내 보증금 {money(form.myDeposit) ?? "?"}
+            ✓ <strong>{isSample ? samples.find((x) => x.text === text)?.label : "넣은 서류"}</strong>
+            {ocr && ocrReview === "ok" ? " · 원본과 맞춰 봄" : ""} · 내 보증금 {money(form.myDeposit) ?? "?"}
             {money(form.marketPrice) ? ` · 시세 ${money(form.marketPrice)}` : " · 시세 모름"}
             {money(form.priorDeposits) ? ` · 앞선 보증금 ${money(form.priorDeposits)}` : ""}
           </p>
+          {savedNote}
           <button type="button" className="ghost" onClick={() => setInputsOpen(true)}>
             고쳐서 다시 점검
           </button>
         </section>
       )}
-      {!showInputs && review}
+      {!showInputs && ocrReview !== "ok" && review}
 
       {showInputs && (
       <>
       <section className="card">
-        <h2>1. 서류 넣기</h2>
+        <h2>{stepNo("서류 넣기")}. 서류 넣기</h2>
         <p className="get-registry">
           등기부등본이 없다면 →{" "}
           <a href="https://www.iros.go.kr" target="_blank" rel="noopener noreferrer">
@@ -266,10 +300,17 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           </ol>
           <p className="small muted">아직 방이 없어도 아래 샘플로 어떻게 보이는지 먼저 해 볼 수 있어요.</p>
         </details>
-        <label htmlFor={ids.file} className="file-pick">
-          <span>{fromPdf ? "다른 PDF 올리기" : "등기부등본 PDF 올리기"}</span>
-          <span className="small muted">인터넷등기소에서 받은 PDF 그대로 · 이 기기 안에서만 읽어요</span>
-        </label>
+        {fromPdf ? (
+          // 서류를 넣은 뒤에는 큰 상자 대신 한 줄로(다음 할 일이 눈에 띄게)
+          <label htmlFor={ids.file} className="file-pick compact">
+            <span>다른 PDF 올리기</span>
+          </label>
+        ) : (
+          <label htmlFor={ids.file} className="file-pick">
+            <span>등기부등본 PDF 올리기</span>
+            <span className="small muted">인터넷등기소에서 받은 PDF 그대로 · 이 기기 안에서만 읽어요</span>
+          </label>
+        )}
         <input
           id={ids.file}
           className="visually-hidden"
@@ -294,21 +335,26 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         ) : (
           pasteBox
         )}
-        <div className="samples">
-          <span className="muted small">샘플로 해 보기:</span>
-          {samples.map((s) => (
-            <button key={s.label} type="button" className="chip" onClick={() => pickSample(s)}>
-              {s.label}
-            </button>
-          ))}
-        </div>
-        <p className="muted small">샘플은 지어낸 가짜 서류예요.</p>
+        {/* 진짜 서류를 넣었으면 샘플은 숨긴다("샘플도 눌러야 하나?" 헷갈리지 않게) */}
+        {!fromPdf && (
+          <>
+            <div className="samples">
+              <span className="muted small">샘플로 해 보기:</span>
+              {samples.map((s) => (
+                <button key={s.label} type="button" className="chip" onClick={() => pickSample(s)}>
+                  {s.label}
+                </button>
+              ))}
+            </div>
+            <p className="muted small">샘플은 지어낸 가짜 서류예요.</p>
+          </>
+        )}
       </section>
 
       {review}
 
       <section className="card">
-        <h2>2. 내 계약 정보</h2>
+        <h2>{stepNo("내 계약 정보")}. 내 계약 정보</h2>
         <div className="field">
           <label htmlFor={ids.my}>내 보증금 (원)</label>
           <MoneyInput id={ids.my} hintId={`${ids.my}-h`} value={form.myDeposit} onChange={setMoney("myDeposit")} placeholder="예: 5,000,000" />
@@ -346,16 +392,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         </section>
       )}
 
-      {outcome?.ok && room && isSample && (
-        <p className="card small saved-note" role="status">
-          샘플로 해 본 결과라 이 방에는 저장하지 않았어요. 이 방의 등기부등본을 올리면 결과가 <strong>{room.label}</strong>에 저장돼요.
-        </p>
-      )}
-      {outcome?.ok && room && savedToRoom && !isSample && (
-        <p className="card small saved-note" role="status">
-          ✓ <strong>{room.label}</strong>에 저장했어요. <Link href={roomHref(room.id)}>이 방으로 돌아가 계약 방법 보기 →</Link>
-        </p>
-      )}
+      {showInputs && savedNote && <div className="card small">{savedNote}</div>}
 
       {outcome?.ok && (
         <Result
@@ -363,6 +400,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           outcome={outcome}
           editedFields={editedFields}
           confirmed={confirmed}
+          reviewed={Boolean(ocr) && ocrReview === "ok"}
           onEdit={(r) => {
             setEdited(r);
             check({ edited: r });
@@ -401,12 +439,15 @@ function Result({
   outcome,
   editedFields,
   confirmed,
+  reviewed,
   onEdit,
   onConfirm,
 }: {
   outcome: Extract<CheckOutcome, { ok: true }>;
   editedFields: string[];
   confirmed: boolean;
+  /** 그림 PDF를 위에서 원본과 맞춰 봤으면 아래 '읽은 내용 확인 · 고치기'는 겹치므로 뺀다 */
+  reviewed: boolean;
   onEdit: (r: RegistryRead) => void;
   onConfirm: (v: boolean) => void;
 }) {
@@ -500,7 +541,7 @@ function Result({
 
       <UnknownList items={unknowns} />
 
-      <ReadEditor read={read} hasWarnings={readWarnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />
+      {!reviewed && <ReadEditor read={read} hasWarnings={readWarnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />}
 
       <NextActions actions={actions} />
       <HelpCard />

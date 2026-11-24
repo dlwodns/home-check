@@ -547,3 +547,21 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .ocr-evidence .ocr-missed { display: grid; gap: 4px; }
 .ocr-evidence .ocr-missed li { display: block; border: 0; padding: 0; border-radius: 0; }
 .ocr-evidence ul.ocr-missed { padding: 10px 12px; margin: 10px 0 0; border-radius: 12px; }
+/* 점검 단계 표시: 지금 어디인지 · 지금 할 일 */
+.check-steps { margin: 4px 0 12px; }
+.check-steps ol { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 0; padding: 0; font-size: 13px; color: var(--muted, #6b7280); }
+.check-steps li { display: inline-flex; align-items: center; gap: 4px; }
+.check-steps li + li::before { content: "›"; margin-right: 2px; opacity: .6; }
+.check-steps .step-no { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1px solid currentColor; font-size: 11px; }
+.check-steps li[aria-current] { color: var(--accent); font-weight: 700; }
+.check-steps li[aria-current] .step-no { background: var(--accent); color: var(--surface); border-color: var(--accent); }
+.check-steps li.done { color: var(--accent); }
+.step-now { margin: 8px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--info-bg); font-size: 14px; }
+.step-now strong { color: var(--accent); margin-right: 6px; }
+.file-pick.compact { min-height: 0; padding: 10px 12px; flex-direction: row; justify-content: center; font-size: 14px; }
+.fold > summary { cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.fold > summary::-webkit-details-marker { display: none; }
+.fold > summary h3 { margin: 0; }
+.fold > summary::after { content: "▾"; color: var(--accent); }
+.fold[open] > summary::after { content: "▴"; }
+.inputs-folded .saved-note { margin: 6px 0 0; }

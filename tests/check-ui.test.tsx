@@ -245,7 +245,8 @@ describe("PDF 올리기", () => {
 
     // 맞춰 보기 '같아요' → 카드가 한 줄로 접히고 결과가 바로 다시 계산됨
     await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
-    expect(screen.getByText("✓ 원본과 맞춰 봤어요")).toBeTruthy();
+    // 결과가 이미 있으면 맞춰 보기는 위 요약 한 줄로 합쳐진다
+    expect(screen.getByLabelText("넣은 서류 · 내 계약 정보").textContent).toContain("원본과 맞춰 봄");
     expect(verdictLabel()).toBe("안전");
   });
 
@@ -260,6 +261,7 @@ describe("PDF 올리기", () => {
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(verdictLabel()).toBe("위험");
 
+    await user.click(screen.getByRole("button", { name: "고쳐서 다시 점검" }));
     await user.click(screen.getByRole("button", { name: "다시 보기" }));
     await user.click(screen.getByRole("button", { name: /원본과 달라요/ }));
     expect(screen.getAllByText(/다른 값이 있다고 표시했어요/).length).toBeGreaterThan(0);
@@ -281,6 +283,20 @@ describe("PDF 올리기", () => {
     await user.type(within(card).getByLabelText(/지금 집주인 \(갑구/), "홍길동");
     await user.click(within(card).getByRole("button", { name: /원본과 같아요/ }));
     expect(screen.getByText("✓ 원본과 맞춰 봤어요 (고친 값: 집주인)")).toBeTruthy();
+  });
+
+  it("위에 지금 단계와 '지금 할 일'이 쉬운 말로 보이고, 단계마다 바뀐다", async () => {
+    const user = userEvent.setup();
+    await uploadOcr(user);
+    const steps = screen.getByRole("navigation", { name: "점검 단계" });
+    expect(within(steps).getAllByRole("listitem").map((li) => li.textContent)).toEqual(["✓서류 넣기", "2원본과 맞춰 보기", "3내 계약 정보", "4결과 보기"]);
+    expect(within(steps).getByText(/읽은 값이 원본과 같은지 봐 주세요/)).toBeTruthy();
+    expect(screen.queryByRole("button", { name: "주의 샘플" })).toBeNull(); // 진짜 서류를 넣으면 샘플은 숨김
+    await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
+    expect(within(steps).getByText(/내 보증금을 적고 '점검하기'를 눌러 주세요/)).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(within(steps).getByText(/결과가 나왔어요/)).toBeTruthy();
+    expect(screen.queryByText("읽은 내용 확인 · 고치기")).toBeNull(); // 위에서 맞춰 봤으니 겹치는 칸은 뺌
   });
 
   it("OCR로도 글자를 거의 못 읽으면 안내하고 내용을 바꾸지 않는다", async () => {

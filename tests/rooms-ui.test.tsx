@@ -71,7 +71,7 @@ describe("홈 = 내 후보 방", () => {
     render(<RoomsHome />);
     const card = await screen.findByRole("link", { name: /정문 원룸.*보증금/ });
     expect(card.getAttribute("href")).toBe("/room?id=r1");
-    expect(card.textContent).toContain("보증금 500 · 월세 50");
+    expect(card.textContent).toContain("보증금 500만 원 · 월세 50만 원");
     expect(card.textContent).toContain("점검 전");
     expect(card.textContent).toContain("지금 3단계");
   });
@@ -160,7 +160,7 @@ describe("방에서 점검하기", () => {
     seedRooms(baseRoom);
     at("check?room=r1");
     render(<CheckClient samples={samples} />);
-    expect(await screen.findByText(/방을 점검해요/)).toBeTruthy();
+    expect(await screen.findByText(/이 방엔 판정 요약만 저장해요/)).toBeTruthy();
     expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("5,000,000");
 
     await user.click(screen.getByRole("button", { name: "주의 샘플" }));
@@ -214,7 +214,7 @@ describe("방에서 샘플로 해 보기 (11/23 리뷰 R1)", () => {
     seedRooms({ ...baseRoom, deposit: 1000 });
     at("check?room=r1");
     render(<CheckClient samples={samples} />);
-    expect(await screen.findByText(/방을 점검해요/)).toBeTruthy();
+    expect(await screen.findByText(/이 방엔 판정 요약만 저장해요/)).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "주의 샘플" }));
     expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("10,000,000");

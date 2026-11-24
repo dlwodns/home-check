@@ -26,6 +26,7 @@ export default function OcrReview({
   current,
   missed,
   readWarnings,
+  stepNo,
   state,
   editedFields,
   onDone,
@@ -39,6 +40,8 @@ export default function OcrReview({
   missed: string[];
   /** 읽기 규칙이 못 읽은 칸 경고(예: 갑구를 못 찾음). 첫 문장만 짧게 보여 준다 */
   readWarnings: string[];
+  /** 화면 단계 번호(예: 2) */
+  stepNo: number;
   state: OcrReviewState;
   editedFields: string[];
   onDone: (state: "ok" | "differs", read: RegistryRead) => void;
@@ -89,7 +92,9 @@ export default function OcrReview({
 
   return (
     <section className="card ocr-evidence" aria-label="원본과 맞춰 보기">
-      <h3>원본과 맞춰 보기 ({total}개)</h3>
+      <h2>
+        {stepNo}. 원본과 맞춰 보기 <span className="muted small">({total}개)</span>
+      </h2>
       <p className="small muted">
         원본 조각과 같은지만 보면 돼요. 다르면 바로 고쳐요.
         {doubtful > 0 && <> <strong>⚠ {doubtful}개</strong>는 꼼꼼히 봐 주세요.</>}

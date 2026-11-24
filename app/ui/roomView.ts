@@ -1,7 +1,7 @@
 // 후보 방 카드 · 상세에서 같이 쓰는 표시용 계산 (화면 없이 테스트할 수 있게 분리).
 import rules from "@/data/judge.json";
 import type { Branch as BranchContent, Step } from "@/lib/content";
-import { toFlagView, type FlagView } from "@/lib/registry/check";
+import { formatWon, toFlagView, type FlagView } from "@/lib/registry/check";
 import { headline } from "@/lib/registry/goodPoints";
 import type { FlagCode } from "@/lib/registry/types";
 import type { Mode } from "@/lib/store/progress";
@@ -45,10 +45,10 @@ export function roomSteps(room: Room, mode: Mode | null, steps: Step[], branches
 
 export const manwon = (n: number) => n.toLocaleString("ko-KR");
 
+/** 방 금액 한 줄. 저장은 만 원 단위지만 단위를 붙여 보여 준다(입력 칸이 원 단위라 숫자만 보이면 헷갈림) */
 export function moneyLine(room: Pick<Room, "deposit" | "rent">): string {
-  return room.rent === null || room.rent === 0
-    ? `보증금 ${manwon(room.deposit)}`
-    : `보증금 ${manwon(room.deposit)} · 월세 ${manwon(room.rent)}`;
+  const won = (manwonValue: number) => formatWon(manwonValue * 10_000);
+  return room.rent === null || room.rent === 0 ? `보증금 ${won(room.deposit)}` : `보증금 ${won(room.deposit)} · 월세 ${won(room.rent)}`;
 }
 
 /** 이 방에서 지금 할 일 하나 (방 카드 · '이어하기' 카드에 씀) */

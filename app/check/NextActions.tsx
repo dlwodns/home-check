@@ -129,8 +129,12 @@ export default function NextActions({
         </ol>
       </div>
 
-      <div className="card">
-        <h3>계약서 특약에 이렇게 적어요</h3>
+      {/* 결과가 길어서 특약 · 가족에게 보내기는 접어 둔다(필요할 때 펼침) */}
+      <details className="card fold">
+        <summary>
+          <h3>계약서 특약에 이렇게 적어요</h3>
+          <span className="small muted">{actions.clauses.length}개 · 눌러서 보기</span>
+        </summary>
         <ul className="bubbles">
           {actions.clauses.map((c) => (
             <li key={c.id}>
@@ -152,7 +156,7 @@ export default function NextActions({
             </li>
           ))}
         </ul>
-      </div>
+      </details>
 
       <div className="card request" aria-live="polite">
         <h3>
@@ -176,8 +180,11 @@ export default function NextActions({
         )}
       </div>
 
-      <div className="card parent">
-        <h3>가족 · 지인에게 보내기</h3>
+      <details className="card parent fold">
+        <summary>
+          <h3>가족 · 지인에게 보내기</h3>
+          <span className="small muted">눌러서 보기</span>
+        </summary>
         <p className="small muted">보증금을 함께 마련한 가족이나 믿을 만한 사람에게 보여 주세요. 집주인 이름 · 주소는 넣지 않았어요.</p>
         <pre className="summary">{actions.parentSummary}</pre>
         <div className="row-buttons">
@@ -192,7 +199,7 @@ export default function NextActions({
             </button>
           )}
         </div>
-      </div>
+      </details>
     </section>
   );
 }
