@@ -22,10 +22,12 @@ import TermHint from "../ui/TermHint";
 import PriorDepositGuide from "../ui/PriorDepositGuide";
 import { MAX_PDF_BYTES, readPdfFile } from "./readPdf";
 import { MAX_OCR_PAGES, ocrPdfFile, type OcrPdfResult } from "./ocrPdf";
-import { evidenceFor, missedEntries, type Evidence } from "@/lib/registry/ocrCheck";
+import { missedEntries } from "@/lib/registry/ocrCheck";
+import OcrReview, { type OcrReviewState } from "./OcrReview";
 
-/** 그림 PDF를 OCR로 읽었을 때 붙는 경고. 확인 전에는 '안전'을 내지 않는다 */
-export const OCR_WARNING = "그림(스캔) PDF라 글자를 그림에서 읽었어요(OCR). 아래 '원본과 맞춰 보기'에서 값이 원본과 같은지 확인해 주세요.";
+/** 그림 PDF를 OCR로 읽고 아직 원본과 맞춰 보지 않았을 때. 맞춰 보기 전에는 '안전'을 내지 않는다 */
+export const OCR_WARNING = "그림(스캔) PDF라 글자를 그림에서 읽었어요(OCR). 위 '원본과 맞춰 보기'에서 확인하면 최종 결과가 나와요.";
+export const OCR_DIFFERS = "원본과 다른 값(날짜 · 위험 기록)이 있다고 표시했어요. 등기부를 직접 확인해 주세요.";
 import HomeLink from "../ui/HomeLink";
 
 export interface Sample {
@@ -63,6 +65,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   const [savedToRoom, setSavedToRoom] = useState(false);
   // 그림 PDF를 OCR로 읽은 경우: 원본 쪽 그림 · 단어 자리(확인 화면용). 새 서류를 넣으면 비운다
   const [ocr, setOcr] = useState<OcrPdfResult | null>(null);
+  const [ocrReview, setOcrReview] = useState<OcrReviewState>("pending");
   const clearOcr = () =>
     setOcr((o) => {
       o?.pages.forEach((p) => URL.revokeObjectURL(p.url));
@@ -103,9 +106,12 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           return;
         }
         setOcr(o);
+        setOcrReview("pending");
+        setEdited(null);
+        setConfirmed(false);
         setText(o.text);
         setOutcome(null);
-        setPdfStatus({ kind: "ok", message: `그림 PDF ${o.pages.length}쪽을 OCR로 읽었어요. 잘못 읽을 수 있어서, 점검 뒤 '원본과 맞춰 보기'에서 값을 꼭 확인해 주세요.` });
+        setPdfStatus({ kind: "ok", message: `그림 PDF ${o.pages.length}쪽을 OCR로 읽었어요. 잘못 읽을 수 있어서, 바로 아래에서 원본과 맞춰 봐 주세요.` });
         return;
       }
       setText(r.text);
@@ -122,11 +128,13 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     }
   };
 
-  const check = (opts: { edited?: RegistryRead | null; confirmed?: boolean } = {}) => {
+  const check = (opts: { edited?: RegistryRead | null; confirmed?: boolean; review?: OcrReviewState } = {}) => {
     const e = opts.edited === undefined ? edited : opts.edited;
     const c = opts.confirmed ?? confirmed;
+    const review = opts.review ?? ocrReview;
     const asOf = todayKST();
-    const extraWarnings = ocr ? [OCR_WARNING, ...missedEntries(ocr.raw, readRegistry(text).read)] : [];
+    // 그림 PDF: 원본과 맞춰 보기('같아요')를 마쳐야 '안전'이 풀린다. 놓친 기록 경고는 맞춰 보기 카드에서 보여 줬으므로 같이 풀림
+    const extraWarnings = !ocr || review === "ok" ? [] : review === "differs" ? [OCR_DIFFERS] : [OCR_WARNING, ...missedEntries(ocr.raw, readRegistry(text).read)];
     const out = runCheck(text, form, asOf, { edited: e ?? undefined, confirmed: c, extraWarnings });
     setOutcome(out);
     // 샘플(지어낸 서류) 결과를 내 방에 저장하면 실제 방이 가짜 판정을 갖게 된다 → 방에는 실제 서류 결과만
@@ -145,10 +153,31 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   const start = () => {
     setInputsOpen(false);
     setRun((n) => n + 1);
-    setEdited(null);
     setConfirmed(false);
-    check({ edited: null, confirmed: false });
+    // 그림 PDF에서 맞춰 보며 고친 값은 점검에 그대로 쓴다
+    const keep = ocr && ocrReview !== "pending" ? edited : null;
+    setEdited(keep);
+    check({ edited: keep, confirmed: false });
   };
+
+  const review =
+    ocr && original ? (
+      <OcrReview
+        key={JSON.stringify([(edited ?? original).current_owner, (edited ?? original).active_mortgages])}
+        ocr={ocr}
+        original={original}
+        current={edited ?? original}
+        missed={missedEntries(ocr.raw, original)}
+        state={ocrReview}
+        editedFields={editedFields}
+        onReopen={() => setOcrReview("pending")}
+        onDone={(st, r) => {
+          setOcrReview(st);
+          setEdited(r);
+          if (outcome?.ok) check({ edited: r, review: st });
+        }}
+      />
+    ) : null;
 
   const pickSample = (s: Sample) => {
     setPdfStatus(null);
@@ -197,6 +226,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           </button>
         </section>
       )}
+      {!showInputs && review}
 
       {showInputs && (
       <>
@@ -260,6 +290,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         <p className="muted small">샘플은 지어낸 가짜 서류예요.</p>
       </section>
 
+      {review}
+
       <section className="card">
         <h2>2. 내 계약 정보</h2>
         <div className="field">
@@ -316,7 +348,6 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           outcome={outcome}
           editedFields={editedFields}
           confirmed={confirmed}
-          ocr={ocr}
           onEdit={(r) => {
             setEdited(r);
             check({ edited: r });
@@ -355,18 +386,17 @@ function Result({
   outcome,
   editedFields,
   confirmed,
-  ocr,
   onEdit,
   onConfirm,
 }: {
   outcome: Extract<CheckOutcome, { ok: true }>;
   editedFields: string[];
   confirmed: boolean;
-  ocr: OcrPdfResult | null;
   onEdit: (r: RegistryRead) => void;
   onConfirm: (v: boolean) => void;
 }) {
-  const { result, flags, warnings, read, ratioLines } = outcome;
+  const { result, flags, readWarnings, blocking, read, ratioLines } = outcome;
+  const readUnconfirmed = !confirmed && readWarnings.length > 0;
   const toCheck = flags.filter((f) => f.level !== "info");
   const notes = flags.filter((f) => f.level === "info");
   const good = goodPoints(result, ratioLines);
@@ -401,15 +431,15 @@ function Result({
         ))}
       </ul>
 
-      {warnings.length > 0 && !confirmed && (
+      {blocking.length > 0 && (
         <div className="card warn" role="status">
-          <h3>못 읽은 칸이 있어요</h3>
+          <h3>{readUnconfirmed ? "못 읽은 칸이 있어요" : "확인이 필요해요"}</h3>
           <ul>
-            {warnings.map((w) => (
+            {blocking.map((w) => (
               <li key={w}>{w}</li>
             ))}
           </ul>
-          <p className="small">아래 "읽은 내용 확인 · 고치기"에서 직접 확인해 주세요. 확인 전에는 '안전'이 나오지 않아요.</p>
+          {readUnconfirmed && <p className="small">아래 "읽은 내용 확인 · 고치기"에서 직접 확인해 주세요. 확인 전에는 '안전'이 나오지 않아요.</p>}
         </div>
       )}
 
@@ -455,65 +485,11 @@ function Result({
 
       <UnknownList items={unknowns} />
 
-      {ocr && <OcrEvidence items={evidenceFor(read, ocr.lines)} ocr={ocr} />}
-
-      <ReadEditor read={read} hasWarnings={warnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />
+      <ReadEditor read={read} hasWarnings={readWarnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />
 
       <NextActions actions={actions} />
       <HelpCard />
     </section>
-  );
-}
-
-/** 판정에 쓰인 값마다 원본 그림 조각을 옆에 보여 줘, 서류 전체를 다시 읽지 않고 몇 개만 맞춰 보면 되게 한다 */
-function OcrEvidence({ items, ocr }: { items: Evidence[]; ocr: OcrPdfResult }) {
-  const doubtful = items.filter((e) => e.doubtful).length;
-  return (
-    <section className="card ocr-evidence" aria-label="원본과 맞춰 보기">
-      <h3>원본과 맞춰 보기 ({items.length}개)</h3>
-      <p className="small muted">
-        판정에 쓰인 값만 모았어요. 왼쪽 값과 오른쪽 원본 조각이 같은지 보면 돼요.
-        {doubtful > 0 && <> <strong>⚠ 표시 {doubtful}개</strong>는 흐리게 읽혔거나 원본 자리를 못 찾은 것이라 특히 꼼꼼히 봐 주세요.</>}
-      </p>
-      {items.length === 0 && <p className="small">판정에 쓰인 값(집주인 · 근저당 등)을 읽지 못했어요. 아래에서 직접 입력해 주세요.</p>}
-      <ul>
-        {items.map((e, i) => (
-          <li key={i} className={e.doubtful ? "doubtful" : undefined}>
-            <span className="ocr-value">
-              <span className="small muted">{e.label}</span>
-              <strong>
-                {e.doubtful && <span aria-label="꼼꼼히 확인">⚠ </span>}
-                {e.value || "날짜 못 읽음"}
-              </strong>
-            </span>
-            {e.box ? <Crop page={ocr.pages[e.box.page]} box={e.box} label={`${e.label} 원본 조각`} /> : <span className="small muted">원본에서 자리를 못 찾았어요. PDF에서 직접 찾아봐 주세요.</span>}
-          </li>
-        ))}
-      </ul>
-    </section>
-  );
-}
-
-/** 쪽 그림의 한 부분만 잘라 보여 준다(그림을 새로 만들지 않고 배경 위치로 자름) */
-function Crop({ page, box, label }: { page: OcrPdfResult["pages"][number] | undefined; box: Evidence["box"] & object; label: string }) {
-  if (!page) return null;
-  const pad = 8;
-  const x = Math.max(0, box.x0 - pad), y = Math.max(0, box.y0 - pad);
-  const w = Math.min(page.width, box.x1 + pad) - x, h = Math.min(page.height, box.y1 + pad) - y;
-  const s = Math.min(1, 280 / w); // 휴대폰 폭에 맞게 줄이기만 함
-  return (
-    <span
-      className="ocr-crop"
-      role="img"
-      aria-label={label}
-      style={{
-        width: w * s,
-        height: h * s,
-        backgroundImage: `url(${page.url})`,
-        backgroundSize: `${page.width * s}px ${page.height * s}px`,
-        backgroundPosition: `${-x * s}px ${-y * s}px`,
-      }}
-    />
   );
 }
 

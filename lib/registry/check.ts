@@ -66,7 +66,12 @@ export type CheckOutcome =
   | {
       ok: true;
       read: RegistryRead;
+      /** 읽기 경고 + extraWarnings(전부) */
       warnings: string[];
+      /** 읽기 규칙이 못 읽은 칸 경고만(결과 화면의 '직접 확인했어요'로 풀 수 있는 것) */
+      readWarnings: string[];
+      /** 아직 판정에서 '안전'을 막고 있는 경고(읽기 경고를 확인했으면 extraWarnings만) */
+      blocking: string[];
       result: CheckResult;
       flags: FlagView[];
       ratioLines: { caution: number; danger: number };
@@ -92,7 +97,8 @@ export function toFlagView(code: FlagCode): FlagView {
 /**
  * 점검 한 번. edited가 있으면 사용자가 고친 읽기 결과를 쓰고,
  * confirmed가 true면 사용자가 못 읽은 칸을 직접 확인했다는 뜻이라 읽기 경고를 판정에서 뺀다.
- * extraWarnings: 읽기 규칙 밖의 경고(예: 그림 PDF를 OCR로 읽음). 읽기 경고처럼 확인 전에는 '안전'을 막는다.
+ * extraWarnings: 읽기 규칙 밖의 경고(예: 그림 PDF를 원본과 아직 맞춰 보지 않음). confirmed와 상관없이 '안전'을 막는다
+ *   (그 경고는 따로 마련한 확인 단계에서만 풀리게, 부르는 쪽이 빼서 넘긴다).
  */
 export function runCheck(
   text: string,
@@ -124,11 +130,14 @@ export function runCheck(
     my_deposit: my.won!,
     contract_party: form.contractParty.trim(),
   };
-  const result = judge(read, inputs, asOf, options.confirmed ? [] : warnings);
+  const blocking = [...(options.confirmed ? [] : readWarnings), ...(options.extraWarnings ?? [])];
+  const result = judge(read, inputs, asOf, blocking);
   return {
     ok: true,
     read,
     warnings,
+    readWarnings,
+    blocking,
     result,
     flags: result.flags.map(toFlagView),
     ratioLines: { caution: rules.ratio.caution_from, danger: rules.ratio.danger_from },

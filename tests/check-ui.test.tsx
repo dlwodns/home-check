@@ -191,31 +191,58 @@ describe("PDF 올리기", () => {
     expect(document.querySelector(".verdict-label")?.textContent).not.toBe("안전"); // 시세 · 앞선 보증금을 몰라 주의
   });
 
-  it("그림(스캔) PDF는 OCR로 읽고, 값마다 원본 조각을 보여 주며, 확인 전에는 '안전'을 내지 않는다", async () => {
-    const user = userEvent.setup();
-    const safe = samples.find((s) => s.label === "안전 샘플")!;
-    const owner = readRegistry(safe.text).read.current_owner;
+  const safe = () => samples.find((s) => s.label === "안전 샘플")!;
+  const uploadOcr = async (user: ReturnType<typeof userEvent.setup>) => {
+    const s = safe();
+    const r = readRegistry(s.text).read;
     readPdfFile.mockResolvedValueOnce({ text: "", pages: 1, hasText: false });
     ocrPdfFile.mockResolvedValueOnce({
-      text: safe.text,
-      raw: safe.text,
-      lines: [{ page: 0, words: [{ text: owner, conf: 95, bbox: { x0: 10, y0: 10, x1: 60, y1: 30 } }] }],
+      text: s.text,
+      raw: s.text,
+      lines: [{ page: 0, words: [{ text: r.current_owner, conf: 95, bbox: { x0: 10, y0: 10, x1: 60, y1: 30 } }] }],
       pages: [{ url: "blob:page0", width: 200, height: 300 }],
     });
     render(<CheckClient samples={samples} />);
     await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
-    expect(await screen.findByText(/그림 PDF 1쪽을 OCR로 읽었어요/)).toBeTruthy();
-    await user.type(screen.getByLabelText("내 보증금 (만 원)"), safe.form.myDeposit);
-    await user.type(screen.getByLabelText(/먼저 들어온 세입자들의 보증금/), safe.form.priorDeposits);
-    await user.type(screen.getByLabelText("이 건물 시세 (만 원)"), safe.form.marketPrice);
-    await user.type(screen.getByLabelText("계약하러 올 사람 이름"), safe.form.contractParty);
-    await user.click(screen.getByRole("button", { name: "점검하기" }));
-    expect(verdictLabel()).not.toBe("안전");
+    await screen.findByText(/그림 PDF 1쪽을 OCR로 읽었어요/);
+    for (const [label, k] of [["내 보증금 (만 원)", "myDeposit"], [/먼저 들어온 세입자들의 보증금/, "priorDeposits"], ["이 건물 시세 (만 원)", "marketPrice"], ["계약하러 올 사람 이름", "contractParty"]] as const)
+      await user.type(screen.getByLabelText(label), s.form[k]);
+    return r;
+  };
+
+  it("그림(스캔) PDF는 올리자마자 점검 전에 원본 조각과 맞춰 보게 하고, 맞춰 보기 전에는 '안전'을 내지 않는다", async () => {
+    const user = userEvent.setup();
+    const r = await uploadOcr(user);
     const card = screen.getByRole("region", { name: "원본과 맞춰 보기" });
     expect(within(card).getByRole("img", { name: "지금 집주인 원본 조각" })).toBeTruthy();
-    expect(within(card).getByText(owner)).toBeTruthy();
-    await user.click(screen.getByLabelText(/서류에서 직접 확인했어요/));
+    expect((within(card).getByLabelText(/지금 집주인 \(갑구/) as HTMLInputElement).value).toBe(r.current_owner);
+
+    // 맞춰 보지 않고 점검 → '안전' 막힘, 결과의 '직접 확인했어요'로는 풀리지 않음
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(verdictLabel()).not.toBe("안전");
+    expect(screen.getByText(/위 '원본과 맞춰 보기'에서 확인하면 최종 결과가 나와요/)).toBeTruthy();
+
+    // 맞춰 보기 '같아요' → 카드가 한 줄로 접히고 결과가 바로 다시 계산됨
+    await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
+    expect(screen.getByText("✓ 원본과 맞춰 봤어요")).toBeTruthy();
     expect(verdictLabel()).toBe("안전");
+  });
+
+  it("맞춰 보기에서 고친 근저당은 점검에 쓰이고, '원본과 달라요'면 '안전'이 나오지 않는다", async () => {
+    const user = userEvent.setup();
+    await uploadOcr(user);
+    await user.click(screen.getByRole("button", { name: /빠진 근저당 추가/ }));
+    const amounts = screen.getAllByLabelText(/근저당 \d+ 금액/);
+    await user.type(amounts[amounts.length - 1], "100000"); // 10억: 빚 비율이 크게 올라감
+    await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
+    expect(screen.getByText(/원본과 맞춰 봤어요 \(고친 값: 근저당\)/)).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(verdictLabel()).toBe("위험");
+
+    await user.click(screen.getByRole("button", { name: "다시 보기" }));
+    await user.click(screen.getByRole("button", { name: /원본과 달라요/ }));
+    expect(screen.getAllByText(/원본과 다른 값이 있다고 표시했어요/).length).toBeGreaterThan(0);
+    expect(verdictLabel()).not.toBe("안전");
   });
 
   it("OCR로도 글자를 거의 못 읽으면 안내하고 내용을 바꾸지 않는다", async () => {

@@ -529,3 +529,8 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .ocr-evidence li.doubtful { border-color: var(--caution, #c98a00); }
 .ocr-value { display: grid; min-width: 9em; }
 .ocr-crop { display: inline-block; max-width: 100%; background-color: #fff; background-repeat: no-repeat; border: 1px solid var(--border); border-radius: 6px; }
+.ocr-value input { margin-top: 4px; }
+.ocr-missed { list-style: none; margin: 8px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--info-bg); color: var(--info); font-size: 13px; }
+.ocr-review-actions { display: grid; gap: 8px; margin-top: 12px; }
+.ocr-review-done { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.ocr-review-done.differs { border-color: var(--caution, #c98a00); }
