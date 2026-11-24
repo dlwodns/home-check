@@ -106,3 +106,13 @@ describe("판정 제목 (judge.json)", () => {
     }
   });
 });
+
+describe("등기부 수수료 (S26, 2026-11-23 수수료규칙 개정)", () => {
+  it("앱 화면 · 데이터에 옛 수수료(열람 700원 · 발급 1,000원)가 남아 있지 않다", () => {
+    for (const f of ["app/check/CheckClient.tsx", "app/room/RoomDetailClient.tsx", "data/documents.json", "data/sources.json"]) {
+      const text = readFileSync(f, "utf8");
+      expect(text, f).not.toMatch(/열람 700원|700원을 결제|발급 1,000원/);
+    }
+    expect(readFileSync("data/documents.json", "utf8")).toContain("인터넷 열람 1,100원 · 발급 1,400원");
+  });
+});

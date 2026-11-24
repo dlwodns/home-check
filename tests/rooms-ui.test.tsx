@@ -479,7 +479,7 @@ describe("서류 · 준비물 (10)", () => {
     at("docs?room=r1");
     render(<DocsClient />);
     expect(await screen.findByRole("heading", { name: "무엇을 챙기면 되나요?" })).toBeTruthy();
-    expect(screen.getByText("인터넷 열람 700원 · 발급 1,000원", { exact: false })).toBeTruthy();
+    expect(screen.getByText("인터넷 열람 1,100원 · 발급 1,400원", { exact: false })).toBeTruthy();
     await user.click(screen.getByLabelText(/^등기부등본$/));
     const rooms = savedRooms().rooms;
     expect(rooms[0].checked["docs.registry"]).toBe(true);

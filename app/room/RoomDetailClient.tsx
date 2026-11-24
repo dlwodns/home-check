@@ -144,7 +144,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
             <Link href={r("/check")} className="cta">
               등기부등본 올려서 점검하기
             </Link>
-            <p className="small muted">등기부등본은 인터넷등기소에서 누구나 뗄 수 있어요(열람 700원).</p>
+            <p className="small muted">등기부등본은 인터넷등기소에서 누구나 뗄 수 있어요(열람 1,100원).</p>
           </div>
         )}
         <RentCard room={room} />
