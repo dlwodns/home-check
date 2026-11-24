@@ -21,6 +21,11 @@ import TermText from "../ui/TermText";
 import TermHint from "../ui/TermHint";
 import PriorDepositGuide from "../ui/PriorDepositGuide";
 import { MAX_PDF_BYTES, readPdfFile } from "./readPdf";
+import { MAX_OCR_PAGES, ocrPdfFile, type OcrPdfResult } from "./ocrPdf";
+import { evidenceFor, missedEntries, type Evidence } from "@/lib/registry/ocrCheck";
+
+/** 그림 PDF를 OCR로 읽었을 때 붙는 경고. 확인 전에는 '안전'을 내지 않는다 */
+export const OCR_WARNING = "그림(스캔) PDF라 글자를 그림에서 읽었어요(OCR). 아래 '원본과 맞춰 보기'에서 값이 원본과 같은지 확인해 주세요.";
 import HomeLink from "../ui/HomeLink";
 
 export interface Sample {
@@ -56,6 +61,13 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   // ?room=방id 로 들어오면 그 방을 점검하고, 결과 요약(판정 · 이유 · 다음 행동)만 그 방에 저장한다
   const [room, setRoom] = useState<Room | null>(null);
   const [savedToRoom, setSavedToRoom] = useState(false);
+  // 그림 PDF를 OCR로 읽은 경우: 원본 쪽 그림 · 단어 자리(확인 화면용). 새 서류를 넣으면 비운다
+  const [ocr, setOcr] = useState<OcrPdfResult | null>(null);
+  const clearOcr = () =>
+    setOcr((o) => {
+      o?.pages.forEach((p) => URL.revokeObjectURL(p.url));
+      return null;
+    });
   // 점검이 되면 입력 칸을 한 줄로 접어 결과가 바로 보이게 한다(R7: 한 페이지가 너무 길었음). '고쳐서 다시 점검'으로 다시 펼친다
   const [inputsOpen, setInputsOpen] = useState(true);
   const isSample = samples.some((s) => s.text === text);
@@ -80,19 +92,33 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     }
     setPdfStatus({ kind: "busy", message: "PDF에서 글자를 읽는 중이에요…" });
     try {
+      clearOcr();
       const r = await readPdfFile(file);
       if (!r.hasText) {
-        setPdfStatus({
-          kind: "error",
-          message: "이 PDF에는 읽을 수 있는 글자가 없어요(사진 · 스캔 파일). 인터넷등기소에서 받은 PDF를 올리거나, 내용을 붙여 넣어 주세요.",
-        });
+        // 글자가 없는 그림(스캔) PDF → 이 기기 안에서 OCR
+        const o = await ocrPdfFile(file, (message) => setPdfStatus({ kind: "busy", message }));
+        if (o.text.replace(/\s/g, "").length < 20) {
+          o.pages.forEach((p) => URL.revokeObjectURL(p.url));
+          setPdfStatus({ kind: "error", message: "그림에서 글자를 거의 읽지 못했어요. 더 선명한 PDF를 올리거나, 내용을 붙여 넣어 주세요." });
+          return;
+        }
+        setOcr(o);
+        setText(o.text);
+        setOutcome(null);
+        setPdfStatus({ kind: "ok", message: `그림 PDF ${o.pages.length}쪽을 OCR로 읽었어요. 잘못 읽을 수 있어서, 점검 뒤 '원본과 맞춰 보기'에서 값을 꼭 확인해 주세요.` });
         return;
       }
       setText(r.text);
       setOutcome(null);
       setPdfStatus({ kind: "ok", message: `PDF ${r.pages}쪽에서 글자를 읽었어요. 아래 내용이 서류와 맞는지 확인한 뒤 점검해 주세요.` });
-    } catch {
-      setPdfStatus({ kind: "error", message: "PDF를 읽지 못했어요. 비밀번호가 걸린 파일인지 확인하거나, 내용을 붙여 넣어 주세요." });
+    } catch (e) {
+      const many = /^too-many-pages:(\d+)/.exec(String((e as Error)?.message));
+      setPdfStatus({
+        kind: "error",
+        message: many
+          ? `그림 PDF가 ${many[1]}쪽이라 너무 길어요(${MAX_OCR_PAGES}쪽까지). 인터넷등기소 열람 화면의 내용을 붙여 넣어 주세요.`
+          : "PDF를 읽지 못했어요. 비밀번호가 걸린 파일인지 확인하거나, 내용을 붙여 넣어 주세요.",
+      });
     }
   };
 
@@ -100,7 +126,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     const e = opts.edited === undefined ? edited : opts.edited;
     const c = opts.confirmed ?? confirmed;
     const asOf = todayKST();
-    const out = runCheck(text, form, asOf, { edited: e ?? undefined, confirmed: c });
+    const extraWarnings = ocr ? [OCR_WARNING, ...missedEntries(ocr.raw, readRegistry(text).read)] : [];
+    const out = runCheck(text, form, asOf, { edited: e ?? undefined, confirmed: c, extraWarnings });
     setOutcome(out);
     // 샘플(지어낸 서류) 결과를 내 방에 저장하면 실제 방이 가짜 판정을 갖게 된다 → 방에는 실제 서류 결과만
     if (out.ok && room && !isSample) {
@@ -125,6 +152,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
 
   const pickSample = (s: Sample) => {
     setPdfStatus(null);
+    clearOcr();
     setText(s.text);
     // 방에서 해 볼 때는 내 방 보증금을 지킨다(샘플 값으로 덮지 않음)
     setForm(room ? { ...s.form, myDeposit: form.myDeposit || s.form.myDeposit } : s.form);
@@ -284,6 +312,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           outcome={outcome}
           editedFields={editedFields}
           confirmed={confirmed}
+          ocr={ocr}
           onEdit={(r) => {
             setEdited(r);
             check({ edited: r });
@@ -322,12 +351,14 @@ function Result({
   outcome,
   editedFields,
   confirmed,
+  ocr,
   onEdit,
   onConfirm,
 }: {
   outcome: Extract<CheckOutcome, { ok: true }>;
   editedFields: string[];
   confirmed: boolean;
+  ocr: OcrPdfResult | null;
   onEdit: (r: RegistryRead) => void;
   onConfirm: (v: boolean) => void;
 }) {
@@ -420,11 +451,65 @@ function Result({
 
       <UnknownList items={unknowns} />
 
+      {ocr && <OcrEvidence items={evidenceFor(read, ocr.lines)} ocr={ocr} />}
+
       <ReadEditor read={read} hasWarnings={warnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />
 
       <NextActions actions={actions} />
       <HelpCard />
     </section>
+  );
+}
+
+/** 판정에 쓰인 값마다 원본 그림 조각을 옆에 보여 줘, 서류 전체를 다시 읽지 않고 몇 개만 맞춰 보면 되게 한다 */
+function OcrEvidence({ items, ocr }: { items: Evidence[]; ocr: OcrPdfResult }) {
+  const doubtful = items.filter((e) => e.doubtful).length;
+  return (
+    <section className="card ocr-evidence" aria-label="원본과 맞춰 보기">
+      <h3>원본과 맞춰 보기 ({items.length}개)</h3>
+      <p className="small muted">
+        판정에 쓰인 값만 모았어요. 왼쪽 값과 오른쪽 원본 조각이 같은지 보면 돼요.
+        {doubtful > 0 && <> <strong>⚠ 표시 {doubtful}개</strong>는 흐리게 읽혔거나 원본 자리를 못 찾은 것이라 특히 꼼꼼히 봐 주세요.</>}
+      </p>
+      {items.length === 0 && <p className="small">판정에 쓰인 값(집주인 · 근저당 등)을 읽지 못했어요. 아래에서 직접 입력해 주세요.</p>}
+      <ul>
+        {items.map((e, i) => (
+          <li key={i} className={e.doubtful ? "doubtful" : undefined}>
+            <span className="ocr-value">
+              <span className="small muted">{e.label}</span>
+              <strong>
+                {e.doubtful && <span aria-label="꼼꼼히 확인">⚠ </span>}
+                {e.value || "날짜 못 읽음"}
+              </strong>
+            </span>
+            {e.box ? <Crop page={ocr.pages[e.box.page]} box={e.box} label={`${e.label} 원본 조각`} /> : <span className="small muted">원본에서 자리를 못 찾았어요. PDF에서 직접 찾아봐 주세요.</span>}
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+/** 쪽 그림의 한 부분만 잘라 보여 준다(그림을 새로 만들지 않고 배경 위치로 자름) */
+function Crop({ page, box, label }: { page: OcrPdfResult["pages"][number] | undefined; box: Evidence["box"] & object; label: string }) {
+  if (!page) return null;
+  const pad = 8;
+  const x = Math.max(0, box.x0 - pad), y = Math.max(0, box.y0 - pad);
+  const w = Math.min(page.width, box.x1 + pad) - x, h = Math.min(page.height, box.y1 + pad) - y;
+  const s = Math.min(1, 280 / w); // 휴대폰 폭에 맞게 줄이기만 함
+  return (
+    <span
+      className="ocr-crop"
+      role="img"
+      aria-label={label}
+      style={{
+        width: w * s,
+        height: h * s,
+        backgroundImage: `url(${page.url})`,
+        backgroundSize: `${page.width * s}px ${page.height * s}px`,
+        backgroundPosition: `${-x * s}px ${-y * s}px`,
+      }}
+    />
   );
 }
 

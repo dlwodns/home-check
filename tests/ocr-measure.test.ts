@@ -6,6 +6,7 @@ import { describe, it } from "vitest";
 import { createWorker } from "tesseract.js";
 import { readRegistry } from "@/lib/registry/read";
 import { ocrFix } from "@/lib/registry/ocrFix";
+import { evidenceFor, linesFromBlocks, missedEntries } from "@/lib/registry/ocrCheck";
 import type { RegistryRead } from "@/lib/registry/types";
 
 const DIR = process.env.OCR_IMG_DIR;
@@ -28,12 +29,16 @@ describe.skipIf(!DIR)("OCR 정확도 측정", () => {
     for (const set of ["blind", "blind2"]) {
       for (const a of JSON.parse(readFileSync(`samples/${set}/answers.json`, "utf8")) as A[]) {
         // OCR_FROM_TEXT=1이면 앞서 저장한 OCR 글자(OCR_TEXT_DIR)를 다시 써서 읽기 규칙만 빠르게 재본다
-        const data = process.env.OCR_FROM_TEXT ? { text: readFileSync(path.join(process.env.OCR_TEXT_DIR!, a.file), "utf8") } : (await w.recognize(path.join(DIR!, a.file.replace(".txt", ".png")))).data;
-        const got = facts(readRegistry(process.env.OCR_RAW ? data.text : ocrFix(data.text)).read), exp = want(a);
+        const data = process.env.OCR_FROM_TEXT ? { text: readFileSync(path.join(process.env.OCR_TEXT_DIR!, a.file), "utf8") } : (await w.recognize(path.join(DIR!, a.file.replace(".txt", ".png")), {}, { text: true, blocks: true })).data;
+        const parsed = readRegistry(process.env.OCR_RAW ? data.text : ocrFix(data.text)).read;
+        const got = facts(parsed), exp = want(a);
+        // 확인 화면 점검: 판정 값마다 원본 자리를 찾았는지 · 확신도 낮음 표시 · 놓친 기록 경고
+        const ev = "blocks" in data ? evidenceFor(parsed, linesFromBlocks(data.blocks, 0)) : [];
+        const evNote = `자리 ${ev.filter((e) => e.box).length}/${ev.length} · 낮음 ${ev.filter((e) => e.doubtful).length} · 경고 ${missedEntries(data.text, parsed).join(" / ") || "없음"}`;
         const keys = Object.keys(exp) as (keyof typeof exp)[];
         const miss = keys.filter((k) => JSON.stringify(got[k]) !== JSON.stringify(exp[k]));
         ok += keys.length - miss.length; all += keys.length;
-        rows.push(`${a.file}\t${keys.length - miss.length}/${keys.length}\t${miss.map((k) => `${k}: ${JSON.stringify(got[k])} ≠ ${JSON.stringify(exp[k])}`).join(" | ")}`);
+        rows.push(`${a.file}\t${keys.length - miss.length}/${keys.length}\t${evNote}\t${miss.map((k) => `${k}: ${JSON.stringify(got[k])} ≠ ${JSON.stringify(exp[k])}`).join(" | ")}`);
         if (process.env.OCR_TEXT_DIR && !process.env.OCR_FROM_TEXT) writeFileSync(path.join(process.env.OCR_TEXT_DIR, a.file), data.text);
       }
     }

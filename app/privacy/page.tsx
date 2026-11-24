@@ -25,6 +25,10 @@ export default function PrivacyPage() {
           PDF나 붙여 넣은 글자는 <strong>이 기기(브라우저) 안에서만</strong> 읽어요. 홈체크 서버를 포함해 어디에도 보내지 않고, 원문과 집주인
           이름은 저장하지 않아요.
         </p>
+        <p>
+          글자가 없는 그림(스캔) PDF는 글자 인식(OCR)도 이 기기 안에서 해요. 인식 엔진과 한국어 글자 모델은 홈체크 사이트에서 받아 오고,
+          서류 그림은 어디에도 보내지 않아요.
+        </p>
       </section>
 
       <section className="card">

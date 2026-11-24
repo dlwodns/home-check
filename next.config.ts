@@ -14,7 +14,8 @@ const supabaseOrigin = (() => {
 
 const csp = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline'",
+  // wasm-unsafe-eval: 그림 PDF OCR 엔진(WebAssembly)을 돌리는 데만 필요. 일반 eval은 여전히 막힌다
+  "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob:",
   "font-src 'self'",

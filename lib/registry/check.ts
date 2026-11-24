@@ -92,12 +92,13 @@ export function toFlagView(code: FlagCode): FlagView {
 /**
  * 점검 한 번. edited가 있으면 사용자가 고친 읽기 결과를 쓰고,
  * confirmed가 true면 사용자가 못 읽은 칸을 직접 확인했다는 뜻이라 읽기 경고를 판정에서 뺀다.
+ * extraWarnings: 읽기 규칙 밖의 경고(예: 그림 PDF를 OCR로 읽음). 읽기 경고처럼 확인 전에는 '안전'을 막는다.
  */
 export function runCheck(
   text: string,
   form: CheckForm,
   asOf: string,
-  options: { edited?: RegistryRead; confirmed?: boolean } = {},
+  options: { edited?: RegistryRead; confirmed?: boolean; extraWarnings?: string[] } = {},
 ): CheckOutcome {
   const errors: string[] = [];
   if (!options.edited && text.trim() === "") errors.push("등기부등본 PDF를 올리거나 내용을 붙여 넣어 주세요. 아직 없으면 위의 '등기부등본이 아직 없나요?'를 보거나 샘플로 먼저 해 보세요.");
@@ -110,7 +111,8 @@ export function runCheck(
   if (form.contractParty.trim().length > 30) errors.push("계약할 사람 이름이 너무 길어요.");
   if (errors.length || !my.ok || !prior.ok || !market.ok) return { ok: false, errors };
 
-  const { read: parsed, warnings } = readRegistry(text);
+  const { read: parsed, warnings: readWarnings } = readRegistry(text);
+  const warnings = [...readWarnings, ...(options.extraWarnings ?? [])];
   // 등기부등본이 아닌 글이면 판정(신호등)을 내지 않는다 — 엉뚱한 글에 '주의'가 뜨면 믿을 수 없는 결과처럼 보인다
   if (!options.edited && warnings.some((w) => w.startsWith(NOT_REGISTRY))) {
     return { ok: false, errors: [`${NOT_REGISTRY} 인터넷등기소에서 받은 등기사항전부증명서를 그대로 붙여 넣거나 PDF로 올려 주세요.`] };

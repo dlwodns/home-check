@@ -520,3 +520,10 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .howto summary { cursor: pointer; font-weight: 700; color: var(--accent); }
 .howto ol { margin: 8px 0 4px; padding-left: 20px; }
 .howto li { margin: 4px 0; }
+
+/* 그림 PDF(OCR) 결과: 값 ↔ 원본 조각 맞춰 보기 */
+.ocr-evidence ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 10px; }
+.ocr-evidence li { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 10px; border: 1px solid var(--border); border-radius: 12px; }
+.ocr-evidence li.doubtful { border-color: var(--caution, #c98a00); }
+.ocr-value { display: grid; min-width: 9em; }
+.ocr-crop { display: inline-block; max-width: 100%; background-color: #fff; background-repeat: no-repeat; border: 1px solid var(--border); border-radius: 6px; }

@@ -7,9 +7,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { AnchorHTMLAttributes } from "react";
 import expected from "@/samples/expected.json";
 import CheckClient, { type Sample } from "@/app/check/CheckClient";
+import { readRegistry } from "@/lib/registry/read";
 
 const readPdfFile = vi.fn();
 vi.mock("@/app/check/readPdf", () => ({ MAX_PDF_BYTES: 10 * 1024 * 1024, readPdfFile: (f: File) => readPdfFile(f) }));
+const ocrPdfFile = vi.fn();
+vi.mock("@/app/check/ocrPdf", () => ({ MAX_OCR_PAGES: 10, ocrPdfFile: (f: File, p: (m: string) => void) => ocrPdfFile(f, p) }));
 
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
@@ -185,12 +188,40 @@ describe("PDF 올리기", () => {
     expect(document.querySelector(".verdict-label")?.textContent).not.toBe("안전"); // 시세 · 앞선 보증금을 몰라 주의
   });
 
-  it("글자가 없는 스캔 PDF는 안내하고 내용을 바꾸지 않는다", async () => {
+  it("그림(스캔) PDF는 OCR로 읽고, 값마다 원본 조각을 보여 주며, 확인 전에는 '안전'을 내지 않는다", async () => {
     const user = userEvent.setup();
-    readPdfFile.mockResolvedValueOnce({ text: "", pages: 2, hasText: false });
+    const safe = samples.find((s) => s.label === "안전 샘플")!;
+    const owner = readRegistry(safe.text).read.current_owner;
+    readPdfFile.mockResolvedValueOnce({ text: "", pages: 1, hasText: false });
+    ocrPdfFile.mockResolvedValueOnce({
+      text: safe.text,
+      raw: safe.text,
+      lines: [{ page: 0, words: [{ text: owner, conf: 95, bbox: { x0: 10, y0: 10, x1: 60, y1: 30 } }] }],
+      pages: [{ url: "blob:page0", width: 200, height: 300 }],
+    });
     render(<CheckClient samples={samples} />);
     await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
-    expect((await screen.findByRole("alert")).textContent).toContain("사진 · 스캔 파일");
+    expect(await screen.findByText(/그림 PDF 1쪽을 OCR로 읽었어요/)).toBeTruthy();
+    await user.type(screen.getByLabelText("내 보증금 (만 원)"), safe.form.myDeposit);
+    await user.type(screen.getByLabelText(/먼저 들어온 세입자들의 보증금/), safe.form.priorDeposits);
+    await user.type(screen.getByLabelText("이 건물 시세 (만 원)"), safe.form.marketPrice);
+    await user.type(screen.getByLabelText("계약하러 올 사람 이름"), safe.form.contractParty);
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(verdictLabel()).not.toBe("안전");
+    const card = screen.getByRole("region", { name: "원본과 맞춰 보기" });
+    expect(within(card).getByRole("img", { name: "지금 집주인 원본 조각" })).toBeTruthy();
+    expect(within(card).getByText(owner)).toBeTruthy();
+    await user.click(screen.getByLabelText(/서류에서 직접 확인했어요/));
+    expect(verdictLabel()).toBe("안전");
+  });
+
+  it("OCR로도 글자를 거의 못 읽으면 안내하고 내용을 바꾸지 않는다", async () => {
+    const user = userEvent.setup();
+    readPdfFile.mockResolvedValueOnce({ text: "", pages: 1, hasText: false });
+    ocrPdfFile.mockResolvedValueOnce({ text: "", raw: "", lines: [], pages: [] });
+    render(<CheckClient samples={samples} />);
+    await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
+    expect((await screen.findByRole("alert")).textContent).toContain("글자를 거의 읽지 못했어요");
     expect((screen.getByLabelText(/내용을 그대로 붙여 넣어 주세요/) as HTMLTextAreaElement).value).toBe("");
   });
 
