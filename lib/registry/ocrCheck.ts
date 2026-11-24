@@ -85,8 +85,8 @@ export function evidenceFor(read: RegistryRead, lines: OcrLine[]): Evidence[] {
       : []),
     ...read.active_mortgages.map((m) => ({ label: "근저당 채권최고액", value: `${won(m.max_claim)}원`, needles: [won(m.max_claim)] })),
     ...read.jeonses.map((j) => ({ label: "전세권 전세금", value: `${won(j.amount)}원`, needles: [won(j.amount)] })),
-    ...read.seizures.map((s) => ({ label: s.type, value: s.date, needles: [s.type, ...(s.date ? [dateKo(s.date)] : [])] })),
-    ...read.risk_records.map((r) => ({ label: r.type, value: r.date, needles: [r.type, ...(r.date ? [dateKo(r.date)] : [])] })),
+    ...read.seizures.map((s) => ({ label: s.type, value: s.date && dateKo(s.date), needles: [s.type, ...(s.date ? [dateKo(s.date)] : [])] })),
+    ...read.risk_records.map((r) => ({ label: r.type, value: r.date && dateKo(r.date), needles: [r.type, ...(r.date ? [dateKo(r.date)] : [])] })),
   ];
   return items.map(({ label, value, needles }) => {
     // 날짜까지 같이 못 찾으면 종류 이름만으로라도 자리를 보여 준다
