@@ -333,13 +333,15 @@ function readGap(section: string | null, warnings: string[]) {
   };
 }
 
-function readEul(section: string | null, warnings: string[]) {
+function readEul(section: string | null, warnings: string[], noEulMarked = false) {
   const active = new Map<string, Mortgage>();
   const erased: Mortgage[] = [];
   const jeonses = new Map<string, Jeonse>();
   const risks = new RiskBook();
   if (!section) {
-    // 을구가 아예 없는 등기부도 정상이다(빚 기록이 한 번도 없던 집).
+    // 을구가 아예 없는 등기부도 정상이다(빚 기록이 한 번도 없던 집). 다만 쪽이 빠진 것과 구분할 수 없으니,
+    // 요약 쪽의 '기록사항 없음' 표시가 없으면 사용자가 원본을 확인하기 전에는 '안전'을 막는다.
+    if (!noEulMarked) warnings.push("을구(빚 기록) 부분이 보이지 않아요. 빚 기록이 없는 집이면 원래 없지만, 쪽이 빠졌을 수도 있어요. 원본 마지막 쪽까지 들어갔는지 확인해 주세요.");
     return { active_mortgages: [] as Mortgage[], erased_mortgages: erased, jeonses: [] as Jeonse[], risks };
   }
 
@@ -404,7 +406,7 @@ export function readRegistry(raw: string): ReadResult {
 
   const title = readTitle(sliceSection(text, SECTION.title), text, warnings);
   const gap = readGap(sliceSection(text, SECTION.gap), warnings);
-  const eul = readEul(sliceSection(text, SECTION.eul), warnings);
+  const eul = readEul(sliceSection(text, SECTION.eul), warnings, /을\s*구[\s\S]{0,20}기록\s*사항\s*없음/.test(text));
 
   const read: RegistryRead = {
     ...title,

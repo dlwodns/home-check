@@ -84,6 +84,25 @@ describe("점검 흐름", () => {
     expect(after.result.flags).not.toContain("read_incomplete");
   });
 
+  it("을구가 없으면(빚 기록이 없는 집인지 쪽이 빠진 건지 모름) 확인 전에는 '안전'을 내지 않는다", () => {
+    const f = form({ marketPrice: "10억", priorDeposits: "0", contractParty: "이하늘" });
+    const noEul = load("A_safe.txt").replace(/【 을 구 】[\s\S]*?(?=-- 이 하)/, "");
+    const before = runCheck(noEul, f, AS_OF);
+    if (!before.ok) throw new Error();
+    expect(before.result.verdict).not.toBe("safe");
+    expect(before.warnings.some((w) => w.includes("을구"))).toBe(true);
+
+    const after = runCheck(noEul, f, AS_OF, { edited: before.read, confirmed: true });
+    if (!after.ok) throw new Error();
+    expect(after.result.verdict).toBe("safe");
+
+    // 요약 쪽에 '을구 기록사항 없음'이 찍혀 있으면 원래 빚 기록이 없는 집이라 경고하지 않는다
+    const marked = noEul.replace("-- 이 하", "4. (근)저당권 및 전세권 등 ( 을구 )\n기록사항 없음\n\n-- 이 하");
+    const ok = runCheck(marked, f, AS_OF);
+    if (!ok.ok) throw new Error();
+    expect(ok.result.verdict).toBe("safe");
+  });
+
   it("사용자가 고친 값(근저당 금액)으로 다시 판정한다", () => {
     const base = runCheck(load("B_caution.txt"), form({ marketPrice: "10억", priorDeposits: "27000", contractParty: "김도윤" }), AS_OF);
     if (!base.ok) throw new Error();

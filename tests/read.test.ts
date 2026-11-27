@@ -77,11 +77,13 @@ describe("실제 서류에서 생길 수 있는 경우", () => {
     expect(readRegistry(shared).read.current_owner).toBe("이하늘, 이바다");
   });
 
-  it("을구가 없으면(빚 기록이 한 번도 없던 집) 근저당 0건, 경고 없음", () => {
+  it("을구가 없으면 근저당 0건, 다만 쪽이 빠졌을 수 있어 확인 경고 · '기록사항 없음' 표시가 있으면 경고 없음", () => {
     const noEul = load("A_safe.txt").split("【 을 구 】")[0];
     const r = readRegistry(noEul);
     expect(r.read.active_mortgages).toEqual([]);
-    expect(r.warnings).toEqual([]);
+    expect(r.warnings).toHaveLength(1);
+    expect(r.warnings[0]).toContain("을구");
+    expect(readRegistry(noEul + "\n( 을구 ) 기록사항 없음").warnings).toEqual([]);
   });
 
   it("갑구가 없으면 집주인 이름을 지어내지 않고 경고한다", () => {
