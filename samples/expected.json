@@ -146,6 +146,42 @@
           "recent_transfer"
         ]
       }
+    },
+    {
+      "file": "D_jeonse.txt",
+      "label": "전세 샘플",
+      "read": {
+        "address": "가상시 한빛구 새내동 404-2",
+        "building_type": "다가구주택",
+        "current_owner": "한바다",
+        "previous_owners": [],
+        "active_mortgages": [
+          {
+            "max_claim": 120000000,
+            "creditor": "가나은행"
+          }
+        ],
+        "erased_mortgages": [],
+        "jeonses": [],
+        "seizures": [],
+        "risk_records": [],
+        "erased_risk_records": [],
+        "last_ownership_transfer": null
+      },
+      "inputs": {
+        "market_price": 800000000,
+        "prior_deposits": 350000000,
+        "my_deposit": 120000000,
+        "contract_party": "한바다"
+      },
+      "expected": {
+        "mortgage_total": 120000000,
+        "ratio": 73.8,
+        "verdict": "caution",
+        "flags": [
+          "ratio_caution"
+        ]
+      }
     }
   ]
 }

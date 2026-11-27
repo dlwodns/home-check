@@ -17,8 +17,11 @@ const samples = expected.samples as Sample[];
 const { ratio_levels } = expected.rules;
 
 describe("샘플 정답표", () => {
-  it("안전 · 주의 · 위험 3종이 하나씩 있다", () => {
-    expect(samples.map((s) => s.expected.verdict).sort()).toEqual(["caution", "danger", "safe"]);
+  it("안전 · 주의 · 위험이 모두 있고, 월세(작은 보증금)와 전세(큰 보증금) 샘플이 모두 있다", () => {
+    expect(new Set(samples.map((s) => s.expected.verdict))).toEqual(new Set(["caution", "danger", "safe"]));
+    const deposits = samples.map((s) => s.inputs.my_deposit);
+    expect(Math.min(...deposits)).toBeLessThanOrEqual(10_000_000);
+    expect(Math.max(...deposits)).toBeGreaterThanOrEqual(100_000_000);
   });
 
   describe.each(samples)("$file", (s) => {

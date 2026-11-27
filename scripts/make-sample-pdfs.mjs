@@ -13,7 +13,7 @@ if (!FONT_PATH) {
   process.exit(1);
 }
 
-const SAMPLES = ["A_safe", "B_caution", "C_danger"];
+const SAMPLES = ["A_safe", "B_caution", "C_danger", "D_jeonse"];
 const PAGE = { w: 595, h: 842, margin: 40 };
 const SIZE = 8.5;
 const LINE = 12;

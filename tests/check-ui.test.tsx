@@ -25,7 +25,7 @@ vi.mock("next/link", () => ({
 const LABEL: Record<string, string> = { safe: "안전 샘플", caution: "주의 샘플", danger: "위험 샘플" };
 const m = (won: number | null) => (won === null ? "" : String(won / 10_000));
 const samples: Sample[] = expected.samples.map((s) => ({
-  label: LABEL[s.expected.verdict],
+  label: ("label" in s ? s.label : undefined) ?? LABEL[s.expected.verdict],
   text: readFileSync(`samples/${s.file}`, "utf8"),
   form: {
     myDeposit: m(s.inputs.my_deposit),

@@ -1,5 +1,5 @@
 // 등기부등본 PDF 읽기 테스트.
-// 1) 표 모양으로 만든 샘플 PDF 3종(scripts/make-sample-pdfs.mjs, 칸이 여러 줄로 접힘)을 실제 pdf.js로 읽어 정답표와 비교
+// 1) 표 모양으로 만든 샘플 PDF 4종(scripts/make-sample-pdfs.mjs, 칸이 여러 줄로 접힘)을 실제 pdf.js로 읽어 정답표와 비교
 // 2) 실제 PDF에서 생길 만한 경우(금액이 줄에서 잘림, 페이지 머리 · 꼬리 글, 페이지 넘김, 글자 없는 스캔 PDF)를 글자 조각으로 재현
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
@@ -12,7 +12,7 @@ import type { CheckInputs, CheckResult, RegistryRead } from "@/lib/registry/type
 const samples = expected.samples as unknown as { file: string; read: RegistryRead; inputs: CheckInputs; expected: CheckResult }[];
 const pdfjs = () => import("pdfjs-dist/legacy/build/pdf.mjs") as unknown as Promise<Parameters<typeof extractPdfText>[1]>;
 
-describe("샘플 PDF 3종 (칸이 여러 줄로 접힌 표)", () => {
+describe("샘플 PDF (칸이 여러 줄로 접힌 표)", () => {
   it.each(samples)("$file → PDF로 읽어도 정답표와 같고, 판정도 같다", async (s) => {
     const pdf = readFileSync(`samples/pdf/${s.file.replace(".txt", ".pdf")}`);
     const r = await extractPdfText(new Uint8Array(pdf), await pdfjs());

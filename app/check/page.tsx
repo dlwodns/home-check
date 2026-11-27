@@ -15,7 +15,7 @@ const toManwon = (won: number | null) => (won === null ? "" : String(won / 10_00
 
 function loadSamples(): Sample[] {
   return expected.samples.map((s) => ({
-    label: LABEL[s.expected.verdict] ?? s.file,
+    label: ("label" in s ? s.label : undefined) ?? LABEL[s.expected.verdict] ?? s.file,
     text: readFileSync(path.join(process.cwd(), "samples", s.file), "utf8"),
     form: {
       myDeposit: toManwon(s.inputs.my_deposit),

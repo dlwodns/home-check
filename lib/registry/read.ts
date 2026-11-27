@@ -159,9 +159,9 @@ function amountAfter(label: string, text: string): number | null {
   return m ? Number(m[1].replace(/,/g, "")) : null;
 }
 
-/** "근저당권자 가나은행" → "가나은행" */
+/** "근저당권자 가나은행" → "가나은행". PDF에서 그 자리에서 줄이 접히면 띄어쓰기가 사라져 "근저당권자가나은행"이 되기도 한다 */
 function wordAfter(label: string, text: string): string | null {
-  const m = new RegExp(`${label}\\s+([^\\s|]+)`).exec(text);
+  const m = new RegExp(`${label}\\s*([^\\s|]+)`).exec(text);
   return m ? m[1] : null;
 }
 
