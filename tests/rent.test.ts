@@ -1,7 +1,7 @@
 // F6 동네 시세: 주소 → 법정동, XML 읽기, 분포 · 비교, 서버 처리(지역 검사 · 키 숨기기 · 다시 시도 · 캐시).
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { findRegions, isKnownRegion, regionLabel } from "@/lib/region";
-import { compareRoom, monthsBack, parseRentXml, spread, summarizeRent, type RentStats } from "@/lib/rent";
+import { compareRoom, monthSpan, monthsBack, parseRentXml, spread, summarizeRent, type RentStats } from "@/lib/rent";
 import { _resetCache, _resetRate, handleRent, rateLimit } from "@/lib/rentServer";
 import { parseRegion, validateRoomInput } from "@/lib/store/rooms";
 
@@ -203,5 +203,16 @@ describe("시세 API 요청 횟수 제한 (R4)", () => {
     expect(rateLimit("1.1.1.1", t + 30_000)).toBe(30);
     expect(rateLimit("2.2.2.2", t + 30_000)).toBe(0);
     expect(rateLimit("1.1.1.1", t + 60_000)).toBe(0);
+  });
+});
+
+describe("시세 카드의 기준 기간", () => {
+  it.each([
+    [["202611", "202606", "202607"], "2026년 6월–11월"],
+    [["202512", "202601"], "2025년 12월–2026년 1월"],
+    [["202611"], "2026년 11월"],
+    [[], ""],
+  ])("%j → %s", (months, text) => {
+    expect(monthSpan(months)).toBe(text);
   });
 });

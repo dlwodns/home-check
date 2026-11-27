@@ -2,7 +2,7 @@
 // 방 상세 "① 이 방, 안전한가요?" 아래: 이 방 보증금 · 월세를 같은 동 신고 거래와 비교(참고).
 // 거래가 적거나 없으면 비교하지 않고 그대로 알려 준다(0이나 '적정'으로 치지 않음).
 import { useEffect, useState } from "react";
-import { compareRoom, type RentStats, type Spread } from "@/lib/rent";
+import { compareRoom, monthSpan, type RentStats, type Spread } from "@/lib/rent";
 import type { Room } from "@/lib/store/rooms";
 
 type State = { kind: "loading" } | { kind: "error" } | { kind: "ok"; stats: RentStats };
@@ -76,7 +76,13 @@ export default function RentCard({ room }: { room: Pick<Room, "deposit" | "rent"
       )}
       <p className="small muted">
         {region.dong} 단독 · 다가구 {isMonthly ? "월세" : "전세"} 신고 거래 {(isMonthly ? stats.monthly?.count : stats.jeonse?.count) ?? 0}건, 최근{" "}
-        {stats.months.length}개월 기준 · 오피스텔 · 빌라는 들어 있지 않은 참고용이에요.
+        {stats.months.length}개월({monthSpan(stats.months)} 계약) 기준 · 오피스텔 · 빌라는 들어 있지 않은 참고용이에요.
+      </p>
+      <p className="small muted">
+        출처:{" "}
+        <a href="https://www.data.go.kr/data/15126472/openapi.do" target="_blank" rel="noopener noreferrer">
+          국토교통부 단독/다가구 전월세 신고(공공데이터포털)
+        </a>
       </p>
     </div>
   );

@@ -119,3 +119,12 @@ export function compareRoom(room: { deposit: number; rent: number | null }, stat
   if (diff < -NEAR) return { level: "low", count: group.count, text: `${what} 동네 중간값보다 낮은 편이에요` };
   return { level: "similar", count: group.count, text: `${what} 동네 중간값과 비슷해요` };
 }
+
+/** ["202606", …, "202611"] → "2026년 6월–11월" (해가 바뀌면 "2025년 12월–2026년 5월") */
+export function monthSpan(months: string[]): string {
+  if (!months.length) return "";
+  const [a, b] = [[...months].sort()[0], [...months].sort().at(-1)!];
+  const y = (m: string) => m.slice(0, 4), mo = (m: string) => Number(m.slice(4));
+  if (a === b) return `${y(a)}년 ${mo(a)}월`;
+  return y(a) === y(b) ? `${y(a)}년 ${mo(a)}월–${mo(b)}월` : `${y(a)}년 ${mo(a)}월–${y(b)}년 ${mo(b)}월`;
+}
