@@ -120,6 +120,7 @@ a { color: var(--accent); }
 .warn { border-color: var(--caution); background: var(--caution-bg); }
 .error-text { color: var(--danger); font-size: 14px; }
 .disclaimer { text-align: center; font-size: 12px; color: var(--muted); }
+.site-foot { padding: 8px 16px 0; }
 
 .verdict { display: flex; gap: 14px; align-items: center; padding: 18px; border-radius: 14px; margin-bottom: 12px; }
 .verdict p { margin: 2px 0 0; }

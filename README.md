@@ -135,7 +135,7 @@ FONT_PATH=/경로/NanumGothic-Regular.ttf npm run samples:pdf
 
 ## 배포
 
-- **Vercel**(Hobby, 무료)로 배포합니다. 주소: **https://home-check-pi.vercel.app** · GitHub `main`에 올릴 때마다 자동으로 다시 배포됩니다. 서버 함수 위치는 서울(`vercel.json`의 `icn1`).
+- **Vercel**(Hobby, 무료)로 배포합니다. 주소: **https://home-check-pi.vercel.app** · GitHub `main`에 올릴 때마다 자동으로 다시 배포됩니다. 서버 함수 위치는 서울(`vercel.json`의 `icn1`). 모든 화면 맨 아래에 저장소 링크와 배포된 커밋 번호(`VERCEL_GIT_COMMIT_SHA` 앞 7자리)가 보여, 배포본이 저장소의 어느 커밋인지 맞춰 볼 수 있습니다.
 - 환경 변수 3개(아래 '필요한 키'의 Supabase 2개 · 공공데이터 키)는 Vercel 프로젝트 → Settings → Environment Variables에 넣습니다. 공공데이터 키만 Sensitive로 잠그고, `NEXT_PUBLIC_` 두 개는 브라우저로 가는 공개용 값이라 잠그지 않습니다. 값을 붙여 넣을 때 앞뒤 줄바꿈이 들어가지 않게 합니다. 값을 바꾸면 Deployments에서 Redeploy해야 반영됩니다.
 - 왜 Vercel인가(11/23): 처음엔 8주차 강의대로 Netlify(`netlify.toml`이 남아 있음)에 올렸지만, 2025-09 이후 무료 계정은 월 300 크레딧(운영 배포 1번 = 15)이라 연결 이틀 만에 배포가 멈췄고, 크레딧을 다 쓰면 사이트 전체가 정지돼 포스터 QR이 끊길 위험이 있었습니다. Vercel Hobby는 하루 배포 100번 · 잠들지 않음 · 비상업 개인용 조건이라 과제에 맞습니다.
 - GitHub에 올릴 때마다 **자동 테스트(CI)**가 돕니다: 타입 검사 → 테스트 → 빌드 (`.github/workflows/ci.yml`).
