@@ -28,10 +28,11 @@ export default function RoomsHome() {
   return (
     <main className={`container home${enter ? " enter" : ""}`}>
       <div className="home-top">
-        <p className="brand">
+        {/* 왼쪽 홈 로고: 누르면 홈을 새로고침(11/28 사용자 요청) */}
+        <a href="/" className="brand brand-link" aria-label="홈체크 · 새로고침">
           <BrandMark />
           홈체크
-        </p>
+        </a>
         <AccountLink />
       </div>
       <h1>
