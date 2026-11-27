@@ -77,11 +77,11 @@ export default function Lobby() {
             관심 있는 방 담고 시작하기
           </Link>
           <div className="lobby-side-doors">
-            <Link href="/guide" onClick={markEntered}>
-              아직 방을 못 찾았어요 →
+            <Link href="/guide" className="side-door" onClick={markEntered}>
+              계약 과정 미리보기
             </Link>
-            <Link href="/check" onClick={markEntered}>
-              등기부등본만 바로 점검 →
+            <Link href="/check" className="side-door" onClick={markEntered}>
+              등기부등본만 바로 점검
             </Link>
           </div>
         </div>

@@ -364,6 +364,35 @@ describe("로비(입구)", () => {
     expect(screen.getByRole("link", { name: "홈체크 소개" }).getAttribute("href")).toBe("/welcome");
   });
 
+  it("로비의 보조 문 두 개는 버튼: '계약 과정 미리보기' · '등기부등본만 바로 점검'", async () => {
+    const { default: HomeGate } = await import("@/app/HomeGate");
+    render(<HomeGate />);
+    expect((await screen.findByRole("link", { name: "계약 과정 미리보기" })).getAttribute("href")).toBe("/guide");
+    expect(screen.getByRole("link", { name: "등기부등본만 바로 점검" }).getAttribute("href")).toBe("/check");
+  });
+
+  it("다시 온 사람도 앱을 새로 열면 짧은 입구 효과 → 건너뛰면 '내 후보 방', 같은 탭에서는 다시 안 나온다", async () => {
+    const { default: HomeGate } = await import("@/app/HomeGate");
+    const user = userEvent.setup();
+    localStorage.setItem("homecheck.entered.v1", "1");
+    sessionStorage.clear();
+    const mm = vi.fn(() => ({ matches: false }));
+    vi.stubGlobal("matchMedia", mm);
+    try {
+      render(<HomeGate />);
+      expect(await screen.findByRole("button", { name: "건너뛰기" })).toBeTruthy();
+      await user.click(screen.getByRole("button", { name: "건너뛰기" }));
+      expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
+      cleanup();
+      render(<HomeGate />);
+      expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
+      expect(screen.queryByRole("button", { name: "건너뛰기" })).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+      sessionStorage.clear();
+    }
+  });
+
   it("방을 담아 둔 사람도 바로 '내 후보 방' (예전 사용자)", async () => {
     const { default: HomeGate } = await import("@/app/HomeGate");
     seedRooms(baseRoom);
