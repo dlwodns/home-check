@@ -651,3 +651,15 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .step-nav a { min-height: 44px; display: inline-flex; align-items: center; }
 .room-all { border-top: 1px solid var(--border); margin-top: 8px; }
 .room-all > summary { cursor: pointer; min-height: 56px; display: flex; flex-direction: column; justify-content: center; font-weight: 700; font-size: 16px; }
+
+/* 처음 온 사람 입구(Welcome): 로고 + 시작하기만 → 해 본 적 있어요? → 미리보기 */
+.welcome { min-height: 100dvh; max-width: 480px; margin: 0 auto; padding: 24px 20px calc(24px + env(safe-area-inset-bottom)); box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; text-align: center; }
+.welcome .lobby-title { text-align: center; }
+.welcome-brand { margin: 0; font-size: 18px; font-weight: 800; color: var(--accent); }
+.welcome-actions { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 12px; margin-top: 12px; }
+.welcome-quick { color: var(--muted); font-size: 14px; min-height: 44px; display: inline-flex; align-items: center; }
+.welcome-foot { margin-top: 8px; }
+.welcome-q { font-size: 24px; margin: 0; line-height: 1.35; }
+.welcome-choices { width: 100%; display: flex; flex-direction: column; gap: 10px; margin: 8px 0; }
+.welcome-skip { min-height: 52px; font-size: 16px; }
+.welcome-preview .primary-link { width: 100%; }

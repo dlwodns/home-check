@@ -23,10 +23,10 @@ const p = await ctx.newPage();
 const errors = [];
 p.on("pageerror", (e) => errors.push(e.message));
 
-await step("https로 열리고 처음 온 사람에게 로비가 보인다", async () => {
+await step("https로 열리고 처음 온 사람에게 입구(로고 + 시작하기)가 보인다", async () => {
   const res = await p.goto(U + "/", { waitUntil: "networkidle" });
   if (!res.ok() || !p.url().startsWith("https://")) throw new Error(`상태 ${res.status()} · ${p.url()}`);
-  await expectText(p, "관심 있는 방 담고 시작하기");
+  await p.getByRole("button", { name: "시작하기" }).waitFor({ timeout: 8000 });
 });
 
 await step("방을 담으면 그 방 화면으로 가고 동네 시세가 나온다(공공데이터 키 · /api/rent)", async () => {

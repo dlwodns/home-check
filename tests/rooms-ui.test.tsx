@@ -374,16 +374,40 @@ describe("이상한 입력 (7주차 점검표 ⑤)", () => {
   });
 });
 
-describe("로비(입구)", () => {
-  it("처음 온 사람에게는 로비를, 문을 누르면 '들어온 사람'으로 기억한다", async () => {
+describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어요? → 하나씩)", () => {
+  it("첫 화면은 로고 · 제목 · [시작하기] 하나와 작은 '등기부등본만 바로 점검' 링크뿐", async () => {
+    const { default: HomeGate } = await import("@/app/HomeGate");
+    render(<HomeGate />);
+    expect(await screen.findByRole("heading", { level: 1, name: /이 방,\s*계약해도 될까\?/ })).toBeTruthy();
+    expect(screen.getAllByRole("button").map((b) => b.textContent)).toEqual(["시작하기"]);
+    expect(screen.getByRole("link", { name: "등기부등본만 바로 점검" }).getAttribute("href")).toBe("/check");
+    expect(screen.getByRole("link", { name: "홈체크 소개" }).getAttribute("href")).toBe("/welcome");
+  });
+
+  it("해 봤어요 · 건너뛰기 → '해 봤어요'로 기억하고 바로 방 담기로", async () => {
     const { default: HomeGate } = await import("@/app/HomeGate");
     const user = userEvent.setup();
     render(<HomeGate />);
-    expect(await screen.findByRole("heading", { level: 1, name: /이 방,\s*계약해도 될까\?/ })).toBeTruthy();
-    expect(screen.getByText(/법령 원문으로 확인한 근거 \d+개/)).toBeTruthy();
-    const doors = screen.getAllByRole("link", { name: "관심 있는 방 담고 시작하기" });
-    expect(doors[0].getAttribute("href")).toBe("/rooms/new");
-    await user.click(doors[0]);
+    await user.click(await screen.findByRole("button", { name: "시작하기" }));
+    expect(screen.getByRole("heading", { name: "집 계약, 해 본 적 있어요?" })).toBeTruthy();
+    expect(screen.getByText(/아는 단계\(준비 · 집 찾기 · 집 보기\)는 접어 둘게요/)).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "해 봤어요 · 건너뛰기" }));
+    expect(push).toHaveBeenCalledWith("/rooms/new");
+    expect(localStorage.getItem("homecheck.entered.v1")).toBe("1");
+    expect(JSON.parse(localStorage.getItem("homecheck.progress.v1")!).mode).toBe("experienced");
+  });
+
+  it("처음이에요 → 과정 미리보기 → '이제 방 담고 시작하기'", async () => {
+    const { default: HomeGate } = await import("@/app/HomeGate");
+    const user = userEvent.setup();
+    render(<HomeGate />);
+    await user.click(await screen.findByRole("button", { name: "시작하기" }));
+    await user.click(screen.getByRole("button", { name: "처음이에요 · 과정 먼저 알아보기" }));
+    expect(screen.getByRole("region", { name: "홈체크 사용 흐름 미리보기" })).toBeTruthy();
+    expect(JSON.parse(localStorage.getItem("homecheck.progress.v1")!).mode).toBe("first");
+    const go = screen.getByRole("link", { name: "이제 방 담고 시작하기 →" });
+    expect(go.getAttribute("href")).toBe("/rooms/new");
+    await user.click(go);
     expect(localStorage.getItem("homecheck.entered.v1")).toBe("1");
   });
 
@@ -392,15 +416,8 @@ describe("로비(입구)", () => {
     localStorage.setItem("homecheck.entered.v1", "1");
     render(<HomeGate />);
     expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
-    expect(screen.queryByRole("link", { name: "관심 있는 방 담고 시작하기" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "시작하기" })).toBeNull();
     expect(screen.getByRole("link", { name: "홈체크 소개" }).getAttribute("href")).toBe("/welcome");
-  });
-
-  it("로비의 보조 문 두 개는 버튼: '계약 과정 미리보기' · '등기부등본만 바로 점검'", async () => {
-    const { default: HomeGate } = await import("@/app/HomeGate");
-    render(<HomeGate />);
-    expect((await screen.findByRole("link", { name: "계약 과정 미리보기" })).getAttribute("href")).toBe("/guide");
-    expect(screen.getByRole("link", { name: "등기부등본만 바로 점검" }).getAttribute("href")).toBe("/check");
   });
 
   it("다시 온 사람도 앱을 새로 열면 짧은 입구 효과 → 건너뛰면 '내 후보 방', 같은 탭에서는 다시 안 나온다", async () => {

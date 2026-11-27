@@ -1,8 +1,8 @@
 "use client";
-// 입구 판단: 처음 온 사람(들어온 적도, 담은 방도 없음) → 로비, 그 밖에는 바로 '내 후보 방'.
+// 입구 판단: 처음 온 사람(들어온 적도, 담은 방도 없음) → 입구(Welcome: 로고 + 시작하기), 그 밖에는 바로 '내 후보 방'.
 // 저장값은 브라우저에서만 읽을 수 있어서, 읽기 전에는 빈 화면(배경만)을 잠깐 그린다.
 import { useCallback, useEffect, useState } from "react";
-import Lobby from "./Lobby";
+import Welcome from "./Welcome";
 import RoomsHome from "./RoomsHome";
 import Splash from "./Splash";
 import { hasEntered, markEntered } from "./ui/entered";
@@ -32,5 +32,5 @@ export default function HomeGate() {
   const toRooms = useCallback(() => setView("rooms"), []);
   if (view === "wait") return <main className="container" aria-busy="true" />;
   if (view === "splash") return <Splash onDone={toRooms} />;
-  return view === "lobby" ? <Lobby /> : <RoomsHome />;
+  return view === "lobby" ? <Welcome /> : <RoomsHome />;
 }
