@@ -625,3 +625,13 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .note-edit { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
 .note-edit textarea { width: 100%; box-sizing: border-box; margin-top: 4px; font-size: 16px; }
 .brand-link { color: inherit; text-decoration: none; }
+
+/* 그날 정하기 · "○○날 만나요" */
+.plan-card { display: flex; flex-direction: column; gap: 8px; }
+.plan-date { display: flex; flex-direction: column; gap: 4px; }
+.plan-date input { font-size: 16px; min-height: 44px; padding: 0 10px; border: 1px solid var(--border); border-radius: 10px; }
+.plan-head { display: flex; align-items: center; gap: 8px; margin: 0; }
+.plan-badge { display: inline-block; padding: 2px 8px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: 12px; font-weight: 800; }
+.plan-today .plan-badge { background: var(--danger, #c62828); }
+.plan-past .plan-badge { background: var(--muted); }
+.continue-day { display: block; font-size: 13px; margin-top: 4px; }

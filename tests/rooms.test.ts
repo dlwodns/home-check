@@ -26,7 +26,7 @@ import {
 import { checkLine, flagViews, moneyLine, roomSteps, toCheckCount } from "@/app/ui/roomView";
 
 const draft: RoomDraft = { label: "정문 원룸", address: "OO동 123-4", deposit: 1000, rent: 50, link: "", memo: "정문 원룸", region: null };
-const room = (over: Partial<Room> = {}): Room => ({ id: "r1", ...draft, branch: null, checked: {}, notes: {}, check: null, createdAt: "2026-11-17", ...over });
+const room = (over: Partial<Room> = {}): Room => ({ id: "r1", ...draft, branch: null, checked: {}, notes: {}, dates: {}, check: null, createdAt: "2026-11-17", ...over });
 
 describe("후보 방 추가 칸 검사", () => {
   it("주소 · 보증금 · 월세 · 메모를 저장할 값으로 바꾼다 (쉼표 · 억 단위 허용)", () => {
@@ -213,5 +213,12 @@ describe("알아낸 것(메모) 저장", () => {
   it("예전 방(notes 없음)도 빈 메모로 읽는다", () => {
     const { notes: _drop, ...old } = room();
     expect(parseRooms(JSON.stringify({ v: 1, rooms: [old] })).rooms[0].notes).toEqual({});
+  });
+});
+
+describe("그날(날짜) 저장", () => {
+  it("단계 id와 날짜 모양이 맞는 것만 남긴다", () => {
+    const raw = JSON.stringify({ v: 1, rooms: [{ ...room(), dates: { visit: "2026-12-01", contract: "내일", "bad key": "2026-12-02" } }] });
+    expect(parseRooms(raw).rooms[0].dates).toEqual({ visit: "2026-12-01" });
   });
 });

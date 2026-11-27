@@ -220,6 +220,21 @@ describe("방에서 점검하기", () => {
   });
 });
 
+describe("오늘은 여기까지 · 그날 만나요", () => {
+  it("지금 단계의 날짜를 정하면 방에 저장되고 'OO에 만나요' · 캘린더 버튼이 나온다", async () => {
+    const user = userEvent.setup();
+    seedRooms(baseRoom);
+    at("room?id=r1");
+    render(<RoomDetailClient steps={steps} branches={branches} />);
+    expect(await screen.findByText("오늘은 여기까지 해도 괜찮아요")).toBeTruthy();
+    fireEvent.change(screen.getByLabelText(/집 보러 가는 날/), { target: { value: "2099-12-01" } });
+    await user.click(screen.getByRole("button", { name: "이날로 정하기" }));
+    expect(screen.getByText(/12월 1일\(.\)에 만나요/)).toBeTruthy();
+    expect(screen.getByRole("button", { name: /휴대폰 캘린더에 추가/ })).toBeTruthy();
+    expect(JSON.parse(localStorage.getItem(ROOMS)!).rooms[0].dates).toEqual({ visit: "2099-12-01" });
+  });
+});
+
 describe("방에서 샘플로 해 보기 (11/23 리뷰 R1)", () => {
   it("샘플을 눌러도 내 방 보증금은 그대로이고, 샘플 결과는 내 방에 저장하지 않는다", async () => {
     const user = userEvent.setup();

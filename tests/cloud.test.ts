@@ -18,6 +18,7 @@ const room = (id: string, over: Partial<Room> = {}): Room => ({
   branch: null,
   checked: {},
   notes: {},
+  dates: {},
   check: null,
   createdAt: "2026-11-17",
   ...over,

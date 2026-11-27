@@ -1,6 +1,7 @@
 // F4 내 후보 방. 방마다 주소 · 금액 · 메모와 그 방의 진행 상황(갈래 · 체크), 점검 결과 요약을 가진다.
 // 지금은 이 브라우저(localStorage)에 저장하고, 로그인 후에는 같은 모양(RoomsStore)으로 계정 저장소를 갈아 끼운다.
 // 등기부등본 원문 · 집주인 이름은 저장하지 않는다. 점검 요약에는 판정 · 이유 코드 · 비율 · 다음 행동 문장만 담는다.
+import { isDate } from "@/lib/plan";
 import { notifySaved } from "./events";
 import type { NextActions } from "@/lib/registry/actions";
 import { parseManwon } from "@/lib/registry/check";
@@ -49,6 +50,8 @@ export interface Room {
   checked: Record<string, boolean>;
   /** 할 일 · 질문마다 알아낸 것(예: "앞선 보증금 합계 2억이라고 들음"). 키는 noteKey */
   notes: Record<string, string>;
+  /** 단계마다 정한 '그날'(단계 id → YYYY-MM-DD). 예: visit → 집 보러 가는 날 */
+  dates: Record<string, string>;
   check: CheckSummary | null;
   createdAt: string;
 }
@@ -145,6 +148,10 @@ function parseRoom(v: unknown): Room | null {
       if (t && /^[\w.-]{1,80}$/.test(k)) notes[k] = t;
     }
   }
+  const dates: Record<string, string> = {};
+  if (d.dates && typeof d.dates === "object") {
+    for (const [k, val] of Object.entries(d.dates).slice(0, 10)) if (/^[a-z_]{1,20}$/.test(k) && isDate(val)) dates[k] = val;
+  }
   return {
     id,
     label: str(d.label, LIMIT.label) || (memo || address).slice(0, LIMIT.label),
@@ -157,6 +164,7 @@ function parseRoom(v: unknown): Room | null {
     branch,
     checked,
     notes,
+    dates,
     check: parseSummary(d.check),
     createdAt: str(d.createdAt, 30),
   };
@@ -257,7 +265,7 @@ export function newRoomId(now = Date.now(), rand = Math.random): string {
 
 export function addRoom(state: RoomsState, draft: RoomDraft, id: string, createdAt: string): RoomsState {
   if (state.rooms.length >= MAX_ROOMS) return state;
-  const room: Room = { id, ...draft, branch: null, checked: {}, notes: {}, check: null, createdAt };
+  const room: Room = { id, ...draft, branch: null, checked: {}, notes: {}, dates: {}, check: null, createdAt };
   return { v: 1, rooms: [room, ...state.rooms] };
 }
 

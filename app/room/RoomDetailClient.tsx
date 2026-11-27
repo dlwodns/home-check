@@ -7,6 +7,7 @@ import type { Branch as BranchContent, Step } from "@/lib/content";
 import { removeRoom, updateRoom, withRoom } from "@/lib/store/rooms";
 import type { Branch } from "@/lib/store/progress";
 import { withBranch } from "@/lib/registry/actions";
+import PlanCard from "../ui/PlanCard";
 import type { FlagCode } from "@/lib/registry/types";
 import NextActions from "../check/NextActions";
 import RentCard from "./RentCard";
@@ -36,6 +37,17 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
   const router = useRouter();
   const { progress, update, loaded, room } = useProgress();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // 그날 정하기: 단계마다 날짜(방에 저장)
+  const [dates, setDates] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (room) setDates(room.dates ?? {});
+  }, [room]);
+  const saveDate = (stepId: string, date: string) => {
+    if (!room) return;
+    const store = roomsStore();
+    store.save(updateRoom(store.load(), room.id, (r) => ({ ...r, dates: { ...(r.dates ?? {}), [stepId]: date } })));
+    setDates((d) => ({ ...d, [stepId]: date }));
+  };
   // 알아낸 것(10번): 질문 · 할 일마다 적은 메모. 방에 저장한다
   const [notes, setNotes] = useState<Record<string, string>>({});
   useEffect(() => {
@@ -242,6 +254,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
           <span className="small muted">{current ? `지금 ${current.no}단계 · ${current.title}` : "모든 단계를 마쳤어요"}</span>
         </div>
         <StepBar segs={segs} finish />
+        {current && room && <PlanCard key={current.id} step={current} date={dates[current.id]} roomLabel={room.label} roomId={room.id} onSave={(d) => saveDate(current.id, d)} />}
         {!current && (
           <div className="done-card" role="status">
             <svg className="done-check" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

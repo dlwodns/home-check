@@ -52,11 +52,11 @@ export function moneyLine(room: Pick<Room, "deposit" | "rent">): string {
 }
 
 /** 이 방에서 지금 할 일 하나 (방 카드 · '이어하기' 카드에 씀) */
-export function nextAction(room: Room, mode: Mode | null, steps: Step[], branches: BranchContent[]): { text: string; href: string } {
+export function nextAction(room: Room, mode: Mode | null, steps: Step[], branches: BranchContent[]): { text: string; href: string; stepId?: string } {
   const q = `room=${encodeURIComponent(room.id)}`;
   if (!room.check) return { text: "등기부등본 올려서 점검하기", href: `/check?${q}` };
   const { current } = roomSteps(room, mode, steps, branches);
-  if (current) return { text: `${current.no}단계 · ${current.title}`, href: `/steps/${current.no}?${q}` };
+  if (current) return { text: `${current.no}단계 · ${current.title}`, href: `/steps/${current.no}?${q}`, stepId: current.id };
   return { text: "계약 완료 · 보증금 지키기까지 마쳤어요", href: `/room?id=${encodeURIComponent(room.id)}` };
 }
 

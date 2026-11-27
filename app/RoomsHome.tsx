@@ -1,5 +1,7 @@
 "use client";
 // 홈 = 내 후보 방. "이 방, 계약해도 될까?" — 방마다 점검 결과(신호등)와 6단계 진행을 한눈에.
+import { dayLine } from "@/lib/plan";
+import { todayKST } from "@/lib/registry/check";
 import Link from "next/link";
 import BrandMark from "./ui/BrandMark";
 import AccountLink from "./ui/AccountLink";
@@ -24,6 +26,8 @@ export default function RoomsHome() {
   }, []);
   const continueRoom = rooms.find((r) => r.id === lastId) ?? rooms[0];
   const cont = continueRoom ? nextAction(continueRoom, progress.mode, steps, branches) : null;
+  const contDate = cont?.stepId ? continueRoom?.dates?.[cont.stepId] : undefined;
+  const contDay = cont?.stepId && contDate ? dayLine(cont.stepId, contDate, todayKST()) : null;
 
   return (
     <main className={`container home${enter ? " enter" : ""}`}>
@@ -46,6 +50,11 @@ export default function RoomsHome() {
         <Link href={cont.href} className="continue-card">
           <span className="small muted">{continueRoom.id === lastId ? "지난번 본 방" : "이어서 하기"} · {continueRoom.label}</span>
           <strong>{cont.text}</strong>
+          {contDay && (
+            <span className={`continue-day plan-${contDay.level}`}>
+              <span className="plan-badge">{contDay.badge}</span> {contDay.text}
+            </span>
+          )}
           <span className="continue-go" aria-hidden="true">
             이어하기 →
           </span>

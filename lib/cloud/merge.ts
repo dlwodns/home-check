@@ -11,6 +11,7 @@ function mergeRoom(local: Room, remote: Room): Room {
     ...local,
     checked: union(local.checked, remote.checked),
     notes: { ...remote.notes, ...local.notes },
+    dates: { ...remote.dates, ...local.dates },
     check: local.check ?? remote.check,
     region: local.region ?? remote.region,
     branch: local.branch ?? remote.branch,
