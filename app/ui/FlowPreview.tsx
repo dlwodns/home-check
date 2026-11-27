@@ -9,7 +9,7 @@ export const SLIDES = [
   { src: "/preview/2-doc.jpg", title: "② 등기부등본 올리기", body: "인터넷등기소에서 뗀 PDF를 올려요. 휴대폰 안에서만 읽어요." },
   { src: "/preview/3-result.jpg", title: "③ 신호등으로 결과 보기", body: "위험 · 주의 · 안전과 가장 먼저 확인할 것 하나를 알려 줘요." },
   { src: "/preview/4-next.jpg", title: "④ 집주인에게 물어볼 말 · 특약", body: "복사해서 바로 보낼 수 있는 문장을 이 방에 맞춰 만들어요." },
-  { src: "/preview/5-steps.jpg", title: "⑤ 계약 완료까지 6단계", body: "지금 몇 단계인지, 전입신고 · 확정일자까지 챙겨요." },
+  { src: "/preview/5-steps.jpg", title: "⑤ 지금 할 일 하나 · 그날 만나요", body: "방마다 지금 할 일 하나만 보여 주고, 다음 날짜를 챙겨요." },
 ] as const;
 
 const INTERVAL_MS = 3200;
