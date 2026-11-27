@@ -76,6 +76,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     });
   // 점검이 되면 입력 칸을 한 줄로 접어 결과가 바로 보이게 한다(R7: 한 페이지가 너무 길었음). '고쳐서 다시 점검'으로 다시 펼친다
   const [inputsOpen, setInputsOpen] = useState(true);
+  // 한 화면에 카드 하나(D): 서류 넣기(doc) → 내 계약 정보(info). 서류가 들어오면 다음 카드로 넘어간다
+  const [pane, setPane] = useState<"doc" | "info">("doc");
   const isSample = samples.some((s) => s.text === text);
 
   useEffect(() => {
@@ -126,6 +128,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       setText(r.text);
       setFromPdf(true);
       setOutcome(null);
+      setPane("info");
       setPdfStatus({ kind: "ok", message: `PDF ${r.pages}쪽에서 글자를 읽었어요. 아래 내용이 서류와 맞는지 확인한 뒤 점검해 주세요.` });
     } catch (e) {
       const many = /^too-many-pages:(\d+)/.exec(String((e as Error)?.message));
@@ -173,9 +176,17 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
 
   // 지금 어느 단계인지: 처음 쓰는 사람이 다음에 뭘 할지 한 줄로 알게
   const stepNames = ["서류 넣기", ...(ocr ? ["원본과 맞춰 보기"] : []), "내 계약 정보", "결과 보기"];
-  const stepNow = !text.trim() ? "서류 넣기" : ocr && ocrReview === "pending" ? "원본과 맞춰 보기" : outcome?.ok && !inputsOpen ? "결과 보기" : "내 계약 정보";
+  const stepNow =
+    outcome?.ok && !inputsOpen ? "결과 보기" : pane === "info" && text.trim() ? "내 계약 정보" : ocr && ocrReview === "pending" ? "원본과 맞춰 보기" : "서류 넣기";
+  // 위쪽 단계 표시에서 앞 단계를 누르면 그 카드로 돌아간다
+  const goStep = (name: string) => {
+    if (name === "결과 보기") return;
+    setInputsOpen(true);
+    setPane(name === "내 계약 정보" ? "info" : "doc");
+    window.scrollTo?.({ top: 0 });
+  };
   const STEP_HINT: Record<string, string> = {
-    "서류 넣기": "등기부등본 PDF를 올려 주세요. 없으면 샘플로 먼저 해 봐도 돼요.",
+    "서류 넣기": "등기부등본 PDF를 올려 주세요. 없으면 예시 서류로 먼저 해 봐도 돼요.",
     "원본과 맞춰 보기": "읽은 값이 원본과 같은지 봐 주세요.",
     "내 계약 정보": "내 보증금을 적고 '점검하기'를 눌러 주세요.",
     "결과 보기": "결과를 확인하고, 맨 아래 '다음 단계'로 이어 가요.",
@@ -193,11 +204,15 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         stepNo={stepNo("원본과 맞춰 보기")}
         state={ocrReview}
         editedFields={editedFields}
-        onReopen={() => setOcrReview("pending")}
+        onReopen={() => {
+          setOcrReview("pending");
+          setPane("doc");
+        }}
         onDone={(st, r) => {
           setOcrReview(st);
           setEdited(r);
           if (outcome?.ok) check({ edited: r, review: st });
+          else setPane("info");
         }}
       />
     ) : null;
@@ -212,6 +227,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     setOutcome(null);
     setEdited(null);
     setConfirmed(false);
+    setPane("info");
   };
 
   const setMoney = (k: keyof CheckForm) => (manwon: string) => setForm((f) => ({ ...f, [k]: manwon }));
@@ -253,8 +269,17 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         <ol>
           {stepNames.map((n, i) => (
             <li key={n} aria-current={n === stepNow ? "step" : undefined} className={stepNames.indexOf(stepNow) > i ? "done" : undefined}>
-              <span className="step-no">{stepNames.indexOf(stepNow) > i ? "✓" : i + 1}</span>
-              {n}
+              {stepNames.indexOf(stepNow) > i && n !== "원본과 맞춰 보기" ? (
+                <button type="button" className="step-back" onClick={() => goStep(n)} aria-label={`${n}(으)로 돌아가기`}>
+                  <span className="step-no">✓</span>
+                  {n}
+                </button>
+              ) : (
+                <>
+                  <span className="step-no">{stepNames.indexOf(stepNow) > i ? "✓" : i + 1}</span>
+                  {n}
+                </>
+              )}
             </li>
           ))}
         </ol>
@@ -283,7 +308,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       )}
       {!showInputs && ocrReview !== "ok" && review}
 
-      {showInputs && (
+      {showInputs && pane === "doc" && (
       <>
       <section className="card">
         <h2>{stepNo("서류 넣기")}. 서류 넣기</h2>
@@ -361,6 +386,31 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
 
       {review}
 
+      {text.trim() && (
+        <div className="sticky-cta">
+          {ocr && ocrReview === "pending" && <p className="small muted">원본과 맞춰 보기 전에는 결과에 '안전'이 나오지 않아요.</p>}
+          <button type="button" className="primary" onClick={() => setPane("info")}>
+            다음: 내 계약 정보 →
+          </button>
+        </div>
+      )}
+      </>
+      )}
+
+      {showInputs && pane === "info" && (
+      <>
+      <section className="card small inputs-folded" aria-label="넣은 서류">
+        <p>
+          ✓ <strong>{isSample ? samples.find((x) => x.text === text)?.label : fromPdf ? "올린 PDF" : "붙여 넣은 서류"}</strong>
+        </p>
+        {pdfStatus?.kind === "ok" && !ocr && <p className="small muted">{pdfStatus.message}</p>}
+        <button type="button" className="ghost" onClick={() => setPane("doc")}>
+          ← 서류 바꾸기 · 읽은 글자 보기
+        </button>
+      </section>
+      {/* 그림 PDF를 맞춰 봤으면 그 결과(고친 값)를 이 카드 위에 한 줄로 남긴다 */}
+      {ocr && ocrReview !== "pending" && review}
+
       <section className="card">
         <h2>{stepNo("내 계약 정보")}. 내 계약 정보</h2>
         <div className="field">
@@ -385,9 +435,11 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
             내 이름이 아니에요. 중개사나 집주인에게 들은 집주인 이름을 적으면, 등기부등본의 진짜 집주인과 같은지 확인해 드려요.
           </p>
         </div>
-        <button type="button" className="primary" onClick={start}>
-          점검하기
-        </button>
+        <div className="sticky-cta">
+          <button type="button" className="primary" onClick={start}>
+            점검하기
+          </button>
+        </div>
       </section>
       </>
       )}
@@ -448,7 +500,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
             className="ghost"
             onClick={() => {
               setInputsOpen(true);
-              window.scrollTo({ top: 0 });
+              setPane("info");
+              window.scrollTo?.({ top: 0 });
             }}
           >
             ← 이전: 서류 · 내 계약 정보 고치기
@@ -545,50 +598,72 @@ function Result({
 
       {segs.some((g) => g.some((x) => x.term)) && <TermHint />}
 
+      {/* 요약 먼저(E): 가장 급한 이유 하나만 펼쳐 두고, 나머지는 '자세히 보기'로 */}
       {toCheck.length > 0 && (
         <>
-          <h3 className="list-title">확인할 것</h3>
+          <h3 className="list-title">가장 먼저 확인할 것</h3>
           <ul className="flags">
-            {toCheck.map((f) => (
-              <FlagItem key={f.code} f={f} segments={segOf(f.code)} todo={todoFor(f.code, read, result)} />
-            ))}
+            <FlagItem f={toCheck[0]} segments={segOf(toCheck[0].code)} todo={todoFor(toCheck[0].code, read, result)} />
           </ul>
         </>
       )}
 
-      {result.ratio !== null && <RatioBar ratio={result.ratio} lines={ratioLines} />}
+      {readUnconfirmed && !reviewed && <ReadEditor read={read} hasWarnings={readWarnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />}
 
-      {good.length > 0 && (
-        <>
-          <h3 className="list-title">괜찮은 점</h3>
-          <ul className="good">
-            {good.map((g) => (
-              <li key={g}>
-                <span className="good-mark" aria-hidden="true">✓</span>
-                {g}
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
+      <details className="result-more">
+        <summary>
+          자세히 보기
+          <span className="small muted">
+            {[toCheck.length > 1 ? `확인할 것 ${toCheck.length - 1}개 더` : null, result.ratio !== null ? "빚 비율" : null, good.length ? "괜찮은 점" : null, `등기부로 알 수 없는 것 ${unknowns.length}가지`]
+              .filter(Boolean)
+              .join(" · ")}
+          </span>
+        </summary>
+        {toCheck.length > 1 && (
+          <>
+            <h3 className="list-title">확인할 것 더</h3>
+            <ul className="flags">
+              {toCheck.slice(1).map((f) => (
+                <FlagItem key={f.code} f={f} segments={segOf(f.code)} todo={todoFor(f.code, read, result)} />
+              ))}
+            </ul>
+          </>
+        )}
 
-      {notes.length > 0 && (
-        <>
-          <h3 className="list-title">참고</h3>
-          <ul className="flags">
-            {notes.map((f) => (
-              <FlagItem key={f.code} f={f} segments={segOf(f.code)} todo={todoFor(f.code, read, result)} />
-            ))}
-          </ul>
-        </>
-      )}
+        {result.ratio !== null && <RatioBar ratio={result.ratio} lines={ratioLines} />}
 
-      <UnknownList items={unknowns} />
+        {good.length > 0 && (
+          <>
+            <h3 className="list-title">괜찮은 점</h3>
+            <ul className="good">
+              {good.map((g) => (
+                <li key={g}>
+                  <span className="good-mark" aria-hidden="true">✓</span>
+                  {g}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
 
-      {!reviewed && <ReadEditor read={read} hasWarnings={readWarnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />}
+        {notes.length > 0 && (
+          <>
+            <h3 className="list-title">참고</h3>
+            <ul className="flags">
+              {notes.map((f) => (
+                <FlagItem key={f.code} f={f} segments={segOf(f.code)} todo={todoFor(f.code, read, result)} />
+              ))}
+            </ul>
+          </>
+        )}
+
+        <UnknownList items={unknowns} />
+
+        {!readUnconfirmed && !reviewed && <ReadEditor read={read} hasWarnings={readWarnings.length > 0} confirmed={confirmed} onEdit={onEdit} onConfirm={onConfirm} />}
+        <HelpCard />
+      </details>
 
       <NextActions actions={actions} />
-      <HelpCard />
     </section>
   );
 }

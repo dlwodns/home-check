@@ -53,8 +53,10 @@ await step("샘플로 해 보면 판정은 나오지만 방에는 저장하지 �
 
 await step("서류를 올린 것처럼 점검하면 방에 저장되고 홈 카드에 신호등이 보인다", async () => {
   await p.getByRole("button", { name: "고쳐서 다시 점검" }).click(); // 점검 뒤 접힌 입력 칸 펼치기
+  await p.getByRole("button", { name: /서류 바꾸기/ }).click(); // 한 화면에 카드 하나: 서류 카드로
   const box = p.getByLabel(/내용을 그대로 붙여 넣어 주세요/);
   await box.fill((await box.inputValue()) + "\n");
+  await p.getByRole("button", { name: /다음: 내 계약 정보/ }).click();
   await p.getByRole("button", { name: "점검하기" }).click();
   await expectText(p, /점검용 방.*에 저장했어요|에 저장했어요/);
   await p.goto(U + "/", { waitUntil: "networkidle" });

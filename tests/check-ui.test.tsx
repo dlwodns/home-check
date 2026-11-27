@@ -67,7 +67,9 @@ describe("등기부등본 점검 화면", () => {
   it("금액 칸은 원 단위로 쉼표를 넣고, 옆에 읽기 쉬운 금액을 바로바로 보여 준다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
+    await user.click(screen.getByRole("button", { name: "주의 샘플" })); // 서류를 넣어야 '내 계약 정보' 카드로 간다
     const dep = screen.getByLabelText("내 보증금 (원)") as HTMLInputElement;
+    await user.clear(dep);
     await user.type(dep, "5");
     expect(screen.getByText("= 5원")).toBeTruthy();
     await user.type(dep, "0000000");
@@ -111,25 +113,32 @@ describe("등기부등본 점검 화면", () => {
     expect(within(first as HTMLElement).getByRole("link", { name: "S11" })).toBeTruthy();
   });
 
-  it("아무것도 안 넣고 점검하기 → 고칠 것 안내만 보이고 결과는 없다", async () => {
+  it("한 화면에 카드 하나: 서류가 없으면 '다음'이 없고, 보증금을 비우고 점검하면 안내만 보이고 결과는 없다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
+    expect(screen.queryByRole("button", { name: /다음: 내 계약 정보/ })).toBeNull();
+    expect(screen.queryByLabelText("내 보증금 (원)")).toBeNull(); // 서류 카드만 보인다
+    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.clear(screen.getByLabelText("내 보증금 (원)"));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
-    const alert = screen.getByRole("alert");
-    expect(alert.textContent).toContain("등기부등본 PDF를 올리거나 내용을 붙여 넣어 주세요");
-    expect(alert.textContent).toContain("내 보증금을 적어 주세요");
+    expect(screen.getByRole("alert").textContent).toContain("내 보증금을 적어 주세요");
     expect(verdictLabel()).toBeUndefined();
+    // 위쪽 단계 표시에서 '서류 넣기'를 누르면 서류 카드로 돌아간다
+    await user.click(screen.getByRole("button", { name: /서류 넣기\(으\)로 돌아가기/ }));
+    expect(screen.getByRole("button", { name: /다음: 내 계약 정보/ })).toBeTruthy();
   });
 
   it("못 읽은 칸이 있으면 '안전'이 아니고, 직접 확인했다고 체크하면 경고가 사라진다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
     await user.click(screen.getByRole("button", { name: "안전 샘플" }));
+    await user.click(screen.getByRole("button", { name: /서류 바꾸기/ }));
     const box = screen.getByLabelText(/등기부등본\(등기사항전부증명서\) 내용/);
     const broken = samples[0].text.replace("채권최고액 금240,000,000원", "채권최고액 (흐림)");
     await user.clear(box);
     await user.click(box);
     await user.paste(broken);
+    await user.click(screen.getByRole("button", { name: /다음: 내 계약 정보/ }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(verdictLabel()).not.toBe("안전");
     expect(screen.getByText("못 읽은 칸이 있어요")).toBeTruthy();
@@ -199,11 +208,15 @@ describe("PDF 올리기", () => {
     render(<CheckClient samples={samples} />);
     await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
     expect(await screen.findByText(/PDF 1쪽에서 글자를 읽었어요/)).toBeTruthy();
+    // 글자를 읽으면 바로 '내 계약 정보' 카드로 넘어간다. 읽은 글자는 '서류 바꾸기'에서 본다
+    expect(screen.getByLabelText("내 보증금 (원)")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: /서류 바꾸기/ }));
     // 읽은 글자 칸은 접혀 있다(펼치면 고칠 수 있음)
     const raw = screen.getByLabelText(/읽은 글자\(서류와 다르면 고쳐도 돼요\)/) as HTMLTextAreaElement;
     expect(raw.closest("details")?.open).toBe(false);
     expect(raw.value).toContain("【 을 구 】");
     expect(screen.getByText("다른 PDF 올리기")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: /다음: 내 계약 정보/ }));
     await user.type(screen.getByLabelText("내 보증금 (원)"), "5000000");
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(document.querySelector(".verdict-label")?.textContent).not.toBe("안전"); // 시세 · 앞선 보증금을 몰라 주의
@@ -233,12 +246,18 @@ describe("PDF 올리기", () => {
     render(<CheckClient samples={samples} />);
     await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
     await screen.findByText(/그림 PDF 1쪽을 읽었어요/);
+    return r;
+  };
+  // '내 계약 정보' 카드로 가서 샘플 값으로 채운다 (맞춰 보기를 마치면 자동으로 넘어가 있다)
+  const fillForm = async (user: ReturnType<typeof userEvent.setup>) => {
+    const s = safe();
+    const next = screen.queryByRole("button", { name: /다음: 내 계약 정보/ });
+    if (next) await user.click(next);
     for (const [label, k] of [["내 보증금 (원)", "myDeposit"], [/먼저 들어온 세입자들의 보증금/, "priorDeposits"], ["이 건물 시세 (원)", "marketPrice"], [/집주인 이름 \(계약서에 집주인으로 서명할 사람\)/, "contractParty"]] as const) {
       const v = s.form[k];
       // 샘플 폼 값은 만 원 단위 → 화면 칸에는 원으로 적는다
       if (v) await user.type(screen.getByLabelText(label), k === "contractParty" || !/^\d+$/.test(v) ? v : String(Number(v) * 10_000));
     }
-    return r;
   };
 
   it("그림(스캔) PDF는 올리자마자 점검 전에 원본 조각과 맞춰 보게 하고, 맞춰 보기 전에는 '안전'을 내지 않는다", async () => {
@@ -249,6 +268,7 @@ describe("PDF 올리기", () => {
     expect((within(card).getByLabelText(/지금 집주인 \(갑구/) as HTMLInputElement).value).toBe(r.current_owner);
 
     // 맞춰 보지 않고 점검 → '안전' 막힘, 결과의 '직접 확인했어요'로는 풀리지 않음
+    await fillForm(user);
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(verdictLabel()).not.toBe("안전");
     expect(screen.getByText(/위 '원본과 맞춰 보기'를 마치면 최종 결과가 나와요/)).toBeTruthy();
@@ -268,6 +288,7 @@ describe("PDF 올리기", () => {
     await user.type(amounts[amounts.length - 1], "1000000000"); // 10억: 빚 비율이 크게 올라감
     await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
     expect(screen.getByText(/원본과 맞춰 봤어요 \(고친 값: 근저당\)/)).toBeTruthy();
+    await fillForm(user);
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(verdictLabel()).toBe("위험");
 
@@ -304,6 +325,7 @@ describe("PDF 올리기", () => {
     expect(screen.queryByRole("button", { name: "주의 샘플" })).toBeNull(); // 진짜 서류를 넣으면 샘플은 숨김
     await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
     expect(within(steps).getByText(/내 보증금을 적고 '점검하기'를 눌러 주세요/)).toBeTruthy();
+    await fillForm(user);
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(within(steps).getByText(/맨 아래 '다음 단계'로 이어 가요/)).toBeTruthy();
     expect(screen.queryByText("읽은 내용 확인 · 고치기")).toBeNull(); // 위에서 맞춰 봤으니 겹치는 칸은 뺌

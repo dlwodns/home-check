@@ -40,8 +40,10 @@ const sampleAsDoc = async (label) => {
   // 방에서 점검할 때는 예시 서류가 접혀 있다 → 펼치고 누른다
   if (!(await p.getByRole("button", { name: label }).isVisible())) await p.getByText(/예시 서류로 먼저 보기/).click();
   await p.getByRole("button", { name: label }).click();
+  await p.getByRole("button", { name: /서류 바꾸기/ }).click(); // 한 화면에 카드 하나: 서류 카드로
   const box = p.getByLabel(/내용을 그대로 붙여 넣어 주세요/);
   await box.fill((await box.inputValue()) + "\n");
+  await p.getByRole("button", { name: /다음: 내 계약 정보/ }).click();
   await p.getByRole("button", { name: "점검하기" }).click();
 };
 await sampleAsDoc("주의 샘플");

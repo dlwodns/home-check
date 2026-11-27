@@ -47,9 +47,12 @@ const samples: Sample[] = [
 
 
 // 샘플 결과는 방에 저장하지 않으므로(R1), '실제 서류' 흐름은 샘플로 칸을 채운 뒤 서류 글자를 살짝 바꿔 실제 서류처럼 만든다
+// 샘플 글자를 살짝 바꿔 '올린 서류'처럼(샘플 결과는 방에 저장하지 않으므로). 서류 카드로 돌아가 고치고 다시 '다음'
 const asRealDoc = () => {
+  fireEvent.click(screen.getByRole("button", { name: /서류 바꾸기/ }));
   const box = screen.getByLabelText(/내용을 그대로 붙여 넣어 주세요/) as HTMLTextAreaElement;
   fireEvent.change(box, { target: { value: box.value + "\n" } });
+  fireEvent.click(screen.getByRole("button", { name: /다음: 내 계약 정보/ }));
 };
 beforeEach(() => {
   localStorage.clear();
@@ -161,10 +164,11 @@ describe("방에서 점검하기", () => {
     at("check?room=r1");
     render(<CheckClient samples={samples} />);
     expect(await screen.findByText(/이 방엔 판정 요약만 저장해요/)).toBeTruthy();
-    expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("5,000,000");
 
     await user.click(screen.getByRole("button", { name: "주의 샘플" }));
     asRealDoc();
+    // 방에서 점검하면 내 보증금은 방에 적어 둔 값 그대로(샘플 값으로 덮지 않음)
+    expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("5,000,000");
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.getByText(/에 저장했어요/)).toBeTruthy();
     expect(screen.getByRole("link", { name: /이 방으로 돌아가 계약 방법 보기/ }).getAttribute("href")).toBe("/room?id=r1");
