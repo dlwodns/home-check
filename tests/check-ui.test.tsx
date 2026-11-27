@@ -233,7 +233,7 @@ describe("PDF 올리기", () => {
     render(<CheckClient samples={samples} />);
     await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
     await screen.findByText(/그림 PDF 1쪽을 읽었어요/);
-    for (const [label, k] of [["내 보증금 (원)", "myDeposit"], [/먼저 들어온 세입자들의 보증금/, "priorDeposits"], ["이 건물 시세 (원)", "marketPrice"], ["계약하러 올 사람 이름", "contractParty"]] as const) {
+    for (const [label, k] of [["내 보증금 (원)", "myDeposit"], [/먼저 들어온 세입자들의 보증금/, "priorDeposits"], ["이 건물 시세 (원)", "marketPrice"], [/집주인 이름 \(계약서에 집주인으로 서명할 사람\)/, "contractParty"]] as const) {
       const v = s.form[k];
       // 샘플 폼 값은 만 원 단위 → 화면 칸에는 원으로 적는다
       if (v) await user.type(screen.getByLabelText(label), k === "contractParty" || !/^\d+$/.test(v) ? v : String(Number(v) * 10_000));

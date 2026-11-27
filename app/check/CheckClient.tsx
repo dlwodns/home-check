@@ -376,8 +376,11 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           <p className="hint">HUG 안심전세 앱에서 주소로 시세를 볼 수 있어요. 모르면 비워 두면 '계산하지 못했어요'로 따로 알려 드리고, 안전하다고 하지 않아요.</p>
         </div>
         <div className="field">
-          <label htmlFor={ids.party}>계약하러 올 사람 이름</label>
-          <input id={ids.party} value={form.contractParty} onChange={set("contractParty")} placeholder="집주인 본인인지 확인할게요" />
+          <label htmlFor={ids.party}>집주인 이름 (계약서에 집주인으로 서명할 사람)</label>
+          <input id={ids.party} value={form.contractParty} onChange={set("contractParty")} placeholder="예: 김도윤 · 모르면 비워 두세요" aria-describedby={`${ids.party}-h`} />
+          <p className="hint" id={`${ids.party}-h`}>
+            내 이름이 아니에요. 중개사나 집주인에게 들은 집주인 이름을 적으면, 등기부등본의 진짜 집주인과 같은지 확인해 드려요.
+          </p>
         </div>
         <button type="button" className="primary" onClick={start}>
           점검하기
