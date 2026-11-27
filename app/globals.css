@@ -327,7 +327,9 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
 .term-pop-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .term-pop-body { color: #e5e8eb; }
 .term-close { width: 32px; height: 32px; margin: -6px -8px -6px 0; border: 0; background: transparent; color: #b0b8c1; font-size: 20px; line-height: 1; cursor: pointer; }
-.term-more { align-self: flex-end; color: #7dd3a0; font-weight: 700; font-size: 13px; text-decoration: none; }
+.term-more { font-size: 12px; opacity: 0.9; line-height: 1.5; }
+.term-more a { color: #7dd3a0; font-weight: 700; text-decoration: none; }
+.term-more a.muted { font-weight: 400; opacity: 0.8; }
 .term-hint { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin: 0; padding: 10px 14px; border-radius: 12px; background: var(--info-bg); color: var(--info); font-size: 13px; }
 .term-demo { cursor: default; }
 .term-note { display: none; }

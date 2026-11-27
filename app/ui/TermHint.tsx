@@ -28,7 +28,17 @@ export default function TermHint() {
     return () => window.removeEventListener(TERM_OPEN_EVENT, done);
   }, []);
 
-  if (!show || off) return null;
+  if (off) return null;
+  // 처음 안내를 닫은 뒤에도 한 줄은 남긴다(모르는 단어를 눌러 볼 수 있다는 걸 잊지 않게)
+  if (!show)
+    return (
+      <p className="term-hint term-hint-mini small muted">
+        <span className="term term-demo" aria-hidden="true">
+          초록 점선
+        </span>{" "}
+        단어는 눌러서 뜻을 볼 수 있어요
+      </p>
+    );
   return (
     <p className="term-hint" role="status">
       <span>

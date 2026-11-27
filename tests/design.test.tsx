@@ -120,7 +120,10 @@ describe("용어 말풍선", () => {
     const user = userEvent.setup();
     setup();
     await user.click(screen.getByRole("button", { name: "근저당" }));
-    expect(screen.getByRole("link", { name: /근거 보기/ }).getAttribute("href")).toMatch(/^\/sources#S\d+/);
+    // 근거 목록 전체로 보내지 않고, 이 단어의 근거 하나와 원문 링크를 말풍선 안에 보여 준다
+    expect(screen.getByRole("note").textContent).toMatch(/근거: /);
+    expect(screen.getByRole("link", { name: /원문/ }).getAttribute("href")).toMatch(/^https:\/\//);
+    expect(screen.getByRole("link", { name: "더보기" }).getAttribute("href")).toMatch(/^\/sources#S\d+/);
     await user.click(screen.getByRole("button", { name: "뜻 닫기" }));
     expect(screen.queryByRole("note")).toBeNull();
   });
@@ -163,6 +166,8 @@ describe("처음 한 번 안내", () => {
     render(<TermHint />);
     await user.click(await screen.findByRole("button", { name: "알겠어요" }));
     expect(screen.queryByText(/단어를 누르면 뜻이 나와요/)).toBeNull();
+    // 닫은 뒤에도 짧은 한 줄은 남는다
+    expect(screen.getByText(/단어는 눌러서 뜻을 볼 수 있어요/)).toBeTruthy();
   });
 });
 

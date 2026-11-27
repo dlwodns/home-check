@@ -8,7 +8,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import type { Segment } from "@/lib/content/terms";
-import type { Term } from "@/lib/content";
+import { findSource, type Term } from "@/lib/content";
 import { useTermsOff } from "./termPrefs";
 
 const SEEN_KEY = "homecheck.terms.seen.v1";
@@ -171,13 +171,32 @@ function TermButton({ term, label, seen, onSeen }: { term: Term; label: string; 
             </button>
           </span>
           <span className="term-pop-body">{term.short}</span>
-          {term.sources[0] && (
-            <Link href={`/sources#${term.sources[0]}`} className="term-more">
-              근거 보기 →
-            </Link>
-          )}
+          {term.sources[0] && <TermSource id={term.sources[0]} />}
         </span>
       )}
+    </span>
+  );
+}
+
+/** 말풍선 안 근거 한 줄: 근거 목록 전체(29개)로 보내지 않고, 이 단어의 근거 하나와 원문 링크만 */
+function TermSource({ id }: { id: string }) {
+  const s = findSource(id);
+  if (!s) return null;
+  const url = s.official_url ?? s.refs[0]?.url;
+  return (
+    <span className="term-more">
+      근거: {s.title}
+      {url ? (
+        <>
+          {" "}
+          <a href={url} target="_blank" rel="noopener noreferrer">
+            원문 ↗
+          </a>
+        </>
+      ) : null}{" "}
+      <Link href={`/sources#${id}`} className="muted">
+        더보기
+      </Link>
     </span>
   );
 }
