@@ -559,6 +559,8 @@ function Result({
   // 이 결과 화면의 이유 문장들: 같은 용어는 처음 나올 때만 누를 수 있게
   const segs = splitAll(flags.map((f) => f.title));
   const segOf = (code: string) => segs[flags.findIndex((f) => f.code === code)];
+  const anyTerm = segs.some((g) => g.some((x) => x.term));
+  const firstHasTerm = toCheck.length > 0 && Boolean(segOf(toCheck[0].code)?.some((x) => x.term));
   const ref = useRef<HTMLElement>(null);
 
   // 점검하기를 누르면 결과로 바로 이동한다 (입력칸이 길어서 결과가 화면 아래에 생기므로)
@@ -596,7 +598,8 @@ function Result({
         </div>
       )}
 
-      {segs.some((g) => g.some((x) => x.term)) && <TermHint />}
+      {/* 용어 안내는 누를 단어가 보이는 곳에만: 펼친 첫 이유에 단어가 있으면 위에, 없으면 '자세히 보기' 안에 */}
+      {firstHasTerm && <TermHint />}
 
       {/* 요약 먼저(E): 가장 급한 이유 하나만 펼쳐 두고, 나머지는 '자세히 보기'로 */}
       {toCheck.length > 0 && (
@@ -619,6 +622,7 @@ function Result({
               .join(" · ")}
           </span>
         </summary>
+        {anyTerm && !firstHasTerm && <TermHint />}
         {toCheck.length > 1 && (
           <>
             <h3 className="list-title">확인할 것 더</h3>

@@ -94,6 +94,16 @@ describe("등기부등본 점검 화면", () => {
     expect(screen.queryByText(/원문 확인 중/)).toBeNull();
   });
 
+  it("용어 안내는 누를 단어가 보이는 곳에: 펼친 첫 이유에 단어가 없으면 '자세히 보기' 안에 둔다", async () => {
+    const user = userEvent.setup();
+    render(<CheckClient samples={samples} />);
+    await user.click(screen.getByRole("button", { name: "위험 샘플" }));
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    const hint = document.querySelector(".term-hint");
+    expect(hint).toBeTruthy();
+    expect(hint!.closest("details.result-more")).toBeTruthy();
+  });
+
   it("3줄 요약은 짧은 제목을 쓴다 (R8: 줄마다 두 줄로 넘치지 않게)", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
