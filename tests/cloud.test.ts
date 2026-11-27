@@ -17,6 +17,7 @@ const room = (id: string, over: Partial<Room> = {}): Room => ({
   region: null,
   branch: null,
   checked: {},
+  notes: {},
   check: null,
   createdAt: "2026-11-17",
   ...over,
@@ -36,6 +37,11 @@ describe("이 기기 기록 + 계정 기록 합치기", () => {
     ).rooms;
     expect(m).toHaveLength(1);
     expect(m[0]).toMatchObject({ label: "이 기기 이름", checked: { "s1.a": true, "s4.b": true }, check: summary, region: { sgg: "11440", dong: "서교동" }, branch: "direct", link: "https://example.com/1" });
+  });
+
+  it("알아낸 것(메모)은 양쪽을 합치고, 같은 칸이면 이 기기 쪽을 남긴다", () => {
+    const m = mergeRooms(rs(room("a", { notes: { "note.x": "이 기기", "note.y": "y" } })), rs(room("a", { notes: { "note.x": "계정", "note.z": "z" } }))).rooms[0];
+    expect(m.notes).toEqual({ "note.x": "이 기기", "note.y": "y", "note.z": "z" });
   });
 
   it("합쳐도 최대 개수까지만", () => {

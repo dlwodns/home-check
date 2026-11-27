@@ -209,6 +209,14 @@ describe("방에서 점검하기", () => {
     expect(screen.getByText("계약 전에 확인할 것이 1가지 있어요")).toBeTruthy();
     expect(screen.getByText(/계약 상대가 등기부등본의 지금 집주인이에요/)).toBeTruthy();
     expect(screen.getByRole("link", { name: "다시 점검하기" }).getAttribute("href")).toBe("/check?room=r1");
+
+    // 알아낸 것 적기(10번): 할 일 옆에 적고 저장하면 방에 남고, 그 옆에서 바로 다시 점검하러 간다
+    await user.click(screen.getAllByRole("button", { name: "✎ 알아낸 것 적기" })[0]);
+    await user.type(screen.getByLabelText(/알아낸 것 \(예:/), "근저당 일부 갚겠다고 함");
+    await user.click(screen.getByRole("button", { name: "저장" }));
+    expect(screen.getByText("✎ 알아낸 것: 근저당 일부 갚겠다고 함")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "이 내용으로 다시 점검하기 →" }).getAttribute("href")).toBe("/check?room=r1");
+    expect(Object.values(JSON.parse(localStorage.getItem(ROOMS)!).rooms[0].notes)).toEqual(["근저당 일부 갚겠다고 함"]);
   });
 });
 

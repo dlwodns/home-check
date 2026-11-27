@@ -618,3 +618,9 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .criteria dd { margin: 0 0 4px; color: var(--muted); }
 .criteria-good { color: var(--safe, #1F7A4D); }
 .criteria-bad { color: var(--caution, #a35a00); }
+
+/* 알아낸 것 적기(10번) */
+.note-row { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin-top: 6px; font-size: 13px; }
+.note-saved { flex-basis: 100%; margin: 0; padding: 6px 10px; border-radius: 10px; background: var(--safe-bg); color: var(--text); }
+.note-edit { margin-top: 6px; display: flex; flex-direction: column; gap: 6px; }
+.note-edit textarea { width: 100%; box-sizing: border-box; margin-top: 4px; font-size: 16px; }

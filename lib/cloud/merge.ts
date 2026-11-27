@@ -10,6 +10,7 @@ function mergeRoom(local: Room, remote: Room): Room {
   return {
     ...local,
     checked: union(local.checked, remote.checked),
+    notes: { ...remote.notes, ...local.notes },
     check: local.check ?? remote.check,
     region: local.region ?? remote.region,
     branch: local.branch ?? remote.branch,

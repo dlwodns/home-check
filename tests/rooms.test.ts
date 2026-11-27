@@ -26,7 +26,7 @@ import {
 import { checkLine, flagViews, moneyLine, roomSteps, toCheckCount } from "@/app/ui/roomView";
 
 const draft: RoomDraft = { label: "정문 원룸", address: "OO동 123-4", deposit: 1000, rent: 50, link: "", memo: "정문 원룸", region: null };
-const room = (over: Partial<Room> = {}): Room => ({ id: "r1", ...draft, branch: null, checked: {}, check: null, createdAt: "2026-11-17", ...over });
+const room = (over: Partial<Room> = {}): Room => ({ id: "r1", ...draft, branch: null, checked: {}, notes: {}, check: null, createdAt: "2026-11-17", ...over });
 
 describe("후보 방 추가 칸 검사", () => {
   it("주소 · 보증금 · 월세 · 메모를 저장할 값으로 바꾼다 (쉼표 · 억 단위 허용)", () => {
@@ -197,5 +197,21 @@ describe("카드 · 상세 표시 계산", () => {
   it("방의 진행 상황은 방의 갈래 · 체크와 사람의 모드를 합친 것", () => {
     const r = room({ branch: "direct", checked: { "s1.a": true } });
     expect(roomProgress(r, "first")).toEqual({ v: 1, mode: "first", branch: "direct", checked: { "s1.a": true } });
+  });
+});
+
+describe("알아낸 것(메모) 저장", () => {
+  it("이상한 키는 버리고, 너무 긴 글은 자르고, 다시 읽어도 그대로다", () => {
+    const raw = JSON.stringify({ v: 1, rooms: [{ ...room(), notes: { "note.abc": "  들은 답  ", "bad key!": "x", "note.long": "가".repeat(500) } }] });
+    const r = parseRooms(raw).rooms[0];
+    expect(r.notes["note.abc"]).toBe("들은 답");
+    expect(r.notes["bad key!"]).toBeUndefined();
+    expect(r.notes["note.long"].length).toBe(300);
+    expect(parseRooms(JSON.stringify({ v: 1, rooms: [r] })).rooms[0].notes).toEqual(r.notes);
+  });
+
+  it("예전 방(notes 없음)도 빈 메모로 읽는다", () => {
+    const { notes: _drop, ...old } = room();
+    expect(parseRooms(JSON.stringify({ v: 1, rooms: [old] })).rooms[0].notes).toEqual({});
   });
 });

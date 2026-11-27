@@ -47,6 +47,8 @@ export interface Room {
   region: RoomRegion | null;
   branch: Branch | null;
   checked: Record<string, boolean>;
+  /** 할 일 · 질문마다 알아낸 것(예: "앞선 보증금 합계 2억이라고 들음"). 키는 noteKey */
+  notes: Record<string, string>;
   check: CheckSummary | null;
   createdAt: string;
 }
@@ -60,7 +62,7 @@ export const EMPTY_ROOMS: RoomsState = { v: 1, rooms: [] };
 export const MAX_ROOMS = 20;
 const KEY = "homecheck.rooms.v1";
 
-const LIMIT = { address: 100, memo: 60, link: 500, label: 30, text: 400, list: 20 };
+const LIMIT = { address: 100, memo: 60, link: 500, label: 30, text: 400, list: 20, note: 300 };
 const VERDICTS: Verdict[] = ["safe", "caution", "danger"];
 
 const str = (v: unknown, max: number) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -136,6 +138,13 @@ function parseRoom(v: unknown): Room | null {
   if (d.checked && typeof d.checked === "object") {
     for (const [k, val] of Object.entries(d.checked)) if (val === true && /^[\w.-]{1,80}$/.test(k)) checked[k] = true;
   }
+  const notes: Record<string, string> = {};
+  if (d.notes && typeof d.notes === "object") {
+    for (const [k, val] of Object.entries(d.notes).slice(0, 40)) {
+      const t = str(val, LIMIT.note);
+      if (t && /^[\w.-]{1,80}$/.test(k)) notes[k] = t;
+    }
+  }
   return {
     id,
     label: str(d.label, LIMIT.label) || (memo || address).slice(0, LIMIT.label),
@@ -147,6 +156,7 @@ function parseRoom(v: unknown): Room | null {
     region: parseRegion(d.region),
     branch,
     checked,
+    notes,
     check: parseSummary(d.check),
     createdAt: str(d.createdAt, 30),
   };
@@ -247,7 +257,7 @@ export function newRoomId(now = Date.now(), rand = Math.random): string {
 
 export function addRoom(state: RoomsState, draft: RoomDraft, id: string, createdAt: string): RoomsState {
   if (state.rooms.length >= MAX_ROOMS) return state;
-  const room: Room = { id, ...draft, branch: null, checked: {}, check: null, createdAt };
+  const room: Room = { id, ...draft, branch: null, checked: {}, notes: {}, check: null, createdAt };
   return { v: 1, rooms: [room, ...state.rooms] };
 }
 

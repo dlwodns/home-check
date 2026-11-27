@@ -56,6 +56,50 @@ export function reqKey(kind: "q" | "c", textOrId: string): string {
   return `req.q.${h.toString(36)}`;
 }
 
+/** 질문 · 할 일 문장 → 알아낸 것(메모)을 저장할 키 */
+export function noteKey(text: string): string {
+  return `note.${reqKey("q", text).slice(6)}`;
+}
+
+/**
+ * 알아낸 것 적기(10번): 질문 · 할 일마다 들은 답 · 알아낸 값을 적어 두고, 적었으면 그 옆에서 바로 다시 점검하러 간다.
+ * 방 화면에서만 보인다(방에 저장).
+ */
+function NoteBox({ value, onSave, recheckHref }: { value: string; onSave: (v: string) => void; recheckHref?: string }) {
+  const [draft, setDraft] = useState(value);
+  const [open, setOpen] = useState(false);
+  if (!open)
+    return (
+      <div className="note-row">
+        {value ? <p className="note-saved">✎ 알아낸 것: {value}</p> : null}
+        <button type="button" className="linklike" onClick={() => { setDraft(value); setOpen(true); }}>
+          {value ? "고치기" : "✎ 알아낸 것 적기"}
+        </button>
+        {value && recheckHref ? (
+          <Link href={recheckHref} className="linklike strong">
+            이 내용으로 다시 점검하기 →
+          </Link>
+        ) : null}
+      </div>
+    );
+  return (
+    <div className="note-edit">
+      <label className="small">
+        알아낸 것 (예: 앞선 보증금 합계 2억이라고 들음 · 신분증 확인함)
+        <textarea rows={2} maxLength={300} value={draft} onChange={(e) => setDraft(e.target.value)} />
+      </label>
+      <div className="row-buttons">
+        <button type="button" className="chip" onClick={() => { onSave(draft.trim()); setOpen(false); }}>
+          저장
+        </button>
+        <button type="button" className="ghost" onClick={() => setOpen(false)}>
+          취소
+        </button>
+      </div>
+    </div>
+  );
+}
+
 /** 담은 질문 · 특약을 집주인 · 중개사에게 보낼 한 덩어리 글로 */
 export function requestText(questions: string[], clauses: { title: string; text: string }[]): string {
   const out: string[] = [];
@@ -82,11 +126,20 @@ export default function NextActions({
   actions,
   picked: pickedProp,
   onPick,
+  notes,
+  onNote,
+  recheckHref,
 }: {
   actions: Actions;
   picked?: Record<string, boolean>;
   onPick?: (key: string, value: boolean) => void;
+  /** 방 화면: 알아낸 것(메모)과 저장 · 다시 점검 주소. 없으면 메모 칸을 숨긴다 */
+  notes?: Record<string, string>;
+  onNote?: (key: string, value: string) => void;
+  recheckHref?: string;
 }) {
+  const note = (text: string) =>
+    onNote ? <NoteBox value={notes?.[noteKey(text)] ?? ""} onSave={(v) => onNote(noteKey(text), v)} recheckHref={recheckHref} /> : null;
   const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
   const [localPicked, setLocalPicked] = useState<Record<string, boolean>>({});
   const picked = pickedProp ?? localPicked;
@@ -114,6 +167,7 @@ export default function NextActions({
                   <CopyButton text={q} />
                   <PickButton on={Boolean(picked[reqKey("q", q)])} onClick={() => toggle(reqKey("q", q))} />
                 </div>
+                {note(q)}
               </li>
             ))}
           </ul>
@@ -124,7 +178,10 @@ export default function NextActions({
         <h3>이렇게 하세요</h3>
         <ol className="plain">
           {actions.todos.map((t) => (
-            <li key={t}>{t}</li>
+            <li key={t}>
+              {t}
+              {note(t)}
+            </li>
           ))}
         </ol>
       </div>

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { Branch as BranchContent, Step } from "@/lib/content";
-import { removeRoom, withRoom } from "@/lib/store/rooms";
+import { removeRoom, updateRoom, withRoom } from "@/lib/store/rooms";
 import type { Branch } from "@/lib/store/progress";
 import { withBranch } from "@/lib/registry/actions";
 import type { FlagCode } from "@/lib/registry/types";
@@ -36,6 +36,29 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
   const router = useRouter();
   const { progress, update, loaded, room } = useProgress();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  // 알아낸 것(10번): 질문 · 할 일마다 적은 메모. 방에 저장한다
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  useEffect(() => {
+    if (room) setNotes(room.notes ?? {});
+  }, [room]);
+  const saveNote = (key: string, value: string) => {
+    if (!room) return;
+    const store = roomsStore();
+    store.save(
+      updateRoom(store.load(), room.id, (r) => {
+        const n = { ...(r.notes ?? {}) };
+        if (value) n[key] = value;
+        else delete n[key];
+        return { ...r, notes: n };
+      }),
+    );
+    setNotes((n) => {
+      const m = { ...n };
+      if (value) m[key] = value;
+      else delete m[key];
+      return m;
+    });
+  };
   useEffect(() => {
     if (room) rememberLastRoom(room.id);
   }, [room]);
@@ -185,6 +208,9 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
         {check ? (
           <NextActions
             actions={withBranch(check.actions, progress.branch)}
+            notes={notes}
+            onNote={saveNote}
+            recheckHref={`/check?room=${room.id}`}
             picked={progress.checked}
             onPick={(key, value) =>
               update((p) => {
