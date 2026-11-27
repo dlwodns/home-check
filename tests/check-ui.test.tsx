@@ -209,6 +209,16 @@ describe("PDF 올리기", () => {
     expect(document.querySelector(".verdict-label")?.textContent).not.toBe("안전"); // 시세 · 앞선 보증금을 몰라 주의
   });
 
+  it("등기부등본이 아닌 PDF를 올리면 점검 전에 바로 알려 주고 글자를 채우지 않는다", async () => {
+    const user = userEvent.setup();
+    readPdfFile.mockResolvedValueOnce({ text: "홈체크 포스터 이 방, 계약해도 될까? 전세사기 피해자 통계와 화면 소개", pages: 1, hasText: true });
+    render(<CheckClient samples={samples} />);
+    await user.upload(screen.getByLabelText(/PDF 올리기/), pdf());
+    expect(await screen.findByText(/등기부등본이 아닌 것 같아요/)).toBeTruthy();
+    expect(screen.queryByText(/PDF 1쪽에서 글자를 읽었어요/)).toBeNull();
+    expect(screen.queryByLabelText(/읽은 글자\(서류와 다르면 고쳐도 돼요\)/)).toBeNull();
+  });
+
   const safe = () => samples.find((s) => s.label === "안전 샘플")!;
   const uploadOcr = async (user: ReturnType<typeof userEvent.setup>) => {
     const s = safe();

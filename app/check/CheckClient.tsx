@@ -4,7 +4,7 @@
 import Link from "next/link";
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { itemKey } from "@/lib/store/progress";
-import { formatWon, parseManwon, runCheck, todayKST, type CheckForm, type CheckOutcome, type FlagView } from "@/lib/registry/check";
+import { NOT_REGISTRY, formatWon, parseManwon, runCheck, todayKST, type CheckForm, type CheckOutcome, type FlagView } from "@/lib/registry/check";
 import type { Mortgage, RegistryRead } from "@/lib/registry/types";
 import { buildActions, todoFor } from "@/lib/registry/actions";
 import { readRegistry } from "@/lib/registry/read";
@@ -116,6 +116,11 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         setText(o.text);
         setOutcome(null);
         setPdfStatus({ kind: "ok", message: `그림 PDF ${o.pages.length}쪽을 읽었어요. 아래에서 원본과 맞춰 봐 주세요.` });
+        return;
+      }
+      // 등기부등본이 아닌 PDF는 점검 버튼까지 가기 전에 바로 알린다 (그림 PDF는 OCR 잡음이 있어 확인 화면에서 맞춰 본다)
+      if (readRegistry(r.text).warnings.some((w) => w.startsWith(NOT_REGISTRY))) {
+        setPdfStatus({ kind: "error", message: "이 PDF는 등기부등본이 아닌 것 같아요. 인터넷등기소에서 받은 등기사항전부증명서 PDF를 올려 주세요." });
         return;
       }
       setText(r.text);
