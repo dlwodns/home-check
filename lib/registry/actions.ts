@@ -126,3 +126,11 @@ function parentSummary(result: CheckResult, todos: string[], unknowns: string[])
   ];
   return lines.filter((l) => l !== null).join("\n");
 }
+
+/** 방 화면에서 고른 계약 갈래(중개사 / 직거래)의 질문 · 할 일을 맨 앞에 붙인다. 갈래를 안 골랐거나 '아직'이면 그대로 */
+export function withBranch(a: NextActions, branch: string | null): NextActions {
+  const b = (data.branch as Record<string, FlagActions | string>)[branch ?? ""];
+  if (!b || typeof b === "string") return a;
+  const front = (extra: string[] = [], list: string[]) => [...extra, ...list.filter((t) => !extra.includes(t))];
+  return { ...a, questions: front(b.ask, a.questions), todos: front(b.todo, a.todos) };
+}

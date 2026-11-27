@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import type { Branch as BranchContent, Step } from "@/lib/content";
 import { removeRoom, withRoom } from "@/lib/store/rooms";
 import type { Branch } from "@/lib/store/progress";
+import { withBranch } from "@/lib/registry/actions";
 import type { FlagCode } from "@/lib/registry/types";
 import NextActions from "../check/NextActions";
 import RentCard from "./RentCard";
@@ -183,7 +184,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
         </div>
         {check ? (
           <NextActions
-            actions={check.actions}
+            actions={withBranch(check.actions, progress.branch)}
             picked={progress.checked}
             onPick={(key, value) =>
               update((p) => {

@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 import data from "@/data/actions.json";
 import rules from "@/data/judge.json";
 import { sources } from "@/lib/content";
-import { buildActions, fill } from "@/lib/registry/actions";
+import { buildActions, fill, withBranch } from "@/lib/registry/actions";
 import { runCheck, type CheckForm } from "@/lib/registry/check";
 
 const load = (f: string) => readFileSync(`samples/${f}`, "utf8");
@@ -91,5 +91,20 @@ describe("샘플로 만든 다음 행동", () => {
     const { a } = run("C_danger.txt", { myDeposit: "1000", priorDeposits: "", marketPrice: "", contractParty: "최민서" });
     expect(new Set(a.questions).size).toBe(a.questions.length);
     expect(new Set(a.todos).size).toBe(a.todos.length);
+  });
+});
+
+describe("계약 갈래(중개사 / 직거래)에 맞춘 질문", () => {
+  it("같은 결과라도 갈래에 따라 맨 앞 질문 · 할 일이 달라지고, 고르지 않으면 그대로다", () => {
+    const { a } = run("B_caution.txt", { myDeposit: "500", priorDeposits: "27000", marketPrice: "10억", contractParty: "김도윤" });
+    const broker = withBranch(a, "broker");
+    const direct = withBranch(a, "direct");
+    expect(broker.questions[0]).toContain("공제증서");
+    expect(direct.questions[0]).toContain("신분증");
+    expect(direct.todos[0]).toContain("신분증");
+    expect(broker.questions[0]).not.toBe(direct.questions[0]);
+    expect(broker.questions.slice(1)).toEqual(a.questions);
+    expect(withBranch(a, null)).toEqual(a);
+    expect(withBranch(a, "none")).toEqual(a);
   });
 });
