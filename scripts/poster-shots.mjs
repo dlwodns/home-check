@@ -37,6 +37,8 @@ await p.waitForURL(/check/);
 await p.waitForTimeout(2000);
 // 샘플은 지어낸 가짜 서류. 샘플 그대로면 방에 저장하지 않으므로(R1) 글자 끝에 줄바꿈 하나를 더해 '올린 서류'처럼 저장되게 한다
 const sampleAsDoc = async (label) => {
+  // 방에서 점검할 때는 예시 서류가 접혀 있다 → 펼치고 누른다
+  if (!(await p.getByRole("button", { name: label }).isVisible())) await p.getByText(/예시 서류로 먼저 보기/).click();
   await p.getByRole("button", { name: label }).click();
   const box = p.getByLabel(/내용을 그대로 붙여 넣어 주세요/);
   await box.fill((await box.inputValue()) + "\n");

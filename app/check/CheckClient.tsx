@@ -178,7 +178,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     "서류 넣기": "등기부등본 PDF를 올려 주세요. 없으면 샘플로 먼저 해 봐도 돼요.",
     "원본과 맞춰 보기": "읽은 값이 원본과 같은지 봐 주세요.",
     "내 계약 정보": "내 보증금을 적고 '점검하기'를 눌러 주세요.",
-    "결과 보기": "결과가 나왔어요. 아래에서 확인해요.",
+    "결과 보기": "결과를 확인하고, 맨 아래 '다음 단계'로 이어 가요.",
   };
   const stepNo = (name: string) => stepNames.indexOf(name) + 1;
   const review =
@@ -343,15 +343,18 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         {/* 진짜 서류를 넣었으면 샘플은 숨긴다("샘플도 눌러야 하나?" 헷갈리지 않게) */}
         {!fromPdf && (
           <>
-            <div className="samples">
-              <span className="muted small">샘플로 해 보기:</span>
-              {samples.map((s) => (
-                <button key={s.label} type="button" className="chip" onClick={() => pickSample(s)}>
-                  {s.label}
-                </button>
-              ))}
-            </div>
-            <p className="muted small">샘플은 지어낸 가짜 서류예요.</p>
+            {/* 실제 서류가 주인공. 예시는 등기부가 없는 사람만 펼쳐 보게(방에서 점검할 때는 접어 둠) */}
+            <details className="samples-fold" open={!room}>
+              <summary>등기부등본이 아직 없나요? 예시 서류로 먼저 보기</summary>
+              <div className="samples">
+                {samples.map((s) => (
+                  <button key={s.label} type="button" className="chip" onClick={() => pickSample(s)}>
+                    {s.label}
+                  </button>
+                ))}
+              </div>
+              <p className="muted small">예시는 지어낸 가짜 서류예요.</p>
+            </details>
           </>
         )}
       </section>
@@ -418,6 +421,39 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
             check({ confirmed: v });
           }}
         />
+      )}
+
+      {outcome?.ok && (
+        <nav className="card check-next" aria-label="다음 단계">
+          <h2>다음 단계</h2>
+          {room && !isSample ? (
+            <>
+              <Link href={roomHref(room.id)} className="primary-link">
+                이 방 계약 준비 이어 가기 →
+              </Link>
+              <p className="small muted">이 결과에 맞춘 질문 · 특약과 계약 6단계가 {room.label}에 이어져요.</p>
+            </>
+          ) : room ? (
+            <p className="small">샘플 결과는 이 방에 저장하지 않아요. 위에서 이 방의 등기부등본을 올려 점검해 주세요.</p>
+          ) : (
+            <>
+              <Link href="/rooms/new" className="primary-link">
+                이 집을 내 후보 방으로 담기 →
+              </Link>
+              <p className="small muted">방을 담고 그 방에서 등기부등본을 점검하면 결과 · 질문 · 계약 6단계를 이어서 챙겨 드려요.</p>
+            </>
+          )}
+          <button
+            type="button"
+            className="ghost"
+            onClick={() => {
+              setInputsOpen(true);
+              window.scrollTo({ top: 0 });
+            }}
+          >
+            ← 이전: 서류 · 내 계약 정보 고치기
+          </button>
+        </nav>
       )}
 
       <p className="disclaimer">

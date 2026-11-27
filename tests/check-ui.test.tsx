@@ -305,8 +305,13 @@ describe("PDF 올리기", () => {
     await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
     expect(within(steps).getByText(/내 보증금을 적고 '점검하기'를 눌러 주세요/)).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "점검하기" }));
-    expect(within(steps).getByText(/결과가 나왔어요/)).toBeTruthy();
+    expect(within(steps).getByText(/맨 아래 '다음 단계'로 이어 가요/)).toBeTruthy();
     expect(screen.queryByText("읽은 내용 확인 · 고치기")).toBeNull(); // 위에서 맞춰 봤으니 겹치는 칸은 뺌
+    // 결과 뒤에는 무엇을 이어서 할지 버튼 하나 + 이전 단계로 돌아가기
+    const next = screen.getByRole("navigation", { name: "다음 단계" });
+    expect(within(next).getByRole("link", { name: /내 후보 방으로 담기/ }).getAttribute("href")).toBe("/rooms/new");
+    await user.click(within(next).getByRole("button", { name: /이전: 서류 · 내 계약 정보 고치기/ }));
+    expect(screen.getByRole("button", { name: "점검하기" })).toBeTruthy();
   });
 
   it("OCR로도 글자를 거의 못 읽으면 안내하고 내용을 바꾸지 않는다", async () => {

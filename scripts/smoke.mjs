@@ -43,6 +43,8 @@ await step("방을 담으면 그 방 화면으로 가고 동네 시세가 나온
 await step("샘플로 해 보면 판정은 나오지만 방에는 저장하지 않는다", async () => {
   await p.getByText("등기부등본 올려서 점검하기").click();
   await p.waitForURL(/check/);
+  // 방에서 점검할 때는 예시 서류가 접혀 있다 → 펼치고 누른다
+  if (!(await p.getByRole("button", { name: "주의 샘플" }).isVisible())) await p.getByText(/예시 서류로 먼저 보기/).click();
   await p.getByRole("button", { name: "주의 샘플" }).click();
   await p.getByRole("button", { name: "점검하기" }).click();
   await expectText(p, "계약 전에 확인할 것이 1가지 있어요");

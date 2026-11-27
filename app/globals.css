@@ -568,3 +568,17 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .fold > summary::after { content: "▾"; color: var(--accent); }
 .fold[open] > summary::after { content: "▴"; }
 .inputs-folded .saved-note { margin: 6px 0 0; }
+
+/* 점검 결과 뒤 '다음 단계': 무엇을 이어서 할지 버튼 하나로 (첫 사용자 시험 11/28) */
+.check-next { display: flex; flex-direction: column; gap: 8px; }
+.check-next h2 { margin: 0; }
+.primary-link {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 52px; border-radius: 12px;
+  background: var(--accent); color: var(--on-accent);
+  font-size: 17px; font-weight: 700; text-decoration: none;
+}
+.check-next .ghost { align-self: flex-start; }
+/* 예시 서류는 접어 두는 보조 경로 */
+.samples-fold { margin-top: 10px; }
+.samples-fold summary { cursor: pointer; font-size: 14px; color: var(--muted); }
