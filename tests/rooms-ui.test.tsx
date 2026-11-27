@@ -111,8 +111,10 @@ describe("방 상세", () => {
     at("room?id=r1");
     render(<RoomDetailClient steps={steps} branches={branches} />);
     expect(await screen.findByRole("heading", { name: "정문 원룸" })).toBeTruthy();
+    // 지금 할 일 카드 하나: 점검 전이면 등기부 점검이 먼저(홈 '이어하기'와 같은 답)
+    expect(screen.getByRole("heading", { name: "등기부등본을 점검할 차례예요" })).toBeTruthy();
     expect(screen.getByRole("link", { name: "등기부등본 올려서 점검하기" }).getAttribute("href")).toBe("/check?room=r1");
-    expect(screen.getByRole("link", { name: "3단계 할 일 보기" }).getAttribute("href")).toBe("/steps/3?room=r1");
+    expect(screen.queryByRole("link", { name: "3단계 할 일 보기" })).toBeNull();
     expect(screen.getByText(/계약 완료 · 보증금 지키기/)).toBeTruthy();
   });
 
@@ -223,10 +225,13 @@ describe("방에서 점검하기", () => {
 describe("오늘은 여기까지 · 그날 만나요", () => {
   it("지금 단계의 날짜를 정하면 방에 저장되고 'OO에 만나요' · 캘린더 버튼이 나온다", async () => {
     const user = userEvent.setup();
-    seedRooms(baseRoom);
+    seedRooms({ ...baseRoom, checked: { "documents.registry": true } }); // 등기부는 확인함 → 지금 할 일은 3단계 집 보러 가기
     at("room?id=r1");
     render(<RoomDetailClient steps={steps} branches={branches} />);
     expect(await screen.findByText("오늘은 여기까지 해도 괜찮아요")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "3단계 · 집 보러 가기 할 차례예요" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "3단계 할 일 보기" }).getAttribute("href")).toBe("/steps/3?room=r1");
+    expect(screen.getByRole("link", { name: /다음: 계약 전 서류 확인/ }).getAttribute("href")).toBe("/steps/4?room=r1");
     fireEvent.change(screen.getByLabelText(/집 보러 가는 날/), { target: { value: "2099-12-01" } });
     await user.click(screen.getByRole("button", { name: "이날로 정하기" }));
     expect(screen.getByText(/12월 1일\(.\)에 만나요/)).toBeTruthy();

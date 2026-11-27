@@ -1,5 +1,6 @@
 "use client";
-// 방 상세: ① 이 방, 안전한가요? → ② 이 방은 이렇게 계약해요 → 계약 과정(끝: 계약 완료 · 보증금 지키기).
+// 방 상세: 맨 위에 '지금 할 일' 카드 하나(+ 그날 만나요 · 이전/다음 단계)만 보여 주고, 나머지(점검 결과 · 계약 방법 ·
+// 다음 할 일 · 서류 · 상담 · 6단계)는 '이 방 전부 보기'로 접는다(11/28 사용자: 한 번에 하나만. NN/g 마법사 · 듀오링고 경로 참고).
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,7 +16,7 @@ import StepBar from "../ui/StepBar";
 import rules from "@/data/judge.json";
 import { goodPoints, headline } from "@/lib/registry/goodPoints";
 import { splitAll } from "@/lib/content/terms";
-import { flagViews, moneyLine, rememberLastRoom, roomSteps, toCheckCount } from "../ui/roomView";
+import { flagViews, focusTask, moneyLine, rememberLastRoom, roomSteps, toCheckCount, VERDICT_TEXT } from "../ui/roomView";
 import TrafficLight from "../ui/TrafficLight";
 import TermText from "../ui/TermText";
 import UnknownList from "../ui/UnknownList";
@@ -91,6 +92,9 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
   // 갈래 · 체크는 progress(이 화면에서 바꾼 최신 값)를 쓴다
   const live = { ...room, branch: progress.branch, checked: progress.checked };
   const { segs, current } = roomSteps(live, progress.mode, steps, branches);
+  const task = focusTask(live, progress.mode, steps, branches);
+  const prevStep = current ? steps[current.no - 2] : null;
+  const nextStep = current ? steps[current.no] : null;
   const check = room.check;
   const flags = check ? flagViews(check) : [];
   const n = check ? toCheckCount(check) : 0;
@@ -127,6 +131,62 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
         {room.address} · {moneyLine(room)}
         {room.memo && room.memo !== room.label ? ` · ${room.memo}` : ""}
       </p>
+
+      <section className="room-focus" aria-labelledby="focus-title">
+        <div className="focus-progress">
+          <StepBar segs={segs} finish />
+          <span className="small muted">{current ? `6단계 중 ${current.no}단계 · ${current.title}` : "6단계를 모두 마쳤어요"}</span>
+        </div>
+        <div className={`card focus-card focus-${task.kind}`}>
+          <p className="focus-kicker">지금 할 일</p>
+          <h2 id="focus-title">{task.title}</h2>
+          <p className="focus-why">{task.why}</p>
+          {task.kind === "done" ? null : (
+            <Link href={task.href} className="primary-link">
+              {task.cta}
+            </Link>
+          )}
+          {task.kind === "check" && (
+            <p className="small muted">
+              등기부등본은{" "}
+              <a href="https://www.iros.go.kr" target="_blank" rel="noopener noreferrer">
+                인터넷등기소 ↗
+              </a>
+              에서 누구나 뗄 수 있어요(열람 1,100원).
+            </p>
+          )}
+          {check && (
+            <p className="small focus-check">
+              등기부 점검 결과: <strong className={`verdict-${check.verdict}`}>{VERDICT_TEXT[check.verdict].label}</strong> · {headline(check.verdict, n)}
+            </p>
+          )}
+        </div>
+        {task.kind === "step" && <PlanCard key={task.step.id} step={task.step} date={dates[task.step.id]} roomLabel={room.label} roomId={room.id} onSave={(d) => saveDate(task.step.id, d)} />}
+        {task.kind === "done" && (
+          <div className="done-card" role="status">
+            <svg className="done-check" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle className="done-ring" pathLength={1} cx="12" cy="12" r="10" />
+              <path className="done-tick" pathLength={1} d="M7.5 12.5l3 3 6-6.5" />
+            </svg>
+            <span>
+              <strong>계약 완료까지 다 챙겼어요</strong>
+              <span className="small">보증금을 지키는 준비가 끝났어요.</span>
+            </span>
+          </div>
+        )}
+        {task.kind === "step" && (
+          <nav className="step-nav" aria-label="단계 이동">
+            {prevStep ? <Link href={r(`/steps/${prevStep.no}`)}>← 이전: {prevStep.title}</Link> : <span />}
+            {nextStep ? <Link href={r(`/steps/${nextStep.no}`)}>다음: {nextStep.title} →</Link> : <span />}
+          </nav>
+        )}
+      </section>
+
+      <details className="room-all">
+        <summary>
+          이 방 전부 보기
+          <span className="small muted">점검 결과 · 동네 시세 · 계약 방법 · 다음 할 일 · 서류 · 상담 · 6단계</span>
+        </summary>
 
       <section aria-labelledby="sec-safe" className="room-sec">
         <h2 id="sec-safe" className="sec-title">
@@ -175,19 +235,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
             </p>
           </>
         ) : (
-          <div className="card">
-            <p>아직 점검 전이에요. 등기부등본을 올리면 진짜 집주인 · 빚 · 위험 기록을 바로 알려 드려요.</p>
-            <Link href={r("/check")} className="cta">
-              등기부등본 올려서 점검하기
-            </Link>
-            <p className="small muted">
-              등기부등본은{" "}
-              <a href="https://www.iros.go.kr" target="_blank" rel="noopener noreferrer">
-                인터넷등기소 ↗
-              </a>
-              에서 누구나 뗄 수 있어요(열람 1,100원).
-            </p>
-          </div>
+          <p className="card small muted">아직 점검 전이에요. 위 '지금 할 일'에서 등기부등본을 올리면 진짜 집주인 · 빚 · 위험 기록을 바로 알려 드려요.</p>
         )}
         <RentCard room={room} />
       </section>
@@ -254,27 +302,12 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
           <span className="small muted">{current ? `지금 ${current.no}단계 · ${current.title}` : "모든 단계를 마쳤어요"}</span>
         </div>
         <StepBar segs={segs} finish />
-        {current && room && <PlanCard key={current.id} step={current} date={dates[current.id]} roomLabel={room.label} roomId={room.id} onSave={(d) => saveDate(current.id, d)} />}
-        {!current && (
-          <div className="done-card" role="status">
-            <svg className="done-check" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-              <circle className="done-ring" pathLength={1} cx="12" cy="12" r="10" />
-              <path className="done-tick" pathLength={1} d="M7.5 12.5l3 3 6-6.5" />
-            </svg>
-            <span>
-              <strong>계약 완료까지 다 챙겼어요</strong>
-              <span className="small">이사 뒤 전입신고 · 확정일자까지 했다면, 보증금을 지키는 준비가 끝났어요.</span>
-            </span>
-          </div>
-        )}
         <p className="small muted finish">도착: 계약 완료 · 보증금 지키기 (전입신고 · 확정일자)</p>
-        <Link href={r(current ? `/steps/${current.no}` : "/steps")} className="cta cta-soft">
-          {current ? `${current.no}단계 할 일 보기` : "단계 다시 보기"}
-        </Link>
         <Link href={r("/steps")} className="small">
           6단계 전체 보기 →
         </Link>
       </section>
+      </details>
 
       <section className="room-sec danger-zone">
         {confirmDelete ? (

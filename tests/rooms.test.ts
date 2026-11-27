@@ -23,7 +23,7 @@ import {
   type Room,
   type RoomDraft,
 } from "@/lib/store/rooms";
-import { checkLine, flagViews, moneyLine, roomSteps, toCheckCount } from "@/app/ui/roomView";
+import { checkLine, flagViews, focusTask, moneyLine, nextAction, roomSteps, toCheckCount } from "@/app/ui/roomView";
 
 const draft: RoomDraft = { label: "정문 원룸", address: "OO동 123-4", deposit: 1000, rent: 50, link: "", memo: "정문 원룸", region: null };
 const room = (over: Partial<Room> = {}): Room => ({ id: "r1", ...draft, branch: null, checked: {}, notes: {}, dates: {}, check: null, createdAt: "2026-11-17", ...over });
@@ -220,5 +220,17 @@ describe("그날(날짜) 저장", () => {
   it("단계 id와 날짜 모양이 맞는 것만 남긴다", () => {
     const raw = JSON.stringify({ v: 1, rooms: [{ ...room(), dates: { visit: "2026-12-01", contract: "내일", "bad key": "2026-12-02" } }] });
     expect(parseRooms(raw).rooms[0].dates).toEqual({ visit: "2026-12-01" });
+  });
+});
+
+describe("지금 할 일 하나 (방 화면 · 홈 이어하기가 같은 답)", () => {
+  it("점검 전이면 등기부 점검이 먼저, 4단계 '등기부 점검'을 직접 체크했으면 지금 단계로", () => {
+    const fresh = room();
+    expect(focusTask(fresh, null, steps, branches).kind).toBe("check");
+    expect(nextAction(fresh, null, steps, branches).text).toBe("등기부등본 올려서 점검하기");
+    const done = room({ checked: { "documents.registry": true } });
+    const t = focusTask(done, null, steps, branches);
+    expect(t.kind).toBe("step");
+    expect(nextAction(done, null, steps, branches)).toMatchObject({ text: "3단계 · 집 보러 가기", stepId: "visit" });
   });
 });

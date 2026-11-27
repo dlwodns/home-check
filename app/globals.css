@@ -635,3 +635,19 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .plan-today .plan-badge { background: var(--danger, #c62828); }
 .plan-past .plan-badge { background: var(--muted); }
 .continue-day { display: block; font-size: 13px; margin-top: 4px; }
+
+/* 방 화면 '지금 할 일' 한 장 (11/28: 한 번에 하나만) */
+.room-focus { display: flex; flex-direction: column; gap: 12px; margin: 8px 0 16px; }
+.focus-progress { display: flex; flex-direction: column; gap: 4px; }
+.focus-card { display: flex; flex-direction: column; gap: 10px; border: 2px solid var(--accent); }
+.focus-kicker { margin: 0; font-size: 13px; font-weight: 800; color: var(--accent); }
+.focus-card h2 { margin: 0; font-size: 20px; line-height: 1.35; }
+.focus-why { margin: 0; font-size: 15px; line-height: 1.55; color: var(--text); }
+.focus-check { margin: 0; }
+.verdict-danger { color: var(--danger, #c62828); }
+.verdict-caution { color: var(--caution); }
+.verdict-safe { color: var(--safe); }
+.step-nav { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; }
+.step-nav a { min-height: 44px; display: inline-flex; align-items: center; }
+.room-all { border-top: 1px solid var(--border); margin-top: 8px; }
+.room-all > summary { cursor: pointer; min-height: 56px; display: flex; flex-direction: column; justify-content: center; font-weight: 700; font-size: 16px; }

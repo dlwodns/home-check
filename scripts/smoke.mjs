@@ -37,6 +37,8 @@ await step("방을 담으면 그 방 화면으로 가고 동네 시세가 나온
   await p.fill("input[placeholder^='직방 링크']", "점검용 방");
   await p.getByRole("button", { name: /저장하고/ }).click();
   await p.waitForURL(/room\?id=/);
+  await expectText(p, "등기부등본을 점검할 차례예요"); // 방 화면 맨 위는 '지금 할 일' 카드 하나
+  await p.getByText("이 방 전부 보기").click(); // 동네 시세는 '이 방 전부 보기' 안에
   await expectText(p, /월세 신고 거래 \d+건/, 20000);
 });
 
