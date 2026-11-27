@@ -1,6 +1,7 @@
 "use client";
 // 시작 화면의 두 갈래: 처음이에요(1단계부터, '어디서 찾았어요?' 먼저) / 해 봤어요(바로 6단계 목록).
 import Link from "next/link";
+import FlowPreview from "./ui/FlowPreview";
 import BrandMark from "./ui/BrandMark";
 import { useRouter } from "next/navigation";
 import { useProgress } from "./ui/useProgress";
@@ -35,6 +36,7 @@ export default function StartClient() {
         한 단계씩 같이 해요
       </h1>
       <p className="muted">방을 찾기 전이라도 괜찮아요. 계약 완료까지 지금 할 일을 순서대로 알려 드려요.</p>
+      <FlowPreview />
 
       {started && (
         <Link href="/steps" className="cta">
