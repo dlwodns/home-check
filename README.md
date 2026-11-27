@@ -11,6 +11,8 @@
 [![CI](https://github.com/dlwodns/home-check/actions/workflows/ci.yml/badge.svg)](https://github.com/dlwodns/home-check/actions/workflows/ci.yml)
 [![앱 안 AI 호출](https://img.shields.io/badge/%EC%95%B1_%EC%95%88_AI_%ED%98%B8%EC%B6%9C-0%EA%B1%B4-6B6B6B)](#어떻게-동작하나)
 
+내 컴퓨터에서 실행: `npm install && npm run dev` (Node.js 22, 키 없이도 동작) · 테스트: `npm test`
+
 [**서비스 열기**](https://home-check-pi.vercel.app) · [사용법](#사용법) · [빠른 시작](#빠른-시작) · [판정 규칙](#판정-규칙) · [얼마나 맞나](#얼마나-맞는지-어떻게-확인했나) · [한계](#한계와-다음-단계)
 
 </div>
