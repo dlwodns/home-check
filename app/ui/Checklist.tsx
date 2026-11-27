@@ -42,6 +42,22 @@ export default function Checklist({
                 {item.optional && <span className="optional"> (해당 없으면 건너뛰어도 돼요)</span>}
               </span>
             </div>
+            {(item.good || item.bad) && (
+              <dl className="criteria">
+                {item.good && (
+                  <>
+                    <dt className="criteria-good">✓ 이러면 괜찮아요</dt>
+                    <dd>{item.good}</dd>
+                  </>
+                )}
+                {item.bad && (
+                  <>
+                    <dt className="criteria-bad">▲ 이러면 다시 보세요</dt>
+                    <dd>{item.bad}</dd>
+                  </>
+                )}
+              </dl>
+            )}
             <details className="why">
               <summary>왜 중요해요?</summary>
               <p>

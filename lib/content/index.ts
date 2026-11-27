@@ -27,6 +27,9 @@ export interface ChecklistItem {
   opens?: "F2";
   /** 해당 없는 사람도 있는 항목: 체크하지 않아도 진행률에서 불리하지 않게 뺀다 */
   optional?: boolean;
+  /** 현장에서 보는 기준: 이러면 괜찮아요 / 이러면 다시 보세요 (집 보러 가기 등) */
+  good?: string;
+  bad?: string;
 }
 
 export interface Step {

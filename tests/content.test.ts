@@ -116,3 +116,13 @@ describe("등기부 수수료 (S26, 2026-11-23 수수료규칙 개정)", () => {
     expect(readFileSync("data/documents.json", "utf8")).toContain("인터넷 열람 1,100원 · 발급 1,400원");
   });
 });
+
+describe("집 보러 가기 기준", () => {
+  it("3단계(집 보러 가기) 항목마다 '이러면 괜찮아요 / 이러면 다시 보세요' 기준이 있다", () => {
+    const visit = steps.find((s) => s.id === "visit")!;
+    for (const i of visit.items) {
+      expect(i.good?.trim(), i.id).toBeTruthy();
+      expect(i.bad?.trim(), i.id).toBeTruthy();
+    }
+  });
+});
