@@ -75,11 +75,11 @@ function NoteBox({ value, onSave, recheckHref }: { value: string; onSave: (v: st
     return (
       <div className="note-row">
         {value ? <p className="note-saved">✎ 알아낸 것: {value}</p> : null}
-        <button type="button" className="linklike" onClick={() => { setDraft(value); setOpen(true); }}>
+        <button type="button" className="ghost" onClick={() => { setDraft(value); setOpen(true); }}>
           {value ? "고치기" : "✎ 알아낸 것 적기"}
         </button>
         {value && recheckHref ? (
-          <Link href={recheckHref} className="linklike strong">
+          <Link href={recheckHref} className="nav-btn nav-btn-accent">
             이 내용으로 다시 점검하기 →
           </Link>
         ) : null}

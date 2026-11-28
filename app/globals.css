@@ -662,3 +662,9 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .welcome-choices { width: 100%; display: flex; flex-direction: column; gap: 10px; margin: 8px 0; }
 .welcome-skip { min-height: 52px; font-size: 16px; }
 .welcome-preview .primary-link { width: 100%; }
+
+/* 화면 사이 이동은 모두 버튼 모양(11/28 사용자 요청: 글자 링크 · 버튼 섞지 말고 통일). 참고 링크(출처 · 개인정보 등)는 글자 그대로 */
+.nav-btn, .step-nav a { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 16px; border: 1px solid var(--border); border-radius: 22px; background: var(--surface); color: var(--text); font-size: 15px; font-weight: 600; text-decoration: none; text-align: center; box-sizing: border-box; }
+.nav-btn-sm { min-height: 40px; padding: 0 12px; font-size: 14px; }
+.nav-btn-accent { border-color: var(--accent); color: var(--accent); }
+.step-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }

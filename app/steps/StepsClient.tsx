@@ -32,7 +32,7 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
       <div className="card">
         <p className="small">
           {loaded && progress.branch ? `방: ${BRANCH_LABEL[progress.branch]}` : "방을 어디서 찾았는지 아직 안 골랐어요"} ·{" "}
-          <Link href={r("/where")}>{progress.branch ? "바꾸기" : "고르기"}</Link>
+          <Link href={r("/where")} className="nav-btn nav-btn-sm">{progress.branch ? "바꾸기" : "고르기"}</Link>
         </p>
         <p className="small muted" aria-live="polite">
           {stats.activeSteps}단계 중 {stats.finishedSteps}단계 완료 · 할 일 {stats.done}/{stats.total}

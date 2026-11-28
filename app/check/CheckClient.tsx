@@ -243,7 +243,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         </p>
       ) : savedToRoom ? (
         <p className="saved-note" role="status">
-          ✓ <strong>{room.label}</strong>에 저장했어요. <Link href={roomHref(room.id)}>이 방으로 돌아가 계약 방법 보기 →</Link>
+          ✓ <strong>{room.label}</strong>에 저장했어요. <Link href={roomHref(room.id)} className="nav-btn nav-btn-sm">이 방으로 돌아가 계약 방법 보기 →</Link>
         </p>
       ) : null
     ) : null;

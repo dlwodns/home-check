@@ -62,7 +62,7 @@ export default function StartClient() {
           <li>등기부등본 위험 신호를 쉬운 말로 점검</li>
           <li>어려운 용어는 눌러서 바로 뜻 보기</li>
         </ol>
-        <Link href="/rooms/new">방을 찾았다면: 후보 방 추가하기 →</Link>
+        <Link href="/rooms/new" className="nav-btn">방을 찾았다면: 후보 방 추가하기 →</Link>
       </section>
       <p className="muted small">진행 상황은 지금 이 브라우저에만 저장돼요.</p>
     </main>

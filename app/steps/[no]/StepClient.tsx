@@ -65,12 +65,12 @@ export default function StepClient({ step, total, branches, next = null }: { ste
       {step.key && !branch && (
         <p className="card small">
           {progress.branch === "none" ? "방을 찾으면" : "방을 어디서 찾았는지 고르면"} 중개사 · 직거래 맞춤 체크리스트가 여기에 붙어요.{" "}
-          <Link href={r("/where")}>고르러 가기</Link>
+          <Link href={r("/where")} className="nav-btn nav-btn-sm">고르러 가기</Link>
         </p>
       )}
 
       {step.no >= 4 && (
-        <Link href={r("/docs")} className="small">
+        <Link href={r("/docs")} className="nav-btn">
           서류 · 준비물 한눈에 보기 →
         </Link>
       )}

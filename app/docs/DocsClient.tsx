@@ -92,7 +92,7 @@ export default function DocsClient() {
                       )}
                       <span className="small muted">{item.why}</span>
                       {item.room && room && (
-                        <Link href={roomHref(room.id)} className="small">
+                        <Link href={roomHref(room.id)} className="nav-btn nav-btn-sm">
                           이 방 특약 문장 보러 가기 →
                         </Link>
                       )}
@@ -118,7 +118,7 @@ export default function DocsClient() {
       })}
 
       {room && (
-        <Link href={withRoom("/steps", roomId)} className="small">
+        <Link href={withRoom("/steps", roomId)} className="nav-btn">
           계약 과정 6단계 보기 →
         </Link>
       )}

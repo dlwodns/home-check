@@ -49,7 +49,7 @@ export default function Welcome({ returning = false, hasRooms = false, onSkip }:
           <button type="button" className="primary" onClick={() => setStage("ask")}>
             시작하기
           </button>
-          <Link href="/check" className="welcome-quick" onClick={markEntered}>
+          <Link href="/check" className="nav-btn" onClick={markEntered}>
             등기부등본만 바로 점검
           </Link>
         </div>
@@ -72,7 +72,7 @@ export default function Welcome({ returning = false, hasRooms = false, onSkip }:
             {returning ? "건너뛰기" : "해 봤어요 · 건너뛰기"}
           </button>
         </div>
-        <button type="button" className="linklike small" onClick={() => setStage("start")}>
+        <button type="button" className="ghost" onClick={() => setStage("start")}>
           ← 처음 화면으로
         </button>
       </main>
@@ -91,7 +91,7 @@ export default function Welcome({ returning = false, hasRooms = false, onSkip }:
           이제 방 담고 시작하기 →
         </Link>
       )}
-      <Link href="/guide" className="small" onClick={markEntered}>
+      <Link href="/guide" className="nav-btn" onClick={markEntered}>
         아직 방을 못 찾았어요 · 6단계 미리 보기
       </Link>
     </main>

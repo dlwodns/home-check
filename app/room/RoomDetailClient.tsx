@@ -231,7 +231,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
             )}
             <UnknownList items={check.unknowns.map(unknownById).filter((u): u is Unknown => Boolean(u))} />
             <p className="small muted">
-              {check.asOf} 점검{check.edited && check.edited.length > 0 ? ` · ✎ 내가 고친 값(${check.edited.join(" · ")})으로 계산` : ""} · <Link href={r("/check")}>다시 점검하기</Link>
+              {check.asOf} 점검{check.edited && check.edited.length > 0 ? ` · ✎ 내가 고친 값(${check.edited.join(" · ")})으로 계산` : ""} · <Link href={r("/check")} className="nav-btn nav-btn-sm">다시 점검하기</Link>
             </p>
           </>
         ) : (
@@ -303,7 +303,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
         </div>
         <StepBar segs={segs} finish />
         <p className="small muted finish">도착: 계약 완료 · 보증금 지키기 (전입신고 · 확정일자)</p>
-        <Link href={r("/steps")} className="small">
+        <Link href={r("/steps")} className="nav-btn">
           6단계 전체 보기 →
         </Link>
       </section>
