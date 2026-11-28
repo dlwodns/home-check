@@ -116,8 +116,11 @@ export const SLIDES: Slide[] = [
   { title: "6. 입주 후", body: "이사한 날 바로 전입신고 · 확정일자를 받아요", why: "신고한 다음 날부터 보증금을 지키는 힘이 생겨요", help: "그날을 휴대폰 캘린더에 넣어 줘요", art: <ArtMoveIn /> },
 ];
 
-export default function FlowPreview() {
-  const [i, setI] = useState(0);
+export default function FlowPreview({ index, onIndex }: { index?: number; onIndex?: (i: number) => void } = {}) {
+  const [own, setOwn] = useState(0);
+  // 바깥(ProcessPreview)이 몇 번째 장인지 알아야 마지막 장에서만 '방 담기'를 보여 줄 수 있어 바깥 값도 받는다
+  const i = index ?? own;
+  const setI = (n: number) => (onIndex ? onIndex(n) : setOwn(n));
   const s = SLIDES[i];
   const last = i === SLIDES.length - 1;
   return (
@@ -138,7 +141,7 @@ export default function FlowPreview() {
       </div>
       <div className="flow-controls">
         <button type="button" className="ghost" onClick={() => setI(i - 1)} disabled={i === 0}>
-          ← 이전
+          ← 이전 장
         </button>
         <span className="flow-dots" role="group" aria-label="단계 고르기">
           {SLIDES.map((x, k) => (
@@ -146,7 +149,7 @@ export default function FlowPreview() {
           ))}
         </span>
         <button type="button" className="ghost" onClick={() => setI(i + 1)} disabled={last}>
-          다음 →
+          다음 장 →
         </button>
       </div>
       <p className="small muted">

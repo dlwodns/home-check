@@ -434,6 +434,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
     await user.click(screen.getByRole("button", { name: "처음이에요 · 계약 과정 미리보기" }));
     expect(screen.getByRole("region", { name: "집 계약 과정 미리보기" })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "건너뛰기" }));
     expect(JSON.parse(localStorage.getItem("homecheck.progress.v1")!).mode).toBe("first");
     const go = screen.getByRole("link", { name: "다음: 방 담기 →" });
     expect(go.getAttribute("href")).toBe("/rooms/new");
@@ -447,6 +448,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
     await user.click(screen.getByRole("button", { name: "처음이에요 · 계약 과정 미리보기" }));
+    await user.click(screen.getByRole("button", { name: "건너뛰기" }));
     expect(screen.getByRole("link", { name: "다음: 방 찾기부터 →" }).getAttribute("href")).toBe("/steps/1");
     expect(screen.queryByText(/6단계 미리 보기/)).toBeNull();
     cleanup();
@@ -481,6 +483,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
     await user.click(screen.getByRole("button", { name: "계약 과정 미리보기" }));
     expect(screen.getByRole("region", { name: "집 계약 과정 미리보기" })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "건너뛰기" }));
     await user.click(screen.getByRole("button", { name: "다음: 홈 →" }));
     expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
   });
@@ -813,5 +816,18 @@ describe("점검 화면 UX (11/28)", () => {
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     await user.click(screen.getByRole("button", { name: /이전: 서류 넣기 \(이 방 등기부등본 올리기\)/ }));
     expect(screen.getByRole("heading", { name: "서류 넣기" })).toBeTruthy();
+  });
+});
+
+describe("방 담기 UX (11/28)", () => {
+  it("빈 칸으로 저장해 오류가 나도, 그 칸을 고치면 오류가 바로 사라진다 · 안내는 '주소와 보증금만'", async () => {
+    const user = userEvent.setup();
+    render(<RoomAddClient />);
+    expect(screen.getByText("주소와 보증금만 적으면 돼요")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "저장하고 이 방 보기" }));
+    expect(screen.getByText(/주소를 적어 주세요/)).toBeTruthy();
+    await user.type(screen.getByLabelText("주소"), "서울 마포구 서교동 1");
+    expect(screen.queryByText(/주소를 적어 주세요/)).toBeNull();
+    expect(screen.getByText(/보증금을 적어 주세요/)).toBeTruthy(); // 안 고친 칸은 그대로
   });
 });

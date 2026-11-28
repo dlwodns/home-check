@@ -17,13 +17,13 @@ describe("집 계약 과정 미리보기", () => {
     expect(screen.getByRole("heading", { name: SLIDES[0].title })).toBeTruthy();
     expect(screen.getByRole("img", { name: /지갑과 동전/ })).toBeTruthy();
     expect(screen.getByText("왜 해요?")).toBeTruthy();
-    expect((screen.getByRole("button", { name: "← 이전" }) as HTMLButtonElement).disabled).toBe(true);
-    await user.click(screen.getByRole("button", { name: "다음 →" }));
+    expect((screen.getByRole("button", { name: "← 이전 장" }) as HTMLButtonElement).disabled).toBe(true);
+    await user.click(screen.getByRole("button", { name: "다음 장 →" }));
     expect(screen.getByRole("heading", { name: SLIDES[1].title })).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "4. 계약 전 서류 확인" }));
     expect(screen.getByText("가장 중요해요")).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "6. 입주 후" }));
-    expect((screen.getByRole("button", { name: "다음 →" }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole("button", { name: "다음 장 →" }) as HTMLButtonElement).disabled).toBe(true);
     expect(screen.getByText(/여기까지가 계약 완료예요/)).toBeTruthy();
   });
 });

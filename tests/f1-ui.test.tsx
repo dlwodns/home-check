@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 // F1 계약 단계 길잡이를 사용자처럼 눌러 보는 테스트.
 import { StrictMode, type AnchorHTMLAttributes } from "react";
-import { cleanup, render, screen, within } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { branches, steps } from "@/lib/content";
@@ -34,6 +34,9 @@ describe("계약 과정 미리보기 (/guide)", () => {
     render(<StartClient />);
     expect(screen.getByRole("heading", { name: "계약 과정 미리보기" })).toBeTruthy();
     expect(screen.getByRole("region", { name: "집 계약 과정 미리보기" })).toBeTruthy();
+    // 끝 버튼은 마지막 장에서만: 처음엔 '건너뛰기'만 있고, 누르면 마지막 장으로
+    expect(screen.queryByRole("link", { name: "다음: 방 담기 →" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "건너뛰기" }));
     expect(screen.getByRole("link", { name: "다음: 방 담기 →" }).getAttribute("href")).toBe("/rooms/new");
     expect(screen.getByRole("link", { name: "다음: 방 찾기부터 →" }).getAttribute("href")).toBe("/steps/1");
     expect(screen.queryByRole("button", { name: /처음이에요|해 봤어요/ })).toBeNull(); // 갈래는 입구에서 한 번만

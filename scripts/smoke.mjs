@@ -37,8 +37,8 @@ await step("방을 담으면 그 방(길)으로 가고, 3단계에 동네 시세
   await p.fill("input[placeholder^='직방 링크']", "점검용 방");
   await p.getByRole("button", { name: /저장하고/ }).click();
   await p.waitForURL(/room\?id=/);
-  await expectText(p, "3단계 · 집 보러 가기"); // 방 = 한 길: 방을 찾았으니 3단계부터
-  await p.getByRole("link", { name: "다음: 집 보러 가기 →" }).click();
+  await expectText(p, "지금 할 일 · 3 / 6"); // 방 = 한 길: 방을 찾았으니 3단계부터
+  await p.getByRole("link", { name: "이 단계 시작하기 →" }).click();
   await p.waitForURL(/steps\/3/);
   await expectText(p, /월세 신고 거래 \d+건/, 20000);
 });

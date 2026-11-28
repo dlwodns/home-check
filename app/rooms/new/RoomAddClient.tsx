@@ -36,7 +36,12 @@ export default function RoomAddClient() {
   const ids = { address: useId(), deposit: useId(), rent: useId(), note: useId() };
   const full = loaded && rooms.length >= MAX_ROOMS;
 
-  const set = (k: Field) => (e: React.ChangeEvent<HTMLInputElement>) => setInput((v) => ({ ...v, [k]: e.target.value }));
+  // 칸을 고치면 그 칸의 오류는 바로 지운다(11/28 UX: 고쳤는데 빨간 글씨가 남아 있었음)
+  const clearErr = (k: Field) => setErrors((x) => (x[k] ? { ...x, [k]: undefined } : x));
+  const set = (k: Field) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInput((v) => ({ ...v, [k]: e.target.value }));
+    clearErr(k);
+  };
 
   const [saving, setSaving] = useState(false); // 두 번 눌러도 방이 하나만 생기게
   const savingRef = useRef(false);
@@ -71,7 +76,7 @@ export default function RoomAddClient() {
         <span>방 담기</span>
       </nav>
       <h1 className="title">어떤 방인가요?</h1>
-      <p className="muted">세 가지만 적으면 돼요</p>
+      <p className="muted">주소와 보증금만 적으면 돼요</p>
 
       {full ? (
         <p className="card warn">후보 방은 {MAX_ROOMS}개까지 담을 수 있어요. 안 쓰는 방을 지운 뒤 추가해 주세요.</p>
@@ -134,7 +139,10 @@ export default function RoomAddClient() {
                 aria-required="true"
                 hintId={`${ids.deposit}-h`}
                 value={input.deposit}
-                onChange={(v) => setInput((x) => ({ ...x, deposit: v }))}
+                onChange={(v) => {
+                  setInput((x) => ({ ...x, deposit: v }));
+                  clearErr("deposit");
+                }}
                 placeholder="예: 10,000,000"
                 aria-invalid={Boolean(errors.deposit)}
                 aria-describedby={described("deposit")}
@@ -147,7 +155,10 @@ export default function RoomAddClient() {
                 id={ids.rent}
                 hintId={`${ids.rent}-h`}
                 value={input.rent}
-                onChange={(v) => setInput((x) => ({ ...x, rent: v }))}
+                onChange={(v) => {
+                  setInput((x) => ({ ...x, rent: v }));
+                  clearErr("rent");
+                }}
                 placeholder="전세면 비워 두세요"
                 aria-invalid={Boolean(errors.rent)}
                 aria-describedby={described("rent")}
@@ -164,7 +175,7 @@ export default function RoomAddClient() {
               id={ids.note}
               value={input.note}
               onChange={set("note")}
-              placeholder="직방 링크를 붙여 넣거나 '정문 원룸'처럼 적어요"
+              placeholder="직방 링크나 '정문 원룸' 같은 메모"
               aria-invalid={Boolean(errors.note)}
               aria-describedby={described("note", `${ids.note}-hint`)}
             />

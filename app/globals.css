@@ -769,3 +769,8 @@ input[type="checkbox"] { accent-color: var(--accent); }
 .check [aria-invalid='true'] { border-color: var(--danger) !important; box-shadow: 0 0 0 1px var(--danger); }
 .more > summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; font-weight: 700; color: var(--accent); font-size: 15px; }
 .request:has(.request-empty) { padding: 12px 16px; }
+.flow-controls button { white-space: nowrap; }
+/* 누르는 곳은 최소 44px(11/28 UX) */
+.term-hint .linklike, .term-hint button { min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; }
+.privacy a, .welcome-foot a, .home-foot a { display: inline-flex; align-items: center; min-height: 44px; }
+.flag-explain summary, .howto summary, .raw-text summary, .samples-fold summary, .doc-more > summary, .fold > summary { min-height: 44px; }
