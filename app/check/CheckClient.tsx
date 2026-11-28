@@ -78,6 +78,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   // 점검이 되면 입력 칸을 한 줄로 접어 결과가 바로 보이게 한다(R7: 한 페이지가 너무 길었음). '고쳐서 다시 점검'으로 다시 펼친다
   const [inputsOpen, setInputsOpen] = useState(true);
   const [pasteOpen, setPasteOpen] = useState(false);
+  // 방 없이 바로 점검하러 온 사람(경험자 · 채점자)에게는 예시 서류를 펼쳐 둔다 → 첫 화면에서 탭 3번에 결과
+  const [standalone, setStandalone] = useState(false);
   // 한 화면에 카드 하나(D): 서류 넣기(doc) → 내 계약 정보(info). 서류가 들어오면 다음 카드로 넘어간다
   const [pane, setPane] = useState<"doc" | "info">("doc");
   const isSample = samples.some((s) => s.text === text);
@@ -85,7 +87,10 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   useEffect(() => {
     const id = roomIdFrom(window.location.search);
     const found = id ? roomsStore().load().rooms.find((r) => r.id === id) ?? null : null;
-    if (!found) return;
+    if (!found) {
+      setStandalone(true);
+      return;
+    }
     setRoom(found);
     setForm((f) => (f.myDeposit ? f : { ...f, myDeposit: String(found.deposit) }));
   }, []);
@@ -376,8 +381,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         {/* 진짜 서류를 넣었으면 샘플은 숨긴다("샘플도 눌러야 하나?" 헷갈리지 않게) */}
         {!fromPdf && (
           <>
-            {/* 실제 서류가 주인공. 예시는 등기부가 없는 사람만 펼쳐 보게(방에서 점검할 때는 접어 둠) */}
-            <details className="samples-fold">
+            {/* 실제 서류가 주인공. 방에서 점검할 때는 예시를 접어 두고, 방 없이 왔으면 펼쳐 둔다 */}
+            <details className="samples-fold" open={standalone}>
               <summary>등기부등본이 아직 없나요? 예시 서류로 먼저 보기</summary>
               <div className="samples">
                 {samples.map((s) => (
