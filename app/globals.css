@@ -745,7 +745,11 @@ input[type="checkbox"] { accent-color: var(--accent); }
 @keyframes sheet-in { from { transform: translateY(24px); opacity: 0.6; } to { transform: none; opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .toast, .sheet { animation: none; } }
 /* 체크리스트 = 한 줄 목록(카드 하나 안에 줄을 나눔) */
-.checklist { gap: 0 !important; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; background: var(--surface); }
+/* overflow: hidden을 쓰면 용어 말풍선이 목록 밖으로 못 나와 잘린다 → 모서리는 첫 · 끝 줄에만 둥글게 */
+.checklist { gap: 0 !important; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); }
+.checklist > li:first-child { border-radius: 16px 16px 0 0 !important; }
+.checklist > li:last-child { border-radius: 0 0 16px 16px !important; }
+.checklist > li:only-child { border-radius: 16px !important; }
 .checklist > li { border: 0 !important; border-radius: 0 !important; border-top: 1px solid var(--border) !important; padding: 0 !important; background: var(--surface); }
 .checklist > li:first-child { border-top: 0 !important; }
 .checklist > li.done { background: var(--safe-bg) !important; }
