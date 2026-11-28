@@ -40,27 +40,25 @@ describe("계약 과정 미리보기 (/guide)", () => {
   });
 });
 
-describe("6단계 목록", () => {
-  it("1 · 2단계를 다 했으면 3단계가 '지금 할 차례'", async () => {
-    const checked = Object.fromEntries(
-      steps.slice(0, 2).flatMap((s) => s.items.map((i) => [`${s.id}.${i.id}`, true])),
-    );
-    seed({ branch: "direct", checked });
+describe("방 없이 보는 계약까지 가는 길 (/steps)", () => {
+  it("처음엔 1단계가 지금 할 일, 3단계부터는 잠겨 있다(경험자도 같음)", async () => {
+    seed({ mode: "experienced" });
     render(<StepsClient steps={steps} branches={branches} />);
-    const current = await screen.findByText("지금 할 차례");
-    expect(current.closest("a")?.getAttribute("href")).toBe("/steps/3");
-    expect(screen.getByText(/6단계 중 2단계 완료/)).toBeTruthy();
-  });
-});
-
-describe("해 봤어요(경험자) 6단계 목록", () => {
-  it("경험자도 '건너뛰어도 돼요' 없이 6단계 모두, 등기부등본 바로 점검은 맨 위에", async () => {
-    seed({ mode: "experienced", branch: "broker" });
-    render(<StepsClient steps={steps} branches={branches} />);
-    expect((await screen.findByRole("link", { name: "등기부등본만 바로 점검" })).getAttribute("href")).toBe("/check");
+    const path = await screen.findByRole("list", { name: "계약까지 가는 길" });
+    expect(within(path).getByRole("heading", { name: "준비" })).toBeTruthy();
+    expect(within(path).getByRole("link", { name: "이 단계 시작하기 →" }).getAttribute("href")).toBe("/steps/1");
+    expect(within(path).getByRole("button", { name: "3. 집 보러 가기" })).toBeTruthy();
     expect(screen.queryByText(/건너뛰어도 돼요/)).toBeNull();
-    expect(screen.getByText("지금 할 차례").closest("a")?.getAttribute("href")).toBe("/steps/1");
-    expect(screen.getByText(/6단계 중 0단계 완료/)).toBeTruthy();
+    expect(screen.getByRole("link", { name: "등기부등본만 바로 점검" }).getAttribute("href")).toBe("/check");
+  });
+
+  it("1 · 2단계를 다 했으면 지금 할 일은 '방 담기'", async () => {
+    const checked = Object.fromEntries(steps.slice(0, 2).flatMap((s) => s.items.map((i) => [`${s.id}.${i.id}`, true])));
+    seed({ checked });
+    render(<StepsClient steps={steps} branches={branches} />);
+    expect(await screen.findByRole("heading", { name: "방을 찾았나요?" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "다음: 방 담기 →" }).getAttribute("href")).toBe("/rooms/new");
+    expect(screen.getByRole("link", { name: /1\. 준비 · 다시 보기/ }).getAttribute("href")).toBe("/steps/1");
   });
 });
 

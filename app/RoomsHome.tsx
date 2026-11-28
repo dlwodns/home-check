@@ -95,11 +95,10 @@ export default function RoomsHome() {
                         <span className="pill pill-none">점검 전</span>
                       )}
                     </span>
-                    <span className="room-line">{checkLine(r.check)}</span>
-                    <span className="room-next">다음 할 일: {nextAction(r, progress.mode, steps, branches).text}</span>
+                    {/* 카드 한 장에 같은 말을 두 번 쓰지 않는다(11/28 UX): 점검 결과 한 줄(있을 때만) + 지금 단계 한 줄 + 막대 */}
+                    {r.check && <span className="room-line">{checkLine(r.check)}</span>}
+                    <span className="room-next">{current ? `지금 ${current.no}단계 · ${current.title}` : nextAction(r, progress.mode, steps, branches).text}</span>
                     <StepBar segs={segs} />
-                    {/* 다음 할 일이 이미 '지금 단계'를 말하면 같은 줄을 또 쓰지 않는다 */}
-                    {!r.check && current && <span className="small muted">지금 {current.no}단계 · {current.title}</span>}
                   </Link>
                 </li>
               );

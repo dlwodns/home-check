@@ -116,10 +116,10 @@ describe("방 상세", () => {
     expect(await screen.findByRole("heading", { name: "정문 원룸" })).toBeTruthy();
     const path = screen.getByRole("list", { name: "계약까지 가는 길" });
     expect(within(path).getByText(/준비 · 집 찾기 · 방을 찾았으니 끝났어요/)).toBeTruthy();
-    expect(within(path).getByRole("heading", { name: "3단계 · 집 보러 가기" })).toBeTruthy();
-    expect(within(path).getByRole("link", { name: "다음: 집 보러 가기 →" }).getAttribute("href")).toBe("/steps/3?room=r1");
-    // 아직 안 온 단계는 링크가 아니다(앞 단계부터 차례대로)
-    expect(within(path).getByText("4. 계약 전 서류 확인").closest("a")).toBeNull();
+    expect(within(path).getByRole("heading", { name: "집 보러 가기" })).toBeTruthy();
+    expect(within(path).getByRole("link", { name: "이 단계 시작하기 →" }).getAttribute("href")).toBe("/steps/3?room=r1");
+    // 아직 안 온 단계는 링크가 아니고, 누르면 '앞 단계부터'라고 알린다
+    expect(within(path).getByRole("button", { name: "4. 계약 전 서류 확인" })).toBeTruthy();
     expect(within(path).getAllByRole("link")).toHaveLength(1);
     expect(screen.queryByText("이 방 전부 보기")).toBeNull();
   });
@@ -243,7 +243,7 @@ describe("오늘은 여기까지 · 그날 만나요", () => {
     render(<RoomDetailClient steps={steps} branches={branches} />);
     await user.click(await screen.findByRole("button", { name: "📅 오늘은 여기까지 · 그날 정하기" })); // 처음엔 한 줄로 접혀 있다
     expect(screen.getByText("오늘은 여기까지 해도 괜찮아요")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "3단계 · 집 보러 가기" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "집 보러 가기" })).toBeTruthy();
     fireEvent.change(screen.getByLabelText(/집 보러 가는 날/), { target: { value: "2099-12-01" } });
     await user.click(screen.getByRole("button", { name: "이날로 정하기" }));
     expect(screen.getByText(/12월 1일\(.\)에 만나요/)).toBeTruthy();
@@ -540,7 +540,8 @@ describe("홈: 이어하기 · 다음 할 일", () => {
     expect(cont.getAttribute("href")).toBe("/room?id=r2");
     expect(cont.textContent).toContain("3단계 · 집 보러 가기");
     const card = screen.getByRole("link", { name: /정문 원룸.*보증금/ });
-    expect(card.textContent).toContain("다음 할 일: 3단계 · 집 보러 가기");
+    expect(card.textContent).toContain("지금 3단계 · 집 보러 가기");
+    expect(card.textContent).not.toContain("다음 할 일:"); // 같은 말 두 번 X
   });
 
   it("방 화면을 열면 '지난번 본 방'으로 기억한다", async () => {

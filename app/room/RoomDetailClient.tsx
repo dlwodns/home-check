@@ -9,6 +9,8 @@ import { useEffect, useState } from "react";
 import type { Branch as BranchContent, Step } from "@/lib/content";
 import { removeRoom, updateRoom, withRoom } from "@/lib/store/rooms";
 import PlanCard from "../ui/PlanCard";
+import PathList from "../ui/PathList";
+import { toast } from "../ui/Toast";
 import { headline } from "@/lib/registry/goodPoints";
 import { focusTask, moneyLine, rememberLastRoom, roomSteps, toCheckCount, VERDICT_TEXT } from "../ui/roomView";
 import { roomsStore, useProgress } from "../ui/useProgress";
@@ -29,6 +31,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
     const store = roomsStore();
     store.save(updateRoom(store.load(), room.id, (r) => ({ ...r, dates: { ...(r.dates ?? {}), [stepId]: date } })));
     setDates((d) => ({ ...d, [stepId]: date }));
+    toast("그날을 저장했어요");
   };
   useEffect(() => {
     if (room) rememberLastRoom(room.id);
@@ -57,9 +60,13 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
 
   const del = () => {
     const s = roomsStore();
-    s.save(removeRoom(s.load(), room.id));
+    const before = s.load();
+    s.save(removeRoom(before, room.id));
+    // 실수로 지웠을 때 바로 되돌릴 수 있게(5초)
+    toast("방을 지웠어요", { label: "되돌리기", run: () => { roomsStore().save(before); window.location.reload(); } });
     router.push("/");
   };
+
 
   return (
     <main className="container check room-detail">
@@ -74,62 +81,41 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
       </p>
 
       {/* 진행 막대는 아래 길(동그라미)과 같은 말이라 뺐다(11/28 단순하게) */}
-      <ol className="path" aria-label="계약까지 가는 길">
-        {skipped.length > 0 && (
-          <li className="path-step path-skipped">
-            <span className="path-dot" aria-hidden="true">✓</span>
-            <span className="path-body">
-              <span className="small muted">
-                {skipped.map((s) => s.title).join(" · ")} · 방을 찾았으니 끝났어요
-              </span>
-            </span>
-          </li>
-        )}
-        {active.map((s) => {
-          const st = stats.perStep[s.no - 1];
-          const isCurrent = current?.no === s.no;
-          const done = st.done === st.total && !isCurrent;
-          const locked = !isCurrent && !done;
-          const verdict = s.key && check ? (
-            <span className={`small verdict-${check.verdict}`}>
-              등기부 {VERDICT_TEXT[check.verdict].label} · {headline(check.verdict, toCheckCount(check))}
-            </span>
-          ) : null;
-          if (isCurrent && task.kind === "step")
-            return (
-              <li key={s.id} className="path-step path-current" aria-current="step">
-                <span className="path-dot" aria-hidden="true">{s.no}</span>
-                <div className="path-body card focus-card">
-                  <p className="focus-kicker">지금 할 일</p>
-                  <h2>{task.title}</h2>
-                  <p className="focus-why">{task.why}</p>
-                  {verdict}
-                  <Link href={task.href} className="primary-link">
-                    {task.cta}
-                  </Link>
-                  <PlanCard key={s.id} step={s} date={dates[s.id]} roomLabel={room.label} roomId={room.id} onSave={(d) => saveDate(s.id, d)} />
-                </div>
-              </li>
-            );
-          return (
-            <li key={s.id} className={`path-step ${done ? "path-done" : "path-locked"}`}>
-              <span className="path-dot" aria-hidden="true">{done ? "✓" : s.no}</span>
-              <span className="path-body">
-                {locked ? (
-                  <span className="path-title muted">
-                    {s.no}. {s.title}
-                  </span>
-                ) : (
-                  <Link href={r(`/steps/${s.no}`)} className="path-title">
-                    {s.no}. {s.title} <span className="small muted">· 다시 보기</span>
-                  </Link>
-                )}
-                {verdict}
-              </span>
-            </li>
-          );
-        })}
-      </ol>
+      <PathList
+        rows={[
+          ...(skipped.length ? [{ key: "skipped", no: "✓" as const, title: `${skipped.map((x) => x.title).join(" · ")} · 방을 찾았으니 끝났어요`, status: "skipped" as const }] : []),
+          ...active.map((x) => {
+            const st = stats.perStep[x.no - 1];
+            const isCurrent = current?.no === x.no;
+            const status = isCurrent ? ("current" as const) : st.done === st.total ? ("done" as const) : ("locked" as const);
+            const verdict =
+              x.key && check ? (
+                <span className={`small verdict-${check.verdict}`}>
+                  등기부 {VERDICT_TEXT[check.verdict].label} · {headline(check.verdict, toCheckCount(check))}
+                </span>
+              ) : null;
+            return { key: x.id, no: x.no, title: x.title, status, href: r(`/steps/${x.no}`), caption: verdict, lockedHint: `${current ? `${current.no}단계 · ${current.title}` : "앞 단계"}부터 차례대로 해요` };
+          }),
+        ]}
+        current={
+          task.kind === "step" ? (
+            <>
+              <p className="focus-kicker">지금 할 일 · {task.step.no} / 6</p>
+              <h2>{task.step.title}</h2>
+              <p className="focus-why">{task.why}</p>
+              {check && task.step.key && (
+                <span className={`small verdict-${check.verdict}`}>
+                  등기부 {VERDICT_TEXT[check.verdict].label} · {headline(check.verdict, toCheckCount(check))}
+                </span>
+              )}
+              <Link href={task.href} className="primary-link">
+                이 단계 시작하기 →
+              </Link>
+              <PlanCard key={task.step.id} step={task.step} date={dates[task.step.id]} roomLabel={room.label} roomId={room.id} onSave={(d) => saveDate(task.step.id, d)} />
+            </>
+          ) : null
+        }
+      />
 
       {task.kind === "done" && (
         <div className="done-card" role="status">

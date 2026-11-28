@@ -18,6 +18,7 @@ import PriorDepositGuide from "../../ui/PriorDepositGuide";
 import HelpCard from "../../ui/HelpCard";
 import TrafficLight from "../../ui/TrafficLight";
 import { roomsStore, useProgress } from "../../ui/useProgress";
+import { toast } from "../../ui/Toast";
 import { toCheckCount } from "../../ui/roomView";
 import HomeLink from "../../ui/HomeLink";
 import ActionBar from "../../ui/ActionBar";
@@ -65,6 +66,7 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
         return { ...x, notes: n };
       }),
     );
+    toast(value ? "알아낸 것을 저장했어요" : "지웠어요");
     setNotes((n) => {
       const m = { ...n };
       if (value) m[key] = value;
