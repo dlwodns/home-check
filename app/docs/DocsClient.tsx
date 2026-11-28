@@ -112,11 +112,6 @@ export function DocGroup({
                   <strong>{item.title}</strong>
                 </label>
                 <span className="small muted">{item.why}</span>
-                {item.room && roomId && (
-                  <Link href={withRoom("/steps/4", roomId)} className="nav-btn nav-btn-sm">
-                    다음: 4단계 특약 문장 →
-                  </Link>
-                )}
                 {/* 어디서 · 얼마 · 근거는 펼쳐야 보이게(11/28 첫 화면 글자 줄이기) */}
                 {(item.where || item.cost || item.sources.length > 0 || item.guide) && (
                   <details className="doc-more">

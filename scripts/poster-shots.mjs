@@ -49,7 +49,7 @@ const sampleAsDoc = async (label) => {
 await sampleAsDoc("주의 샘플");
 // 휴대폰 프레임용 화면(phone-*): 한 화면 높이로 잘라 히어로에 나란히 놓는다
 await from("result", p.locator("h2,h3", { hasText: "계약 전에 확인할 것이" }).first(), 75);
-await from("next", p.locator("h2,h3", { hasText: "다음에 할 일" }).first(), 16);
+await from("next", p.locator("h2,h3", { hasText: "결과에 맞춘 할 일" }).first(), 16);
 await p.waitForTimeout(1500);
 // 포스터에서 1m 거리로 읽히도록 핵심만 크게 자른 것(zoom-*): 신호등 판정 + 3줄 요약, 집주인에게 물어볼 말
 const box = async (loc) => { const b = await loc.boundingBox(); const y = await p.evaluate(() => scrollY); return { top: b.y + y, bottom: b.y + y + b.height }; };

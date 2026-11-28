@@ -64,7 +64,7 @@ await step("서류를 올린 것처럼 점검하면 방에 저장되고 홈 카�
   await p.getByRole("button", { name: /다음: 내 계약 정보/ }).click();
   await p.getByRole("button", { name: "점검하기" }).click();
   await expectText(p, /점검용 방.*에 저장했어요|에 저장했어요/);
-  await p.getByRole("link", { name: "다음: 계약 전 서류 확인 →" }).click(); // 점검 뒤에는 4단계로 돌아간다
+  await p.getByRole("link", { name: "다음: 결과에 맞춘 할 일 →" }).click(); // 점검 뒤에는 4단계로 돌아간다
   await p.waitForURL(/steps\/4/);
   await expectText(p, "계약 전에 확인할 것이 1가지 있어요");
   await p.goto(U + "/", { waitUntil: "networkidle" });

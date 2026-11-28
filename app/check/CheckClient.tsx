@@ -455,6 +455,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       {outcome?.ok && (
         <Result
           key={run}
+          showNext={!room || isSample}
           outcome={outcome}
           editedFields={editedFields}
           confirmed={confirmed}
@@ -475,10 +476,10 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           <h2>다음 단계</h2>
           {room && !isSample ? (
             <>
-              <Link href={withRoom("/steps/4", room.id)} className="primary-link">
-                다음: 계약 전 서류 확인 →
+              <Link href={`${withRoom("/steps/4", room.id)}#next-title`} className="primary-link">
+                다음: 결과에 맞춘 할 일 →
               </Link>
-              <p className="small muted">이 결과에 맞춘 질문 · 특약이 4단계에 이어져요.</p>
+              <p className="small muted">집주인에게 물어볼 말 · 특약을 4단계(계약 전 서류 확인)에서 이어서 챙겨요.</p>
               {/* 갈래길: 위험이면 이 방을 계속 볼지 묻는다(그만 보면 다른 방 담기로) */}
               {outcome.result.verdict === "danger" && (
                 <>
@@ -526,6 +527,7 @@ export function editedFieldsOf(original: RegistryRead | null, edited: RegistryRe
 }
 
 function Result({
+  showNext,
   outcome,
   editedFields,
   confirmed,
@@ -533,6 +535,8 @@ function Result({
   onEdit,
   onConfirm,
 }: {
+  /** 방에서 실제 서류로 점검했으면 false: 결과에 맞춘 할 일은 4단계에서 한 번만 보여 준다(같은 내용 두 번 X) */
+  showNext: boolean;
   outcome: Extract<CheckOutcome, { ok: true }>;
   editedFields: string[];
   confirmed: boolean;
@@ -663,7 +667,7 @@ function Result({
         <HelpCard />
       </details>
 
-      <NextActions actions={actions} termHint={!firstHasTerm} />
+      {showNext && <NextActions actions={actions} termHint={!firstHasTerm} />}
     </section>
   );
 }

@@ -55,7 +55,7 @@ describe("등기부등본 점검 화면", () => {
     render(<CheckClient samples={samples} />);
     await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
-    const next = screen.getByRole("region", { name: "다음에 할 일" });
+    const next = screen.getByRole("region", { name: "결과에 맞춘 할 일" });
     expect(next.querySelector(".term-hint")).toBeTruthy();
     expect([...next.querySelectorAll(".bubble button")].map((b) => b.textContent).join(" ")).toMatch(/근저당/);
   });
@@ -192,7 +192,7 @@ describe("다음 행동 카드", () => {
     await user.click(screen.getByRole("button", { name: "예시 서류 3" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
 
-    expect(screen.getByRole("heading", { name: "다음에 할 일" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "결과에 맞춘 할 일" })).toBeTruthy();
     expect(screen.getByText(/2026년 9월 1일에 집주인이 바뀌었더라고요/)).toBeTruthy();
     expect(screen.getByRole("heading", { name: "계약서 특약에 이렇게 적어요" })).toBeTruthy();
     const summary = document.querySelector(".summary")!.textContent!;

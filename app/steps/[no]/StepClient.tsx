@@ -20,7 +20,7 @@ import TrafficLight from "../../ui/TrafficLight";
 import { roomsStore, useProgress } from "../../ui/useProgress";
 import { toCheckCount } from "../../ui/roomView";
 import HomeLink from "../../ui/HomeLink";
-import NextActions from "../../check/NextActions";
+import NextActions, { RequestCard } from "../../check/NextActions";
 import RentCard from "../../room/RentCard";
 import { DocGroup, docKey, visibleDocs } from "../../docs/DocsClient";
 import BackButton from "../../ui/Back";
@@ -92,7 +92,7 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
         <TrafficLight verdict={check.verdict} />
         <p className="small strong">{headline(check.verdict, toCheckCount(check))}</p>
       </div>
-      <p className="small muted">{check.asOf} 점검 · 아래 &apos;다음에 할 일&apos;로 이어져요</p>
+      <p className="small muted">{check.asOf} 점검 · 아래 &apos;결과에 맞춘 할 일&apos;로 이어져요</p>
       <Link href={checkHref} className="nav-btn nav-btn-sm">
         다시 점검하기
       </Link>
@@ -164,6 +164,17 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
       )}
 
       {/* 받을 서류 · 챙길 것은 접어 둔다(지금 할 일 목록보다 앞에 나서지 않게) */}
+      {/* 5단계: 4단계에서 담은 요청 목록을 그대로 이어서 보며 계약서에 들어갔는지 확인 */}
+      {step.id === "contract" && check && room && (
+        <RequestCard
+          actions={withBranch(check.actions, progress.branch)}
+          picked={progress.checked}
+          title="4단계에서 담은 요청 목록"
+          hint="계약서 특약 · 설명에 들어갔는지 하나씩 확인해요."
+          empty="4단계(계약 전 서류 확인)에서 '요청 목록에 담기'를 누른 것이 여기에 이어져요."
+        />
+      )}
+
       {docGroup && (
         <details className="card fold step-docs">
           <summary>
@@ -182,14 +193,14 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
         </p>
       )}
       <nav className="step-nav" aria-label="단계 이동">
-        {prev ? <Link href={r(`/steps/${prev.no}`)}>← 이전: {prev.title}</Link> : room ? <Link href={backHref}>← 방으로</Link> : <span />}
+        {prev ? <Link href={r(`/steps/${prev.no}`)}>← 이전: {prev.title}</Link> : room ? <Link href={backHref}>← 이전: 계약까지 가는 길</Link> : <span />}
         {/* 방 없이 1 · 2단계(준비 · 집 찾기)를 하면, 집 찾기 다음은 방 담기(3단계부터는 방마다 한다) */}
         {!room && step.no === 2 ? (
           <Link href="/rooms/new">다음: 방 담기 →</Link>
         ) : next ? (
           <Link href={r(`/steps/${next.no}`)}>다음: {next.title} →</Link>
         ) : (
-          <Link href={backHref}>{room ? "다음: 완료 →" : "다음: 진행 보기 →"}</Link>
+          <Link href={backHref}>{room ? "다음: 계약까지 가는 길 →" : "다음: 내 계약 진행 →"}</Link>
         )}
       </nav>
     </main>

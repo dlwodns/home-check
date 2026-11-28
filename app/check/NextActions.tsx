@@ -154,9 +154,6 @@ export default function NextActions({
     if (onPick) onPick(key, value);
     else setLocalPicked((p) => ({ ...p, [key]: value }));
   };
-  const pickedQuestions = actions.questions.filter((q) => picked[reqKey("q", q)]);
-  const pickedClauses = actions.clauses.filter((c) => picked[reqKey("c", c.id)]);
-  const request = requestText(pickedQuestions, pickedClauses);
   // 질문 · 할 일 문장의 어려운 말(근저당 · 말소 …)도 눌러서 뜻을 볼 수 있게. 같은 말은 처음 나올 때만
   const segs = splitAll([...actions.questions, ...actions.todos]);
   const qSeg = (i: number) => segs[i];
@@ -165,7 +162,7 @@ export default function NextActions({
 
   return (
     <section className="next" aria-labelledby="next-title">
-      <h2 id="next-title">다음에 할 일</h2>
+      <h2 id="next-title">결과에 맞춘 할 일</h2>
       {termHint && hasTerm && <TermHint />}
 
       {actions.questions.length > 0 && (
@@ -229,27 +226,7 @@ export default function NextActions({
         </ul>
       </details>
 
-      <div className="card request" aria-live="polite">
-        <h3>
-          내 요청 목록 <span className="accent">{pickedQuestions.length + pickedClauses.length}</span>
-        </h3>
-        {request ? (
-          <>
-            <p className="small muted">집주인 · 중개사에게 한 번에 보내거나, 계약하는 날 보면서 하나씩 확인해요.</p>
-            <pre className="summary">{request}</pre>
-            <div className="row-buttons">
-              <CopyButton text={request} label="목록 복사" />
-              {canShare && (
-                <button type="button" className="ghost" onClick={() => navigator.share({ title: "계약 전 요청 목록", text: request }).catch(() => {})}>
-                  보내기
-                </button>
-              )}
-            </div>
-          </>
-        ) : (
-          <p className="small muted">위의 질문 · 특약에서 &apos;요청 목록에 담기&apos;를 누르면 여기에 모여요.</p>
-        )}
-      </div>
+      <RequestCard actions={actions} picked={picked} />
 
       <details className="card parent fold">
         <summary>
@@ -272,5 +249,51 @@ export default function NextActions({
         </div>
       </details>
     </section>
+  );
+}
+
+/**
+ * 요청 목록(질문 · 특약에서 '요청 목록에 담기'한 것). 4단계(결과에 맞춘 할 일)에서 담고,
+ * 5단계(계약하는 날)에서는 같은 목록을 보며 계약서에 들어갔는지 확인한다.
+ */
+export function RequestCard({
+  actions,
+  picked,
+  title = "내 요청 목록",
+  hint = "집주인 · 중개사에게 한 번에 보내거나, 계약하는 날 보면서 하나씩 확인해요.",
+  empty = "위의 질문 · 특약에서 '요청 목록에 담기'를 누르면 여기에 모여요.",
+}: {
+  actions: Actions;
+  picked: Record<string, boolean>;
+  title?: string;
+  hint?: string;
+  empty?: string;
+}) {
+  const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
+  const pickedQuestions = actions.questions.filter((q) => picked[reqKey("q", q)]);
+  const pickedClauses = actions.clauses.filter((c) => picked[reqKey("c", c.id)]);
+  const request = requestText(pickedQuestions, pickedClauses);
+  return (
+    <div className="card request" aria-live="polite">
+      <h3>
+        {title} <span className="accent">{pickedQuestions.length + pickedClauses.length}</span>
+      </h3>
+      {request ? (
+        <>
+          <p className="small muted">{hint}</p>
+          <pre className="summary">{request}</pre>
+          <div className="row-buttons">
+            <CopyButton text={request} label="목록 복사" />
+            {canShare && (
+              <button type="button" className="ghost" onClick={() => navigator.share({ title: "계약 전 요청 목록", text: request }).catch(() => {})}>
+                보내기
+              </button>
+            )}
+          </div>
+        </>
+      ) : (
+        <p className="small muted">{empty}</p>
+      )}
+    </div>
   );
 }
