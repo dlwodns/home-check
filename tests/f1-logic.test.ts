@@ -114,11 +114,11 @@ describe("진행 계산", async () => {
     expect(withOptional.perStep[0].total).toBe(prepare.items.length);
   });
 
-  it("'해 봤어요'면 1–3단계는 건너뛰기: 진행률에서 빠지고 4단계가 지금 할 차례", () => {
+  it("'해 봤어요'여도 단계를 빼지 않는다(아는 것과 그 방에서 할 일은 다르다): 6단계 모두, 1단계부터", () => {
     const s = stepStats(steps, branches, { ...EMPTY_PROGRESS, mode: "experienced" });
-    expect(s.perStep.filter((x) => x.skipped).map((x) => x.no)).toEqual([1, 2, 3]);
-    expect(s.activeSteps).toBe(3);
-    expect(s.current).toBe(4);
+    expect(s.perStep.filter((x) => x.skipped)).toEqual([]);
+    expect(s.activeSteps).toBe(6);
+    expect(s.current).toBe(1);
   });
 
   it("전부 하면 지금 할 차례가 없다(null)", () => {

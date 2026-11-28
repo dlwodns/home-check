@@ -39,7 +39,6 @@ export interface Step {
   summary: string;
   key?: boolean;
   /** '해 봤어요'로 들어온 사람은 건너뛰어도 되는 단계 */
-  experienced_skip?: boolean;
   items: ChecklistItem[];
 }
 

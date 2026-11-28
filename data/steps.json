@@ -1,5 +1,5 @@
 {
-  "_note": "F1 계약 단계 길잡이의 6단계 (PRD 5절 F1 표). items의 sources는 data/sources.json의 id. optional: 해당 없는 사람도 있어 체크 안 해도 진행률에서 빼는 항목. experienced_skip: '해 봤어요'로 들어온 사람에게는 건너뛰어도 되는 단계로 접어 보여 줌.",
+  "_note": "F1 계약 단계 길잡이의 6단계 (PRD 5절 F1 표). items의 sources는 data/sources.json의 id. optional: 해당 없는 사람도 있어 체크 안 해도 진행률에서 빼는 항목.",
   "steps": [
     {
       "id": "prepare",
@@ -27,8 +27,7 @@
           "sources": [],
           "optional": true
         }
-      ],
-      "experienced_skip": true
+      ]
     },
     {
       "id": "search",
@@ -56,8 +55,7 @@
             "S3"
           ]
         }
-      ],
-      "experienced_skip": true
+      ]
     },
     {
       "id": "visit",
@@ -97,8 +95,7 @@
           "good": "창문을 닫으면 바깥 소리가 거의 안 들려요",
           "bad": "옆집 소리 · 술집 · 큰 도로 → 밤 9시 뒤에 한 번 더 보기"
         }
-      ],
-      "experienced_skip": true
+      ]
     },
     {
       "id": "documents",

@@ -185,13 +185,13 @@ describe("카드 · 상세 표시 계산", () => {
     expect(moneyLine({ deposit: 20000, rent: null })).toBe("보증금 2억 원");
   });
 
-  it("진행 막대: 방 안에서는 1 · 2단계를 건너뛰고 3단계(집 보러 가기)부터, 해 봤어요면 1–3단계 건너뜀", () => {
+  it("진행 막대: 방 안에서는 1 · 2단계가 끝난 것으로 3단계(집 보러 가기)부터, 해 봤어요여도 같다(집 보러 가기는 방마다)", () => {
     const first = roomSteps(room(), "first", steps, branches);
     expect(first.segs).toEqual(["skipped", "skipped", "current", "todo", "todo", "todo"]);
     expect(first.current?.no).toBe(3);
     const exp = roomSteps(room(), "experienced", steps, branches);
-    expect(exp.segs.slice(0, 3)).toEqual(["skipped", "skipped", "skipped"]);
-    expect(exp.current?.no).toBe(4);
+    expect(exp.segs).toEqual(first.segs);
+    expect(exp.current?.no).toBe(3);
   });
 
   it("방의 진행 상황은 방의 갈래 · 체크와 사람의 모드를 합친 것", () => {

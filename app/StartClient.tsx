@@ -50,7 +50,7 @@ export default function StartClient() {
         </button>
         <button type="button" className="choice" onClick={() => go("experienced")}>
           <strong>해 봤어요</strong>
-          <span>필요한 단계나 서류 점검으로 바로 가요</span>
+          <span>6단계 목록에서 필요한 곳부터 봐요</span>
         </button>
       </div>
 

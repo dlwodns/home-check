@@ -115,7 +115,7 @@ describe("방 상세", () => {
     render(<RoomDetailClient steps={steps} branches={branches} />);
     expect(await screen.findByRole("heading", { name: "정문 원룸" })).toBeTruthy();
     const path = screen.getByRole("list", { name: "계약까지 가는 길" });
-    expect(within(path).getByText(/준비 · 집 찾기 · 방을 찾았으니 건너뛰었어요/)).toBeTruthy();
+    expect(within(path).getByText(/준비 · 집 찾기 · 방을 찾았으니 끝났어요/)).toBeTruthy();
     expect(within(path).getByRole("heading", { name: "3단계 · 집 보러 가기" })).toBeTruthy();
     expect(within(path).getByRole("link", { name: "다음: 집 보러 가기 →" }).getAttribute("href")).toBe("/steps/3?room=r1");
     // 아직 안 온 단계는 링크가 아니다(앞 단계부터 차례대로)
@@ -401,9 +401,9 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     const user = userEvent.setup();
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
-    expect(screen.getByRole("heading", { name: "집 계약, 해 본 적 있어요?" })).toBeTruthy();
-    expect(screen.getByText(/아는 단계\(준비 · 집 찾기 · 집 보기\)는 접어 둘게요/)).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "해 봤어요 · 건너뛰기" }));
+    expect(screen.getByRole("heading", { name: "집 구하는 과정, 먼저 볼까요?" })).toBeTruthy();
+    expect(screen.getByText(/처음이라면 먼저 보는 걸 추천해요/)).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "해 봤어요 · 바로 방 담기" }));
     expect(push).toHaveBeenCalledWith("/rooms/new");
     expect(localStorage.getItem("homecheck.entered.v1")).toBe("1");
     expect(JSON.parse(localStorage.getItem("homecheck.progress.v1")!).mode).toBe("experienced");
@@ -414,7 +414,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     const user = userEvent.setup();
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
-    await user.click(screen.getByRole("button", { name: "처음이에요 · 과정 먼저 알아보기" }));
+    await user.click(screen.getByRole("button", { name: "처음이에요 · 과정 먼저 보기" }));
     expect(screen.getByRole("region", { name: "집 계약 과정 미리보기" })).toBeTruthy();
     expect(JSON.parse(localStorage.getItem("homecheck.progress.v1")!).mode).toBe("first");
     const go = screen.getByRole("link", { name: "다음: 방 담기 →" });
@@ -428,7 +428,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     const user = userEvent.setup();
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
-    await user.click(screen.getByRole("button", { name: "처음이에요 · 과정 먼저 알아보기" }));
+    await user.click(screen.getByRole("button", { name: "처음이에요 · 과정 먼저 보기" }));
     expect(screen.getByRole("link", { name: "다음: 방 찾기부터 →" }).getAttribute("href")).toBe("/steps/1");
     expect(screen.queryByText(/6단계 미리 보기/)).toBeNull();
     cleanup();
@@ -636,12 +636,16 @@ describe("한 길: 돌아가기 · 이어 가기 (11/28)", () => {
     expect(screen.getByRole("link", { name: "← 이전: 계약하는 날" }).getAttribute("href")).toBe("/steps/5?room=r1");
   });
 
-  it("해 봤어요(1–3단계 건너뜀)면 4단계의 이전은 '← 방으로'", async () => {
+  it("해 봤어요여도 방 안 3단계의 이전은 '← 방으로'(1 · 2단계는 방을 찾았으니 끝남), 4단계의 이전은 3단계", async () => {
     localStorage.setItem(PROGRESS, JSON.stringify({ v: 1, mode: "experienced", branch: null, checked: {} }));
     seedRooms(baseRoom);
+    at("steps/3?room=r1");
+    render(<StepClient step={steps[2]} total={steps.length} branches={branches} steps={steps} />);
+    expect((await screen.findByRole("link", { name: "← 방으로" })).getAttribute("href")).toBe("/room?id=r1");
+    cleanup();
     at("steps/4?room=r1");
     render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
-    expect((await screen.findByRole("link", { name: "← 방으로" })).getAttribute("href")).toBe("/room?id=r1");
+    expect((await screen.findByRole("link", { name: "← 이전: 집 보러 가기" })).getAttribute("href")).toBe("/steps/3?room=r1");
   });
 
   it("방 안에서 6단계 목록을 열면 방(길)으로 보낸다", async () => {

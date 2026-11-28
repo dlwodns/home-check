@@ -14,7 +14,7 @@ import BackButton from "../ui/Back";
 const BRANCH_LABEL = { broker: "중개사를 통해서", direct: "직거래", none: "아직 방을 못 찾음" } as const;
 
 export default function StepsClient({ steps, branches }: { steps: Step[]; branches: Branch[] }) {
-  const { progress, update, loaded, room, roomId } = useProgress();
+  const { progress, loaded, room, roomId } = useProgress();
   const router = useRouter();
   // 한 길(11/28): 방 안에서는 6단계 목록 대신 방 화면(길)이 같은 일을 한다 → 그쪽으로 보낸다
   useEffect(() => {
@@ -60,17 +60,6 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
         등기부등본 바로 점검하기
       </Link>
 
-      {experienced && (
-        <details className="card small">
-          <summary>1–3단계(준비 · 집 찾기 · 집 보러 가기)는 해 봤다면 건너뛰어도 돼요</summary>
-          <p>
-            필요하면 아래 목록에서 눌러 볼 수 있어요. 처음부터 하나씩 보고 싶다면{" "}
-            <button type="button" className="linklike" onClick={() => update((p) => ({ ...p, mode: "first" }))}>
-              처음이에요로 바꾸기
-            </button>
-          </p>
-        </details>
-      )}
 
       <ol className="steps">
         {steps.map((s, i) => {
@@ -89,7 +78,6 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
                 </span>
                 <span className="step-body">
                   {isCurrent && <span className="step-tag">지금 할 차례</span>}
-                  {st.skipped && <span className="step-tag muted">건너뛰어도 돼요</span>}
                   <strong>
                     {s.no}. {s.title}
                   </strong>

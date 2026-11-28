@@ -62,14 +62,14 @@ export default function Welcome({ returning = false, hasRooms = false, onSkip }:
   if (stage === "ask")
     return (
       <main className="welcome welcome-ask">
-        <h1 className="welcome-q">{returning ? "집 구하는 과정, 다시 볼까요?" : "집 계약, 해 본 적 있어요?"}</h1>
-        <p className="muted">{returning ? hasRooms ? "건너뛰면 담아 둔 방으로 바로 가요." : "건너뛰면 홈으로 가요. 관심 있는 방을 바로 담을 수 있어요." : "해 봤다면 아는 단계(준비 · 집 찾기 · 집 보기)는 접어 둘게요."}</p>
+        <h1 className="welcome-q">{returning ? "집 구하는 과정, 다시 볼까요?" : "집 구하는 과정, 먼저 볼까요?"}</h1>
+        <p className="muted">{returning ? hasRooms ? "건너뛰면 담아 둔 방으로 바로 가요." : "건너뛰면 홈으로 가요. 관심 있는 방을 바로 담을 수 있어요." : "처음이라면 먼저 보는 걸 추천해요. 6장이면 끝나요."}</p>
         <div className="welcome-choices">
           <button type="button" className="primary" onClick={() => choose("first")}>
-            {returning ? "과정 알아보기" : "처음이에요 · 과정 먼저 알아보기"}
+            {returning ? "과정 알아보기" : "처음이에요 · 과정 먼저 보기"}
           </button>
           <button type="button" className="ghost welcome-skip" onClick={() => choose("experienced")}>
-            {returning ? "건너뛰기" : "해 봤어요 · 건너뛰기"}
+            {returning ? "건너뛰기" : "해 봤어요 · 바로 방 담기"}
           </button>
         </div>
         <button type="button" className="ghost" onClick={() => setStage("start")}>

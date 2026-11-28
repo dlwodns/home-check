@@ -80,7 +80,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
             <span className="path-dot" aria-hidden="true">✓</span>
             <span className="path-body">
               <span className="small muted">
-                {skipped.map((s) => s.title).join(" · ")} · {progress.mode === "experienced" ? "해 봤으니 건너뛰었어요" : "방을 찾았으니 건너뛰었어요"}
+                {skipped.map((s) => s.title).join(" · ")} · 방을 찾았으니 끝났어요
               </span>
             </span>
           </li>

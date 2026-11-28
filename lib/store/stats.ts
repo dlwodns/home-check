@@ -7,7 +7,7 @@ export interface StepStat {
   no: number;
   done: number;
   total: number;
-  /** '해 봤어요'로 들어와 건너뛰어도 되는 단계(진행률 · 지금 할 차례에서 뺀다) */
+  /** 방 안에서 이미 끝난 단계(방을 찾았으니 준비 · 집 찾기). 진행률 · 지금 할 차례에서 뺀다 */
   skipped: boolean;
 }
 
@@ -28,7 +28,8 @@ export function stepStats(steps: Step[], branches: BranchContent[], progress: Pr
     ];
     // 해당 없을 수 있는 항목은 체크했을 때만 센다(안 해도 불리하지 않게)
     const counted = items.filter((i) => !i.optional || progress.checked[i.key]);
-    const skipped = (progress.mode === "experienced" && Boolean(s.experienced_skip)) || (Boolean(options.inRoom) && s.no <= 2);
+    // 해 봤어요(경험)는 단계를 빼지 않는다: 아는 것과 이 방에서 할 일은 다르다(집 보러 가기는 방마다 해야 함, 11/28)
+    const skipped = Boolean(options.inRoom) && s.no <= 2;
     return { no: s.no, total: counted.length, done: counted.filter((i) => progress.checked[i.key]).length, skipped };
   });
   const active = perStep.filter((s) => !s.skipped);

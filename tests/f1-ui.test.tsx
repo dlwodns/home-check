@@ -81,23 +81,12 @@ describe("6단계 목록", () => {
 });
 
 describe("해 봤어요(경험자) 6단계 목록", () => {
-  it("등기부등본 바로 점검이 맨 위에 있고, 1–3단계는 '건너뛰어도 돼요', 4단계가 지금 할 차례", async () => {
+  it("경험자도 '건너뛰어도 돼요' 없이 6단계 모두, 등기부등본 바로 점검은 맨 위에", async () => {
     seed({ mode: "experienced", branch: "broker" });
     render(<StepsClient steps={steps} branches={branches} />);
-    expect(await screen.findByText(/해 봤다면 건너뛰어도 돼요/)).toBeTruthy();
-    expect(screen.getByRole("link", { name: "등기부등본 바로 점검하기" }).getAttribute("href")).toBe("/check");
-    expect(screen.getAllByText("건너뛰어도 돼요")).toHaveLength(3);
-    expect(screen.getByText("지금 할 차례").closest("a")?.getAttribute("href")).toBe("/steps/4");
-    expect(screen.getByText(/3단계 중 0단계 완료/)).toBeTruthy();
-  });
-
-  it("'처음이에요로 바꾸기'를 누르면 6단계 전체로 돌아간다", async () => {
-    seed({ mode: "experienced" });
-    const user = userEvent.setup();
-    render(<StepsClient steps={steps} branches={branches} />);
-    await user.click(await screen.findByText(/해 봤다면 건너뛰어도 돼요/));
-    await user.click(screen.getByRole("button", { name: "처음이에요로 바꾸기" }));
-    expect(saved().mode).toBe("first");
+    expect((await screen.findByRole("link", { name: "등기부등본 바로 점검하기" })).getAttribute("href")).toBe("/check");
+    expect(screen.queryByText(/건너뛰어도 돼요/)).toBeNull();
+    expect(screen.getByText("지금 할 차례").closest("a")?.getAttribute("href")).toBe("/steps/1");
     expect(screen.getByText(/6단계 중 0단계 완료/)).toBeTruthy();
   });
 });
