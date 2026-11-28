@@ -22,7 +22,7 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-const LABEL: Record<string, string> = { safe: "안전 샘플", caution: "주의 샘플", danger: "위험 샘플" };
+const LABEL: Record<string, string> = { safe: "예시 서류 1", caution: "예시 서류 2", danger: "예시 서류 3" };
 const m = (won: number | null) => (won === null ? "" : String(won / 10_000));
 const samples: Sample[] = expected.samples.map((s) => ({
   label: ("label" in s ? s.label : undefined) ?? LABEL[s.expected.verdict],
@@ -43,20 +43,30 @@ describe("등기부등본 점검 화면", () => {
   it("주의 샘플 → 점검하기 → 주의 · 76% · 참고선 안내", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
-    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(verdictLabel()).toBe("주의");
     expect(screen.getByText("76%")).toBeTruthy();
     expect(screen.getByText(/법으로 정한 기준이 아니라 많이 쓰는 참고선/)).toBeTruthy();
   });
 
+  it("'다음에 할 일'의 질문 속 어려운 말(근저당)도 눌러 뜻을 보고, 그 위에 '단어를 눌러 볼 수 있어요' 안내가 있다 (#9)", async () => {
+    const user = userEvent.setup();
+    render(<CheckClient samples={samples} />);
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    const next = screen.getByRole("region", { name: "다음에 할 일" });
+    expect(next.querySelector(".term-hint")).toBeTruthy();
+    expect([...next.querySelectorAll(".bubble button")].map((b) => b.textContent).join(" ")).toMatch(/근저당/);
+  });
+
   it("점검하면 입력 칸은 한 줄로 접히고, '고쳐서 다시 점검'으로 같은 값이 다시 펼쳐진다 (R7)", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
-    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.queryByRole("button", { name: "점검하기" })).toBeNull();
-    expect(screen.getByLabelText("넣은 서류 · 내 계약 정보").textContent).toMatch(/주의 샘플 · 내 보증금 500만 원 · 시세 \d+억/);
+    expect(screen.getByLabelText("넣은 서류 · 내 계약 정보").textContent).toMatch(/예시 서류 2 · 내 보증금 500만 원 · 시세 \d+억/);
     await user.click(screen.getByRole("button", { name: "고쳐서 다시 점검" }));
     expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("5,000,000");
     expect(verdictLabel()).toBe("주의"); // 펼쳐도 결과는 그대로
@@ -67,7 +77,7 @@ describe("등기부등본 점검 화면", () => {
   it("금액 칸은 원 단위로 쉼표를 넣고, 옆에 읽기 쉬운 금액을 바로바로 보여 준다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
-    await user.click(screen.getByRole("button", { name: "주의 샘플" })); // 서류를 넣어야 '내 계약 정보' 카드로 간다
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" })); // 서류를 넣어야 '내 계약 정보' 카드로 간다
     const dep = screen.getByLabelText("내 보증금 (원)") as HTMLInputElement;
     await user.clear(dep);
     await user.type(dep, "5");
@@ -88,7 +98,7 @@ describe("등기부등본 점검 화면", () => {
     expect(iros.getAttribute("href")).toBe("https://www.iros.go.kr");
     expect(iros.closest("details")).toBeNull();
     expect(screen.getByText("떼는 순서 보기")).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "위험 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 3" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.getByRole("heading", { name: /^이대로 계약하면 위험해요 · 확인할 것 \d+가지$/ })).toBeTruthy();
     expect(screen.queryByText(/원문 확인 중/)).toBeNull();
@@ -97,7 +107,7 @@ describe("등기부등본 점검 화면", () => {
   it("용어 안내는 누를 단어가 보이는 곳에: 펼친 첫 이유에 단어가 없으면 '자세히 보기' 안에 둔다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
-    await user.click(screen.getByRole("button", { name: "위험 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 3" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     const hint = document.querySelector(".term-hint");
     expect(hint).toBeTruthy();
@@ -107,7 +117,7 @@ describe("등기부등본 점검 화면", () => {
   it("3줄 요약은 짧은 제목을 쓴다 (R8: 줄마다 두 줄로 넘치지 않게)", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
-    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.getByText(/가장 먼저: 빚과 보증금이 시세의 70%를 넘어요/)).toBeTruthy();
   });
@@ -115,7 +125,7 @@ describe("등기부등본 점검 화면", () => {
   it("위험 샘플 → 위험, 첫 이유는 '예전 집주인', 근거 링크가 있다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
-    await user.click(screen.getByRole("button", { name: "위험 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 3" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(verdictLabel()).toBe("위험");
     const first = document.querySelector(".flags li")!;
@@ -128,7 +138,7 @@ describe("등기부등본 점검 화면", () => {
     render(<CheckClient samples={samples} />);
     expect(screen.queryByRole("button", { name: /다음: 내 계약 정보/ })).toBeNull();
     expect(screen.queryByLabelText("내 보증금 (원)")).toBeNull(); // 서류 카드만 보인다
-    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     await user.clear(screen.getByLabelText("내 보증금 (원)"));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.getByRole("alert").textContent).toContain("내 보증금을 적어 주세요");
@@ -141,7 +151,7 @@ describe("등기부등본 점검 화면", () => {
   it("못 읽은 칸이 있으면 '안전'이 아니고, 직접 확인했다고 체크하면 경고가 사라진다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
-    await user.click(screen.getByRole("button", { name: "안전 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 1" }));
     await user.click(screen.getByRole("button", { name: /서류 바꾸기/ }));
     const box = screen.getByLabelText(/등기부등본\(등기사항전부증명서\) 내용/);
     const broken = samples[0].text.replace("채권최고액 금240,000,000원", "채권최고액 (흐림)");
@@ -161,7 +171,7 @@ describe("등기부등본 점검 화면", () => {
   it("읽은 근저당 금액을 고치고 다시 점검하면 판정이 바뀐다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
-    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     const first = screen.getByLabelText("근저당 1 금액 (원)");
     await user.clear(first);
@@ -177,7 +187,7 @@ describe("다음 행동 카드", () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", { value: { writeText }, configurable: true });
     render(<CheckClient samples={samples} />);
-    await user.click(screen.getByRole("button", { name: "위험 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 3" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
 
     expect(screen.getByRole("heading", { name: "다음에 할 일" })).toBeTruthy();
@@ -198,7 +208,7 @@ describe("다음 행동 카드", () => {
     const exec = vi.fn().mockReturnValue(false);
     Object.defineProperty(document, "execCommand", { value: exec, configurable: true });
     render(<CheckClient samples={samples} />);
-    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     await user.click(screen.getByRole("button", { name: "요약 복사" }));
     expect(await screen.findByText(/복사하지 못했어요/)).toBeTruthy();
@@ -242,7 +252,7 @@ describe("PDF 올리기", () => {
     expect(screen.queryByLabelText(/읽은 글자\(서류와 다르면 고쳐도 돼요\)/)).toBeNull();
   });
 
-  const safe = () => samples.find((s) => s.label === "안전 샘플")!;
+  const safe = () => samples.find((s) => s.label === "예시 서류 1")!;
   const uploadOcr = async (user: ReturnType<typeof userEvent.setup>) => {
     const s = safe();
     const r = readRegistry(s.text).read;
@@ -332,7 +342,7 @@ describe("PDF 올리기", () => {
     const steps = screen.getByRole("navigation", { name: "점검 단계" });
     expect(within(steps).getAllByRole("listitem").map((li) => li.textContent)).toEqual(["✓서류 넣기", "2원본과 맞춰 보기", "3내 계약 정보", "4결과 보기"]);
     expect(within(steps).getByText(/읽은 값이 원본과 같은지 봐 주세요/)).toBeTruthy();
-    expect(screen.queryByRole("button", { name: "주의 샘플" })).toBeNull(); // 진짜 서류를 넣으면 샘플은 숨김
+    expect(screen.queryByRole("button", { name: "예시 서류 2" })).toBeNull(); // 진짜 서류를 넣으면 샘플은 숨김
     await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
     expect(within(steps).getByText(/내 보증금을 적고 '점검하기'를 눌러 주세요/)).toBeTruthy();
     await fillForm(user);
@@ -375,7 +385,7 @@ describe("결과: 3줄 요약 · 알 수 없는 것 · 판정 모양 (벤치마�
   it("안전 샘플도 '확인한 범위 안에서'라고 말하고, 등기부로 알 수 없는 것을 함께 보여 준다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
-    await user.click(screen.getByRole("button", { name: "안전 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 1" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.getByText("확인한 범위 안에서는 큰 위험 신호가 없어요")).toBeTruthy();
     expect(screen.getByText(/등기부등본으로는 알 수 없는 것 \d가지/)).toBeTruthy();

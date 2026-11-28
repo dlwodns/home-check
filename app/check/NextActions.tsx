@@ -3,6 +3,9 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { NextActions as Actions } from "@/lib/registry/actions";
+import { splitAll } from "@/lib/content/terms";
+import TermHint from "../ui/TermHint";
+import TermText from "../ui/TermText";
 
 /** 클립보드에 복사. 막힌 환경에서는 숨긴 입력칸을 써서 한 번 더 시도한다. */
 async function copyText(text: string): Promise<boolean> {
@@ -129,8 +132,11 @@ export default function NextActions({
   notes,
   onNote,
   recheckHref,
+  termHint = true,
 }: {
   actions: Actions;
+  /** 위쪽에 이미 '모르는 단어' 안내가 있으면 false */
+  termHint?: boolean;
   picked?: Record<string, boolean>;
   onPick?: (key: string, value: boolean) => void;
   /** 방 화면: 알아낸 것(메모)과 저장 · 다시 점검 주소. 없으면 메모 칸을 숨긴다 */
@@ -151,18 +157,26 @@ export default function NextActions({
   const pickedQuestions = actions.questions.filter((q) => picked[reqKey("q", q)]);
   const pickedClauses = actions.clauses.filter((c) => picked[reqKey("c", c.id)]);
   const request = requestText(pickedQuestions, pickedClauses);
+  // 질문 · 할 일 문장의 어려운 말(근저당 · 말소 …)도 눌러서 뜻을 볼 수 있게. 같은 말은 처음 나올 때만
+  const segs = splitAll([...actions.questions, ...actions.todos]);
+  const qSeg = (i: number) => segs[i];
+  const tSeg = (i: number) => segs[actions.questions.length + i];
+  const hasTerm = segs.some((g) => g.some((x) => x.term));
 
   return (
     <section className="next" aria-labelledby="next-title">
       <h2 id="next-title">다음에 할 일</h2>
+      {termHint && hasTerm && <TermHint />}
 
       {actions.questions.length > 0 && (
         <div className="card">
           <h3>집주인 · 중개사에게 이렇게 물어보세요</h3>
           <ul className="bubbles">
-            {actions.questions.map((q) => (
+            {actions.questions.map((q, i) => (
               <li key={q}>
-                <p className="bubble">{q}</p>
+                <p className="bubble">
+                  <TermText segments={qSeg(i)} />
+                </p>
                 <div className="row-buttons">
                   <CopyButton text={q} />
                   <PickButton on={Boolean(picked[reqKey("q", q)])} onClick={() => toggle(reqKey("q", q))} />
@@ -177,9 +191,9 @@ export default function NextActions({
       <div className="card">
         <h3>이렇게 하세요</h3>
         <ol className="plain">
-          {actions.todos.map((t) => (
+          {actions.todos.map((t, i) => (
             <li key={t}>
-              {t}
+              <TermText segments={tSeg(i)} />
               {note(t)}
             </li>
           ))}

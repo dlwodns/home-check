@@ -46,11 +46,11 @@ await step("샘플로 해 보면 판정은 나오지만 방에는 저장하지 �
   await p.getByText("등기부등본 올려서 점검하기").click();
   await p.waitForURL(/check/);
   // 방에서 점검할 때는 예시 서류가 접혀 있다 → 펼치고 누른다
-  if (!(await p.getByRole("button", { name: "주의 샘플" }).isVisible())) await p.getByText(/예시 서류로 먼저 보기/).click();
-  await p.getByRole("button", { name: "주의 샘플" }).click();
+  if (!(await p.getByRole("button", { name: "예시 서류 2" }).isVisible())) await p.getByText(/예시 서류로 먼저 보기/).click();
+  await p.getByRole("button", { name: "예시 서류 2" }).click();
   await p.getByRole("button", { name: "점검하기" }).click();
   await expectText(p, "계약 전에 확인할 것이 1가지 있어요");
-  await expectText(p, /샘플로 해 본 결과라 이 방에는 저장하지 않았어요/);
+  await expectText(p, /예시 서류로 해 본 결과라 이 방에는 저장하지 않았어요/);
 });
 
 await step("서류를 올린 것처럼 점검하면 방에 저장되고 홈 카드에 신호등이 보인다", async () => {

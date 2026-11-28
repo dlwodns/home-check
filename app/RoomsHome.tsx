@@ -5,6 +5,7 @@ import { todayKST } from "@/lib/registry/check";
 import Link from "next/link";
 import BrandMark from "./ui/BrandMark";
 import AccountLink from "./ui/AccountLink";
+import { replayEntry } from "./ui/entered";
 import { branches, steps } from "@/lib/content";
 import { roomHref } from "@/lib/store/rooms";
 import StepBar from "./ui/StepBar";
@@ -32,8 +33,8 @@ export default function RoomsHome() {
   return (
     <main className={`container home${enter ? " enter" : ""}`}>
       <div className="home-top">
-        {/* 왼쪽 홈 로고: 누르면 홈을 새로고침(11/28 사용자 요청) */}
-        <a href="/" className="brand brand-link" aria-label="홈체크 · 새로고침">
+        {/* 왼쪽 홈 로고: 누르면 처음 열 때처럼 입구 화면부터 새로고침(11/28 사용자 요청) */}
+        <a href="/" onClick={replayEntry} className="brand brand-link" aria-label="홈체크 · 새로고침">
           <BrandMark />
           홈체크
         </a>
@@ -118,9 +119,12 @@ export default function RoomsHome() {
         + 후보 방 추가 · 주소와 보증금만
       </Link>
 
-      <nav className="home-links" aria-label="다른 길">
-        <Link href="/guide">아직 방을 못 찾았어요 · 계약 과정 미리 보기 →</Link>
-        <Link href="/check">등기부등본만 바로 점검하기 →</Link>
+      <nav className="home-links" aria-label="아직 방을 못 찾았어요?">
+        <p className="small muted">아직 방을 못 찾았어요?</p>
+        <div className="home-link-pair">
+          <Link href="/guide" className="cta cta-soft">계약 과정 미리보기</Link>
+          <Link href="/check" className="cta cta-soft">등기부등본만 바로 점검하기</Link>
+        </div>
       </nav>
       <p className="small muted home-foot">
         참고용 안내예요 · <Link href="/welcome">홈체크 소개</Link> · <Link href="/privacy">개인정보 · 데이터 안내</Link>

@@ -263,7 +263,9 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .stepbar-flag { flex-shrink: 0; margin-left: 4px; }
 .add-room { display: flex; align-items: center; justify-content: center; min-height: 56px; border-radius: 18px; border: 1.5px dashed var(--accent); background: var(--safe-bg); color: var(--accent); font-weight: 700; text-decoration: none; }
 .home-links { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; font-size: 14px; }
-.home-links a { color: var(--muted); }
+.home-links p { margin: 0; }
+.home-link-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.home-link-pair .cta { min-height: 52px; font-size: 15px; padding: 0 8px; text-align: center; }
 .empty h2 { margin: 0 0 6px; font-size: 17px; }
 .empty p { margin: 0; }
 .row-2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
@@ -584,9 +586,6 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .samples-fold summary { cursor: pointer; font-size: 14px; color: var(--muted); }
 
 /* 앱을 새로 열 때 짧은 입구 효과 (HomeGate · Splash) */
-.splash { min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center; padding: 24px; cursor: pointer; }
-.splash .lobby-title { text-align: center; }
-.splash-skip { position: fixed; right: 16px; bottom: calc(24px + env(safe-area-inset-bottom)); min-height: 44px; }
 
 /* 한 화면에 카드 하나(D): 맨 아래 고정 버튼 · 지난 단계 누르면 돌아가기 */
 .sticky-cta { position: sticky; bottom: calc(8px + env(safe-area-inset-bottom)); z-index: 5; padding-top: 8px; background: linear-gradient(to top, var(--bg) 70%, transparent); }

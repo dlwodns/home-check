@@ -34,7 +34,7 @@ const at = (search: string) => window.history.replaceState(null, "", `/${search}
 const caution = expected.samples.find((s) => s.expected.verdict === "caution")!;
 const samples: Sample[] = [
   {
-    label: "주의 샘플",
+    label: "예시 서류 2",
     text: readFileSync(`samples/${caution.file}`, "utf8"),
     form: {
       myDeposit: String(caution.inputs.my_deposit / 10_000),
@@ -56,6 +56,7 @@ const asRealDoc = () => {
 };
 beforeEach(() => {
   localStorage.clear();
+  sessionStorage.clear();
   push.mockClear();
   at("");
 });
@@ -66,7 +67,7 @@ describe("홈 = 내 후보 방", () => {
     render(<RoomsHome />);
     expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
     expect(screen.getByRole("link", { name: /후보 방 추가/ }).getAttribute("href")).toBe("/rooms/new");
-    expect(screen.getByRole("link", { name: /계약 과정 미리 보기/ }).getAttribute("href")).toBe("/guide");
+    expect(screen.getByRole("link", { name: "계약 과정 미리보기" }).getAttribute("href")).toBe("/guide");
   });
 
   it("담은 방은 카드로: 이름 · 금액 · 점검 전 · 지금 3단계(방을 찾았으니 1 · 2단계는 건너뜀)", async () => {
@@ -167,7 +168,7 @@ describe("방에서 점검하기", () => {
     render(<CheckClient samples={samples} />);
     expect(await screen.findByText(/이 방엔 판정 요약만 저장해요/)).toBeTruthy();
 
-    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     asRealDoc();
     // 방에서 점검하면 내 보증금은 방에 적어 둔 값 그대로(샘플 값으로 덮지 않음)
     expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("5,000,000");
@@ -187,7 +188,7 @@ describe("방에서 점검하기", () => {
     seedRooms(baseRoom);
     at("check?room=r1");
     render(<CheckClient samples={samples} />);
-    await user.click(await screen.findByRole("button", { name: "주의 샘플" }));
+    await user.click(await screen.findByRole("button", { name: "예시 서류 2" }));
     asRealDoc();
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(JSON.parse(localStorage.getItem(ROOMS)!).rooms[0].checked["documents.registry"]).toBe(true);
@@ -200,7 +201,7 @@ describe("방에서 점검하기", () => {
     seedRooms(baseRoom);
     at("check?room=r1");
     render(<CheckClient samples={samples} />);
-    await user.click(await screen.findByRole("button", { name: "주의 샘플" }));
+    await user.click(await screen.findByRole("button", { name: "예시 서류 2" }));
     asRealDoc();
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     cleanup();
@@ -248,11 +249,11 @@ describe("방에서 샘플로 해 보기 (11/23 리뷰 R1)", () => {
     render(<CheckClient samples={samples} />);
     expect(await screen.findByText(/이 방엔 판정 요약만 저장해요/)).toBeTruthy();
 
-    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("10,000,000");
     await user.click(screen.getByRole("button", { name: "점검하기" }));
 
-    expect(screen.getByText(/샘플로 해 본 결과라 이 방에는 저장하지 않았어요/)).toBeTruthy();
+    expect(screen.getByText(/예시 서류로 해 본 결과라 이 방에는 저장하지 않았어요/)).toBeTruthy();
     expect(screen.queryByText(/에 저장했어요/)).toBeNull();
     expect(JSON.parse(localStorage.getItem(ROOMS)!).rooms[0].check).toBeNull();
   });
@@ -411,40 +412,51 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     expect(localStorage.getItem("homecheck.entered.v1")).toBe("1");
   });
 
-  it("한 번 들어온 사람은 로비 없이 바로 '내 후보 방'", async () => {
+  it("다시 온 사람도 앱을 새로 열면 입구(로고 + 시작하기)가 떠 있다 → 건너뛰기 → '내 후보 방', 같은 탭에서는 바로 '내 후보 방'", async () => {
     const { default: HomeGate } = await import("@/app/HomeGate");
+    const user = userEvent.setup();
     localStorage.setItem("homecheck.entered.v1", "1");
+    render(<HomeGate />);
+    await user.click(await screen.findByRole("button", { name: "시작하기" }));
+    expect(screen.getByRole("heading", { name: "집 구하는 과정, 다시 볼까요?" })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "건너뛰기" }));
+    expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
+    expect(push).not.toHaveBeenCalled();
+    expect(JSON.parse(localStorage.getItem("homecheck.progress.v1") ?? "{}").mode ?? null).toBeNull();
+    cleanup();
     render(<HomeGate />);
     expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
     expect(screen.queryByRole("button", { name: "시작하기" })).toBeNull();
     expect(screen.getByRole("link", { name: "홈체크 소개" }).getAttribute("href")).toBe("/welcome");
   });
 
-  it("다시 온 사람도 앱을 새로 열면 짧은 입구 효과 → 건너뛰면 '내 후보 방', 같은 탭에서는 다시 안 나온다", async () => {
+  it("다시 온 사람: 과정 알아보기 → 미리보기 → '내 후보 방으로'", async () => {
     const { default: HomeGate } = await import("@/app/HomeGate");
     const user = userEvent.setup();
     localStorage.setItem("homecheck.entered.v1", "1");
-    sessionStorage.clear();
-    const mm = vi.fn(() => ({ matches: false }));
-    vi.stubGlobal("matchMedia", mm);
-    try {
-      render(<HomeGate />);
-      expect(await screen.findByRole("button", { name: "건너뛰기" })).toBeTruthy();
-      await user.click(screen.getByRole("button", { name: "건너뛰기" }));
-      expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
-      cleanup();
-      render(<HomeGate />);
-      expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
-      expect(screen.queryByRole("button", { name: "건너뛰기" })).toBeNull();
-    } finally {
-      vi.unstubAllGlobals();
-      sessionStorage.clear();
-    }
+    render(<HomeGate />);
+    await user.click(await screen.findByRole("button", { name: "시작하기" }));
+    await user.click(screen.getByRole("button", { name: "과정 알아보기" }));
+    expect(screen.getByRole("region", { name: "홈체크 사용 흐름 미리보기" })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "내 후보 방으로 →" }));
+    expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
+  });
+
+  it("왼쪽 위 홈체크 로고를 누르면 입구부터 다시(탭 기억을 지움)", async () => {
+    const { default: HomeGate } = await import("@/app/HomeGate");
+    localStorage.setItem("homecheck.entered.v1", "1");
+    sessionStorage.setItem("homecheck.opened.v1", "1");
+    render(<HomeGate />);
+    const logo = await screen.findByRole("link", { name: "홈체크 · 새로고침" });
+    logo.addEventListener("click", (e) => e.preventDefault()); // jsdom은 페이지 이동을 못 함
+    logo.click();
+    expect(sessionStorage.getItem("homecheck.opened.v1")).toBeNull();
   });
 
   it("방을 담아 둔 사람도 바로 '내 후보 방' (예전 사용자)", async () => {
     const { default: HomeGate } = await import("@/app/HomeGate");
     seedRooms(baseRoom);
+    sessionStorage.setItem("homecheck.opened.v1", "1");
     render(<HomeGate />);
     expect(await screen.findByRole("link", { name: /정문 원룸.*보증금/ })).toBeTruthy();
   });

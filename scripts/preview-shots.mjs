@@ -19,7 +19,7 @@ await p.getByRole("button", { name: /저장하고/ }).click(); await p.waitForUR
 await p.getByText("등기부등본 올려서 점검하기").click(); await p.waitForURL(/check/); await p.waitForTimeout(500);
 await shot("2-doc");
 await p.getByText(/예시 서류로 먼저 보기/).click();
-await p.getByRole("button", { name: "주의 샘플" }).click();
+await p.getByRole("button", { name: "예시 서류 2" }).click();
 // 예시 그대로면 방에 저장하지 않으므로 글자 끝에 줄바꿈을 더해 '올린 서류'처럼(포스터 캡처와 같은 방법)
 await p.getByRole("button", { name: /서류 바꾸기/ }).click();
 const box = p.getByLabel(/내용을 그대로 붙여 넣어 주세요/); await box.fill((await box.inputValue()) + "\n");

@@ -239,7 +239,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     outcome?.ok && room ? (
       isSample ? (
         <p className="saved-note" role="status">
-          샘플로 해 본 결과라 이 방에는 저장하지 않았어요. 이 방의 등기부등본을 올리면 결과가 <strong>{room.label}</strong>에 저장돼요.
+          예시 서류로 해 본 결과라 이 방에는 저장하지 않았어요. 이 방의 등기부등본을 올리면 결과가 <strong>{room.label}</strong>에 저장돼요.
         </p>
       ) : savedToRoom ? (
         <p className="saved-note" role="status">
@@ -328,7 +328,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
             <li>방 주소로 검색해서 <strong>건물</strong> · <strong>전부(말소사항 포함)</strong>를 골라요</li>
             <li>1,100원을 결제하고 열람 화면에서 <strong>인쇄 → &apos;PDF로 저장&apos;</strong>해 여기에 올려요</li>
           </ol>
-          <p className="small muted">아직 방이 없어도 아래 샘플로 어떻게 보이는지 먼저 해 볼 수 있어요.</p>
+          <p className="small muted">아직 방이 없어도 아래 예시 서류로 어떻게 보이는지 먼저 해 볼 수 있어요.</p>
         </details>
         {fromPdf ? (
           // 서류를 넣은 뒤에는 큰 상자 대신 한 줄로(다음 할 일이 눈에 띄게)
@@ -369,7 +369,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         {!fromPdf && (
           <>
             {/* 실제 서류가 주인공. 예시는 등기부가 없는 사람만 펼쳐 보게(방에서 점검할 때는 접어 둠) */}
-            <details className="samples-fold" open={!room}>
+            <details className="samples-fold">
               <summary>등기부등본이 아직 없나요? 예시 서류로 먼저 보기</summary>
               <div className="samples">
                 {samples.map((s) => (
@@ -378,7 +378,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
                   </button>
                 ))}
               </div>
-              <p className="muted small">예시는 지어낸 가짜 서류예요.</p>
+              <p className="muted small">처음 써 보는 분을 위한 지어낸 서류예요. 실제 점검은 내 방의 등기부등본으로 해 주세요.</p>
             </details>
           </>
         )}
@@ -486,7 +486,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
               <p className="small muted">이 결과에 맞춘 질문 · 특약과 계약 6단계가 {room.label}에 이어져요.</p>
             </>
           ) : room ? (
-            <p className="small">샘플 결과는 이 방에 저장하지 않아요. 위에서 이 방의 등기부등본을 올려 점검해 주세요.</p>
+            <p className="small">예시 서류 결과는 이 방에 저장하지 않아요. 위에서 이 방의 등기부등본을 올려 점검해 주세요.</p>
           ) : (
             <>
               <Link href="/rooms/new" className="primary-link">
@@ -667,7 +667,7 @@ function Result({
         <HelpCard />
       </details>
 
-      <NextActions actions={actions} />
+      <NextActions actions={actions} termHint={!firstHasTerm} />
     </section>
   );
 }

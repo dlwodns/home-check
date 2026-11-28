@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   description: "등기부등본을 붙여 넣으면 계약 전 위험 신호를 쉬운 말로 알려 줘요.",
 };
 
-const LABEL: Record<string, string> = { safe: "안전 샘플", caution: "주의 샘플", danger: "위험 샘플" };
+const LABEL: Record<string, string> = { safe: "예시 서류 1", caution: "예시 서류 2", danger: "예시 서류 3" };
 const toManwon = (won: number | null) => (won === null ? "" : String(won / 10_000));
 
 function loadSamples(): Sample[] {

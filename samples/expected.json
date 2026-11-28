@@ -149,7 +149,7 @@
     },
     {
       "file": "D_jeonse.txt",
-      "label": "전세 샘플",
+      "label": "예시 서류 4 (전세)",
       "read": {
         "address": "가상시 한빛구 새내동 404-2",
         "building_type": "다가구주택",

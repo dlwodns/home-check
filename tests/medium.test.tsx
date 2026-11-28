@@ -78,7 +78,7 @@ describe("B. 이유 풀이", () => {
 
 const caution = expected.samples.find((s) => s.expected.verdict === "caution")!;
 const sample: Sample = {
-  label: "주의 샘플",
+  label: "예시 서류 2",
   text: readFileSync(`samples/${caution.file}`, "utf8"),
   form: {
     myDeposit: String(caution.inputs.my_deposit / 10_000),
@@ -92,7 +92,7 @@ describe("B · C · D 결과 화면", () => {
   it("이유를 펼치면 무슨 뜻 · 왜 위험 · 할 일이 보이고, 시세 범위 문장이 있다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={[sample]} />);
-    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     const explain = document.querySelector(".flags .flag-explain") as HTMLElement;
     expect(explain.textContent).toMatch(/무슨 뜻.*왜 위험.*할 일/);
@@ -103,7 +103,7 @@ describe("B · C · D 결과 화면", () => {
   it("C. 읽은 내용에서 집주인을 고치면 '내가 고친 값(집주인)'으로 계산했다고 알린다", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={[sample]} />);
-    await user.click(screen.getByRole("button", { name: "주의 샘플" }));
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     const owner = screen.getByLabelText(/지금 집주인/);
     await user.clear(owner);
