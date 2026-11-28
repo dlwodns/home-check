@@ -6,6 +6,7 @@ import BrandMark from "./ui/BrandMark";
 import { useRouter } from "next/navigation";
 import { useProgress } from "./ui/useProgress";
 import HomeLink from "./ui/HomeLink";
+import BackButton from "./ui/Back";
 
 export default function StartClient() {
   const router = useRouter();
@@ -20,9 +21,7 @@ export default function StartClient() {
   return (
     <main className="container start">
       <nav className="topbar">
-        <Link href="/" className="back" aria-label="내 후보 방으로">
-          ←
-        </Link>
+        <BackButton fallback={"/"} />
         <span>계약 과정 미리 보기</span>
         <HomeLink />
       </nav>

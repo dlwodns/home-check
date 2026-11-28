@@ -15,7 +15,7 @@ import StepClient from "@/app/steps/[no]/StepClient";
 
 const push = vi.fn();
 const replace = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push, replace }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push, replace }), usePathname: () => location.pathname }));
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
     <a href={href} {...rest}>
@@ -56,6 +56,7 @@ const asRealDoc = () => {
   fireEvent.click(screen.getByRole("button", { name: /다음: 내 계약 정보/ }));
 };
 beforeEach(() => {
+  replace.mockClear();
   localStorage.clear();
   sessionStorage.clear();
   push.mockClear();
@@ -93,7 +94,7 @@ describe("후보 방 추가", () => {
     await user.click(screen.getByRole("button", { name: "저장하고 이 방 보기" }));
     const [r] = savedRooms().rooms;
     expect(r).toMatchObject({ label: "정문 원룸", address: "OO동 123-4", deposit: 1000, rent: 50, link: "https://example.com/r/1" });
-    expect(push).toHaveBeenCalledWith(`/room?id=${r.id}`);
+    expect(replace).toHaveBeenCalledWith(`/room?id=${r.id}`); // 저장한 입력 화면은 ← 기록에서 뺀다
   });
 
   it("빈 칸으로 저장하면 칸마다 고칠 말이 나오고 저장되지 않는다", async () => {
@@ -103,7 +104,7 @@ describe("후보 방 추가", () => {
     expect(screen.getAllByRole("alert").map((a) => a.textContent).join(" ")).toMatch(/주소를 적어.*보증금을 적어/);
     expect(screen.getByLabelText("주소").getAttribute("aria-invalid")).toBe("true");
     expect(savedRooms()).toBeNull();
-    expect(push).not.toHaveBeenCalled();
+    expect(replace).not.toHaveBeenCalled();
   });
 });
 
@@ -178,7 +179,7 @@ describe("방에서 점검하기", () => {
     expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("5,000,000");
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.getByText(/에 저장했어요/)).toBeTruthy();
-    expect(screen.getByRole("link", { name: "4단계로 돌아가기" }).getAttribute("href")).toBe("/steps/4?room=r1"); // 맨 위 ←
+    expect(screen.getByRole("link", { name: "뒤로" }).getAttribute("href")).toBe("/steps/4?room=r1"); // 맨 위 ←
     expect(screen.getByRole("link", { name: "다음: 계약 전 서류 확인 →" }).getAttribute("href")).toBe("/steps/4?room=r1");
 
     const raw = localStorage.getItem(ROOMS)!;
@@ -220,7 +221,7 @@ describe("방에서 점검하기", () => {
     render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
     expect(await screen.findByText("계약 전에 확인할 것이 1가지 있어요")).toBeTruthy();
     expect(screen.getByRole("link", { name: "← 이전: 집 보러 가기" }).getAttribute("href")).toBe("/steps/3?room=r1");
-    expect(screen.getByRole("link", { name: "이 방(길)으로" }).getAttribute("href")).toBe("/room?id=r1");
+    expect(screen.getByRole("link", { name: "뒤로" }).getAttribute("href")).toBe("/room?id=r1");
     expect(screen.getByRole("link", { name: "다시 점검하기" }).getAttribute("href")).toBe("/check?room=r1");
 
     // 알아낸 것 적기(10번): 할 일 옆에 적고 저장하면 방에 남고, 그 옆에서 바로 다시 점검하러 간다
@@ -381,7 +382,7 @@ describe("이상한 입력 (7주차 점검표 ⑤)", () => {
     await user.type(screen.getByLabelText("보증금 (원)"), "5000000");
     await user.dblClick(screen.getByRole("button", { name: "저장하고 이 방 보기" }));
     expect(savedRooms().rooms).toHaveLength(1);
-    expect(push).toHaveBeenCalledTimes(1);
+    expect(replace).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -626,11 +627,11 @@ describe("서류 · 준비물 (10)", () => {
 });
 
 describe("한 길: 돌아가기 · 이어 가기 (11/28)", () => {
-  it("방 안 단계 화면의 ←는 언제나 방(길)으로, 마지막 단계의 다음은 '완료 · 방으로'", async () => {
+  it("방 안 단계 화면의 ←(뒤로)는 돌아갈 기록이 없으면 방(길)으로, 마지막 단계의 다음은 '완료 · 방으로'", async () => {
     seedRooms(baseRoom);
     at("steps/6?room=r1");
     render(<StepClient step={steps[5]} total={steps.length} branches={branches} steps={steps} />);
-    expect((await screen.findByRole("link", { name: "이 방(길)으로" })).getAttribute("href")).toBe("/room?id=r1");
+    expect((await screen.findByRole("link", { name: "뒤로" })).getAttribute("href")).toBe("/room?id=r1");
     expect(screen.getByRole("link", { name: "다음: 완료 →" }).getAttribute("href")).toBe("/room?id=r1");
     expect(screen.getByRole("link", { name: "← 이전: 계약하는 날" }).getAttribute("href")).toBe("/steps/5?room=r1");
   });
@@ -663,7 +664,7 @@ describe("한 길: 돌아가기 · 이어 가기 (11/28)", () => {
       form: { myDeposit: "1000", priorDeposits: String(danger.inputs.prior_deposits! / 10_000), marketPrice: String(danger.inputs.market_price! / 10_000), contractParty: danger.inputs.contract_party },
     };
     render(<CheckClient samples={[dangerSample]} />);
-    expect((await screen.findByRole("link", { name: "4단계로 돌아가기" })).getAttribute("href")).toBe("/steps/4?room=r1");
+    expect((await screen.findByRole("link", { name: "뒤로" })).getAttribute("href")).toBe("/steps/4?room=r1");
     await user.click(screen.getByRole("button", { name: "예시 서류 3" }));
     asRealDoc();
     await user.click(screen.getByRole("button", { name: "점검하기" }));
@@ -672,3 +673,38 @@ describe("한 길: 돌아가기 · 이어 가기 (11/28)", () => {
   });
 });
 
+
+describe("맨 위 ←는 방금 보던 화면으로 (11/28)", () => {
+  it("앱 안에서 이동해 왔으면 history.back(), 링크로 바로 들어왔으면 fallback 주소로 간다", async () => {
+    const { default: BackButton } = await import("@/app/ui/Back");
+    const back = vi.spyOn(history, "back").mockImplementation(() => {});
+    sessionStorage.setItem("homecheck.nav.v1", JSON.stringify(["/room?id=r1"]));
+    render(<BackButton fallback="/room?id=r1" />);
+    const a = screen.getByRole("link", { name: "뒤로" });
+    const first = new MouseEvent("click", { bubbles: true, cancelable: true });
+    a.dispatchEvent(first);
+    expect(back).not.toHaveBeenCalled(); // 기록이 하나뿐 → 기본 이동(fallback)
+    expect(first.defaultPrevented).toBe(false);
+    sessionStorage.setItem("homecheck.nav.v1", JSON.stringify(["/room?id=r1", "/steps/4?room=r1"]));
+    const second = new MouseEvent("click", { bubbles: true, cancelable: true });
+    a.dispatchEvent(second);
+    expect(back).toHaveBeenCalledTimes(1);
+    expect(second.defaultPrevented).toBe(true);
+    back.mockRestore();
+  });
+
+  it("화면이 바뀔 때마다 기록을 쌓고, 뒤로 온 것이면 뺀다", async () => {
+    const { NavTrack } = await import("@/app/ui/Back");
+    const nav = () => JSON.parse(sessionStorage.getItem("homecheck.nav.v1") ?? "[]");
+    at("room?id=r1");
+    render(<NavTrack />);
+    cleanup();
+    at("steps/3?room=r1");
+    render(<NavTrack />);
+    expect(nav()).toEqual(["/room?id=r1", "/steps/3?room=r1"]);
+    cleanup();
+    at("room?id=r1");
+    render(<NavTrack />);
+    expect(nav()).toEqual(["/room?id=r1"]);
+  });
+});

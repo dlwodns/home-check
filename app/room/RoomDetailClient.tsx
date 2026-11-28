@@ -13,6 +13,7 @@ import { headline } from "@/lib/registry/goodPoints";
 import { focusTask, moneyLine, rememberLastRoom, roomSteps, toCheckCount, VERDICT_TEXT } from "../ui/roomView";
 import { roomsStore, useProgress } from "../ui/useProgress";
 import HomeLink from "../ui/HomeLink";
+import BackButton from "../ui/Back";
 
 export default function RoomDetailClient({ steps, branches }: { steps: Step[]; branches: BranchContent[] }) {
   const router = useRouter();
@@ -63,9 +64,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
   return (
     <main className="container check room-detail">
       <nav className="topbar">
-        <Link href="/" className="back" aria-label="내 후보 방으로">
-          ←
-        </Link>
+        <BackButton fallback={"/"} />
         <span>내 후보 방</span>
         <HomeLink />
       </nav>

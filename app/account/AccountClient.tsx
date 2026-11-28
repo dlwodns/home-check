@@ -9,6 +9,7 @@ import { supabaseDb } from "@/lib/cloud/sync";
 import { currentSyncStatus, SYNC_EVENT, type SyncStatus } from "../ui/CloudSync";
 import { useAuth } from "../ui/useAuth";
 import HomeLink from "../ui/HomeLink";
+import BackButton from "../ui/Back";
 
 const STATUS_TEXT: Record<SyncStatus, string> = {
   off: "계정 저장 대기 중",
@@ -74,9 +75,7 @@ export default function AccountClient() {
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href="/" className="back" aria-label="내 후보 방으로">
-          ←
-        </Link>
+        <BackButton fallback={"/"} />
         <span>내 계정</span>
         <HomeLink />
       </nav>

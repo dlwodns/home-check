@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { sources, type SourceStatus } from "@/lib/content";
 import HomeLink from "../ui/HomeLink";
+import BackButton from "../ui/Back";
 
 export const metadata: Metadata = {
   title: "근거 목록 · 홈체크",
@@ -20,9 +21,7 @@ export default function SourcesPage() {
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href="/check" className="back" aria-label="점검 화면으로">
-          ←
-        </Link>
+        <BackButton fallback={"/check"} />
         <span>근거 목록</span>
         <HomeLink />
       </nav>

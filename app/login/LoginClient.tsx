@@ -7,6 +7,7 @@ import { getSupabase } from "@/lib/cloud/client";
 import { authErrorText, normalizeEmail, PASSWORD_MIN, validateAuth, type AuthErrors } from "@/lib/cloud/auth";
 import { useAuth } from "../ui/useAuth";
 import HomeLink from "../ui/HomeLink";
+import BackButton from "../ui/Back";
 
 type Mode = "login" | "signup";
 
@@ -68,9 +69,7 @@ export default function LoginClient() {
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href="/" className="back" aria-label="내 후보 방으로">
-          ←
-        </Link>
+        <BackButton fallback={"/"} />
         <span>{mode === "login" ? "로그인" : "가입하기"}</span>
         <HomeLink />
       </nav>

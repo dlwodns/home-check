@@ -9,6 +9,7 @@ import { roomHref, withRoom } from "@/lib/store/rooms";
 import { useProgress } from "../ui/useProgress";
 import { setTermsOff, useTermsOff } from "../ui/termPrefs";
 import HomeLink from "../ui/HomeLink";
+import BackButton from "../ui/Back";
 
 const BRANCH_LABEL = { broker: "중개사를 통해서", direct: "직거래", none: "아직 방을 못 찾음" } as const;
 
@@ -29,9 +30,7 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href={room ? roomHref(room.id) : "/guide"} className="back" aria-label={room ? "이 방으로" : "처음 화면으로"}>
-          ←
-        </Link>
+        <BackButton fallback={room ? roomHref(room.id) : "/guide"} />
         <span>{room ? `${room.label} · 계약 진행` : "내 계약 진행"}</span>
         <HomeLink />
       </nav>

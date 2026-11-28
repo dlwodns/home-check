@@ -23,6 +23,7 @@ import HomeLink from "../../ui/HomeLink";
 import NextActions from "../../check/NextActions";
 import RentCard from "../../room/RentCard";
 import { DocGroup, docKey, visibleDocs } from "../../docs/DocsClient";
+import BackButton from "../../ui/Back";
 
 const BRANCH_TITLE = { broker: "중개사를 통해서라면 내가 직접 확인할 것", direct: "직거래라서 꼭 할 것" } as const;
 const BRANCH_OPTIONS: { id: BranchId; title: string }[] = [
@@ -108,9 +109,7 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href={backHref} className="back" aria-label={room ? "이 방(길)으로" : "내 계약 진행으로"}>
-          ←
-        </Link>
+        <BackButton fallback={backHref} />
         <span>
           {room ? `${room.label} · ` : ""}
           {step.no}단계 / {total}

@@ -7,6 +7,7 @@ import type { Branch } from "@/lib/store/progress";
 import { roomHref, withRoom } from "@/lib/store/rooms";
 import { useProgress } from "../ui/useProgress";
 import HomeLink from "../ui/HomeLink";
+import BackButton from "../ui/Back";
 
 const OPTIONS: { id: Branch; title: string; desc: string }[] = [
   { id: "broker", title: "공인중개사를 통해서", desc: "중개사무소, 직방 · 다방의 중개 매물" },
@@ -32,9 +33,7 @@ export default function WhereClient({ question }: { question: string }) {
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href={room ? roomHref(room.id) : "/guide"} className="back" aria-label={room ? "이 방으로" : "처음 화면으로"}>
-          ←
-        </Link>
+        <BackButton fallback={room ? roomHref(room.id) : "/guide"} />
         <span>시작하기</span>
         <HomeLink />
       </nav>

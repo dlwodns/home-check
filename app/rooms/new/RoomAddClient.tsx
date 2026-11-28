@@ -9,6 +9,7 @@ import { todayKST } from "@/lib/registry/check";
 import { useRooms } from "../../ui/useRooms";
 import HomeLink from "../../ui/HomeLink";
 import MoneyInput from "../../ui/MoneyInput";
+import BackButton from "../../ui/Back";
 
 type Field = "address" | "deposit" | "rent" | "note";
 const EMPTY: RoomInput = { address: "", deposit: "", rent: "", note: "" };
@@ -51,7 +52,7 @@ export default function RoomAddClient() {
     setSaving(true);
     const id = newRoomId();
     update((s) => addRoom(s, v.draft, id, todayKST()));
-    router.push(roomHref(id));
+    router.replace(roomHref(id)); // 저장한 입력 화면은 기록에서 빼서, 방 화면의 ←가 다시 빈 입력 화면으로 가지 않게
   };
 
   const err = (k: Field) =>
@@ -65,9 +66,7 @@ export default function RoomAddClient() {
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href="/" className="back" aria-label="내 후보 방으로">
-          ←
-        </Link>
+        <BackButton fallback={"/"} />
         <span>후보 방 추가</span>
         <HomeLink />
       </nav>

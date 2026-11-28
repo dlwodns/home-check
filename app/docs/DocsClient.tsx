@@ -7,6 +7,7 @@ import { roomHref, withRoom } from "@/lib/store/rooms";
 import { useProgress } from "../ui/useProgress";
 import HomeLink from "../ui/HomeLink";
 import PriorDepositGuide from "../ui/PriorDepositGuide";
+import BackButton from "../ui/Back";
 
 interface DocItem {
   id: string;
@@ -55,9 +56,7 @@ export default function DocsClient() {
   return (
     <main className="container check docs-page">
       <nav className="topbar">
-        <Link href={room ? roomHref(room.id) : "/"} className="back" aria-label={room ? "이 방으로" : "처음 화면으로"}>
-          ←
-        </Link>
+        <BackButton fallback={room ? roomHref(room.id) : "/"} />
         <span>{room ? `${room.label} · 서류 · 준비물` : "서류 · 준비물"}</span>
         <HomeLink />
       </nav>

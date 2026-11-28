@@ -30,6 +30,7 @@ export const OCR_WARNING = "그림(스캔) PDF라 OCR로 읽었어요. 위 '원�
 export const OCR_DIFFERS = "원본과 다른 값이 있다고 표시했어요. 등기부를 직접 확인해 주세요.";
 import HomeLink from "../ui/HomeLink";
 import MoneyInput from "../ui/MoneyInput";
+import BackButton from "../ui/Back";
 
 export interface Sample {
   label: string;
@@ -253,9 +254,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href={room ? withRoom("/steps/4", room.id) : "/"} className="back" aria-label={room ? "4단계로 돌아가기" : "처음 화면으로"}>
-          ←
-        </Link>
+        <BackButton fallback={room ? withRoom("/steps/4", room.id) : "/"} />
         <span>{room ? `${room.label} · 등기부등본 점검` : "등기부등본 점검"}</span>
         <HomeLink />
       </nav>

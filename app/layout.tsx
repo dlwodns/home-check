@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import CloudSync from "./ui/CloudSync";
+import { NavTrack } from "./ui/Back";
 
 // 공유 미리보기 이미지 주소의 기준. 직접 정한 값 → Vercel이 넣어 주는 운영 주소(https 없이 옴) → Netlify의 URL → 내 컴퓨터
 const vercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
@@ -42,6 +43,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {commit ? ` · 버전 ${commit.slice(0, 7)}` : ""}
         </footer>
         <CloudSync />
+        <NavTrack />
       </body>
     </html>
   );

@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import ClearData from "./ClearData";
 import HomeLink from "../ui/HomeLink";
+import BackButton from "../ui/Back";
 
 export const metadata: Metadata = { title: "개인정보 · 데이터 안내 · 홈체크" };
 
@@ -10,9 +11,7 @@ export default function PrivacyPage() {
   return (
     <main className="container check privacy-page">
       <nav className="topbar">
-        <Link href="/" className="back" aria-label="내 후보 방으로">
-          ←
-        </Link>
+        <BackButton fallback={"/"} />
         <span>개인정보 · 데이터 안내</span>
         <HomeLink />
       </nav>
