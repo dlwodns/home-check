@@ -28,7 +28,7 @@ export default function PriorDepositGuide({ open = false }: { open?: boolean }) 
           </ul>
         </li>
         <li>
-          <strong>받은 서류의 보증금을 모두 더해</strong> 점검 화면의 &apos;먼저 들어온 세입자들의 보증금 합계&apos;에 적어요. 차임 · 보증금 · 확정일자 부여일 · 임대차기간이 나와요.
+          <strong>받은 서류의 보증금을 모두 더해</strong> 점검 화면의 &apos;앞선 세입자 보증금 합계&apos;에 적어요. 차임 · 보증금 · 확정일자 부여일 · 임대차기간이 나와요.
         </li>
       </ol>
       <p className="small">

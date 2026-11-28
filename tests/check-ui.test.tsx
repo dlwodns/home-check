@@ -114,12 +114,14 @@ describe("등기부등본 점검 화면", () => {
     expect(hint!.closest("details.result-more")).toBeTruthy();
   });
 
-  it("3줄 요약은 짧은 제목을 쓴다 (R8: 줄마다 두 줄로 넘치지 않게)", async () => {
+  it("확인할 것이 있으면 요약 줄 없이 '가장 먼저 확인할 것' 카드 하나만 (같은 말 두 번 안 하기)", async () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
     await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
-    expect(screen.getByText(/가장 먼저: 빚과 보증금이 시세의 70%를 넘어요/)).toBeTruthy();
+    expect(document.querySelector(".summary-lines")).toBeNull();
+    expect(screen.getByText("가장 먼저 확인할 것")).toBeTruthy();
+    expect(screen.queryByText(/가장 먼저:/)).toBeNull();
   });
 
   it("위험 샘플 → 위험, 첫 이유는 '예전 집주인', 근거 링크가 있다", async () => {
@@ -273,7 +275,7 @@ describe("PDF 올리기", () => {
     const s = safe();
     const next = screen.queryByRole("button", { name: /다음: 내 계약 정보/ });
     if (next) await user.click(next);
-    for (const [label, k] of [["내 보증금 (원)", "myDeposit"], [/먼저 들어온 세입자들의 보증금/, "priorDeposits"], ["이 건물 시세 (원)", "marketPrice"], [/집주인 이름 \(계약서에 집주인으로 서명할 사람\)/, "contractParty"]] as const) {
+    for (const [label, k] of [["내 보증금 (원)", "myDeposit"], [/앞선 세입자 보증금 합계/, "priorDeposits"], ["이 건물 시세 (원)", "marketPrice"], [/집주인 이름 \(계약서에 서명할 사람\)/, "contractParty"]] as const) {
       const v = s.form[k];
       // 샘플 폼 값은 만 원 단위 → 화면 칸에는 원으로 적는다
       if (v) await user.type(screen.getByLabelText(label), k === "contractParty" || !/^\d+$/.test(v) ? v : String(Number(v) * 10_000));
@@ -344,10 +346,10 @@ describe("PDF 올리기", () => {
     expect(within(steps).getByText(/읽은 값이 원본과 같은지 봐 주세요/)).toBeTruthy();
     expect(screen.queryByRole("button", { name: "예시 서류 2" })).toBeNull(); // 진짜 서류를 넣으면 샘플은 숨김
     await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
-    expect(within(steps).getByText(/내 보증금을 적고 '점검하기'를 눌러 주세요/)).toBeTruthy();
+    expect(within(steps).getByText(/보증금을 적고 '점검하기'를 눌러요/)).toBeTruthy();
     await fillForm(user);
     await user.click(screen.getByRole("button", { name: "점검하기" }));
-    expect(within(steps).getByText(/맨 아래 '다음 단계'로 이어 가요/)).toBeTruthy();
+    expect(within(steps).getByText(/맨 아래 '다음 단계'로 가요/)).toBeTruthy();
     expect(screen.queryByText("읽은 내용 확인 · 고치기")).toBeNull(); // 위에서 맞춰 봤으니 겹치는 칸은 뺌
     // 결과 뒤에는 무엇을 이어서 할지 버튼 하나 + 이전 단계로 돌아가기
     const next = screen.getByRole("navigation", { name: "다음 단계" });

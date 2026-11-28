@@ -64,7 +64,7 @@ export default function StepClient({ step, total, branches, next = null }: { ste
       )}
       {step.key && !branch && (
         <p className="card small">
-          {progress.branch === "none" ? "방을 찾으면" : "방을 어디서 찾았는지 고르면"} 중개사 · 직거래 맞춤 체크리스트가 여기에 붙어요.{" "}
+          {progress.branch === "none" ? "방을 찾으면" : "어디서 찾았는지 고르면"} 맞춤 할 일이 붙어요.{" "}
           <Link href={r("/where")} className="nav-btn nav-btn-sm">고르러 가기</Link>
         </p>
       )}
@@ -75,22 +75,11 @@ export default function StepClient({ step, total, branches, next = null }: { ste
         </Link>
       )}
 
-      {next ? (
-        <Link href={r(`/steps/${next.no}`)} className="card next-step">
-          <span className="small muted">다음은 {next.no}단계예요</span>
-          <strong>{next.title}</strong>
-          <span className="small">{next.summary}</span>
-        </Link>
-      ) : (
-        <p className="card next-step">
-          <span className="small muted">마지막 단계예요</span>
-          <strong>여기까지 하면 계약 완료 · 보증금 지키기 끝</strong>
-        </p>
-      )}
-
+      {/* 다음 단계 카드와 이전/다음 버튼이 같은 일을 해서 하나로 합쳤다(11/28 글자 줄이기) */}
+      {!next && <p className="card next-step"><strong>마지막 단계예요 · 여기까지 하면 계약 완료</strong></p>}
       <nav className="step-nav">
         {step.no > 1 ? <Link href={r(`/steps/${step.no - 1}`)}>← 이전 단계</Link> : <span />}
-        {step.no < total ? <Link href={r(`/steps/${step.no + 1}`)}>다음 단계 →</Link> : <Link href={r("/steps")}>진행 보기</Link>}
+        {next ? <Link href={r(`/steps/${next.no}`)}>다음: {next.title} →</Link> : <Link href={r("/steps")}>진행 보기</Link>}
       </nav>
     </main>
   );

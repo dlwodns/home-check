@@ -90,7 +90,7 @@ export default function RoomAddClient() {
               aria-describedby={described("address", `${ids.address}-hint`)}
             />
             <p className="hint" id={`${ids.address}-hint`}>
-              'OO구 OO동 123-4'처럼 적으면 동네 시세도 찾아 드려요. 호수는 적지 않아도 괜찮아요.
+              동까지 적으면 동네 시세도 찾아 드려요
             </p>
             {err("address")}
             {options.length > 1 && (
@@ -168,12 +168,12 @@ export default function RoomAddClient() {
               aria-describedby={described("note", `${ids.note}-hint`)}
             />
             <p className="hint" id={`${ids.note}-hint`}>
-              링크는 다시 열어 보는 바로가기로만 저장해요. 메모는 방 이름으로 보여요.
+              메모는 방 이름으로 보여요
             </p>
             {err("note")}
           </div>
 
-          <p className="privacy">🔒 이 기기(브라우저)에만 저장돼요. 등기부등본은 다음 화면에서 올리고, 어디에도 보내지 않아요. <Link href="/privacy">자세히</Link></p>
+          <p className="privacy">🔒 이 기기에만 저장돼요 · <Link href="/privacy">자세히</Link></p>
 
           <button type="submit" className="primary" disabled={saving}>
             저장하고 이 방 보기

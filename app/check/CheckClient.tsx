@@ -76,6 +76,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     });
   // 점검이 되면 입력 칸을 한 줄로 접어 결과가 바로 보이게 한다(R7: 한 페이지가 너무 길었음). '고쳐서 다시 점검'으로 다시 펼친다
   const [inputsOpen, setInputsOpen] = useState(true);
+  const [pasteOpen, setPasteOpen] = useState(false);
   // 한 화면에 카드 하나(D): 서류 넣기(doc) → 내 계약 정보(info). 서류가 들어오면 다음 카드로 넘어간다
   const [pane, setPane] = useState<"doc" | "info">("doc");
   const isSample = samples.some((s) => s.text === text);
@@ -186,10 +187,10 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     window.scrollTo?.({ top: 0 });
   };
   const STEP_HINT: Record<string, string> = {
-    "서류 넣기": "등기부등본 PDF를 올려 주세요. 없으면 예시 서류로 먼저 해 봐도 돼요.",
+    "서류 넣기": "등기부등본 PDF를 올려 주세요.",
     "원본과 맞춰 보기": "읽은 값이 원본과 같은지 봐 주세요.",
-    "내 계약 정보": "내 보증금을 적고 '점검하기'를 눌러 주세요.",
-    "결과 보기": "결과를 확인하고, 맨 아래 '다음 단계'로 이어 가요.",
+    "내 계약 정보": "보증금을 적고 '점검하기'를 눌러요.",
+    "결과 보기": "결과를 보고, 맨 아래 '다음 단계'로 가요.",
   };
   const stepNo = (name: string) => stepNames.indexOf(name) + 1;
   const review =
@@ -288,9 +289,12 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         </p>
       </nav>
 
+      {/* 서류를 올리는 화면에서만(정보 입력 · 결과 화면에서는 같은 말 반복이라 뺌) */}
+      {showInputs && pane === "doc" && (
       <p className="privacy">
-        🔒 {room ? <><strong>{room.label}</strong> 점검 · </> : null}서류는 이 기기 안에서만 읽어요{room ? ". 이 방엔 판정 요약만 저장해요" : ". 어디에도 보내지 않아요"}. <Link href="/privacy">자세히</Link>
+        🔒 서류는 이 기기 안에서만 읽어요{room ? " · 이 방엔 판정 요약만 저장" : ""} · <Link href="/privacy">자세히</Link>
       </p>
+      )}
 
       {!showInputs && (
         <section className="card small inputs-folded" aria-label="넣은 서류 · 내 계약 정보">
@@ -313,11 +317,10 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       <section className="card">
         <h2>{stepNo("서류 넣기")}. 서류 넣기</h2>
         <p className="get-registry">
-          등기부등본이 없다면 →{" "}
           <a href="https://www.iros.go.kr" target="_blank" rel="noopener noreferrer">
             인터넷등기소에서 떼기 ↗
           </a>{" "}
-          <span className="small muted">(5분 · 열람 1,100원)</span>
+          <span className="small muted">5분 · 1,100원</span>
         </p>
         <details className="howto">
           <summary>떼는 순서 보기</summary>
@@ -328,7 +331,6 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
             <li>방 주소로 검색해서 <strong>건물</strong> · <strong>전부(말소사항 포함)</strong>를 골라요</li>
             <li>1,100원을 결제하고 열람 화면에서 <strong>인쇄 → &apos;PDF로 저장&apos;</strong>해 여기에 올려요</li>
           </ol>
-          <p className="small muted">아직 방이 없어도 아래 예시 서류로 어떻게 보이는지 먼저 해 볼 수 있어요.</p>
         </details>
         {fromPdf ? (
           // 서류를 넣은 뒤에는 큰 상자 대신 한 줄로(다음 할 일이 눈에 띄게)
@@ -338,7 +340,6 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         ) : (
           <label htmlFor={ids.file} className="file-pick">
             <span>등기부등본 PDF 올리기</span>
-            <span className="small muted">인터넷등기소에서 받은 PDF 그대로 · 이 기기 안에서만 읽어요</span>
           </label>
         )}
         <input
@@ -363,7 +364,11 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
             {pasteBox}
           </details>
         ) : (
-          pasteBox
+          // PDF가 기본 길이라 붙여 넣기는 접어 둔다. 글자가 들어 있으면 펼친 채로
+          <details className="raw-text" open={pasteOpen || text.trim() !== ""} onToggle={(e) => setPasteOpen(e.currentTarget.open)}>
+            <summary>PDF 대신 글자로 붙여 넣기</summary>
+            {pasteBox}
+          </details>
         )}
         {/* 진짜 서류를 넣었으면 샘플은 숨긴다("샘플도 눌러야 하나?" 헷갈리지 않게) */}
         {!fromPdf && (
@@ -405,7 +410,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         </p>
         {pdfStatus?.kind === "ok" && !ocr && <p className="small muted">{pdfStatus.message}</p>}
         <button type="button" className="ghost" onClick={() => setPane("doc")}>
-          ← 서류 바꾸기 · 읽은 글자 보기
+          ← 서류 바꾸기
         </button>
       </section>
       {/* 그림 PDF를 맞춰 봤으면 그 결과(고친 값)를 이 카드 위에 한 줄로 남긴다 */}
@@ -418,21 +423,21 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           <MoneyInput id={ids.my} hintId={`${ids.my}-h`} value={form.myDeposit} onChange={setMoney("myDeposit")} placeholder="예: 5,000,000" />
         </div>
         <div className="field">
-          <label htmlFor={ids.prior}>먼저 들어온 세입자들의 보증금 합계 (원)</label>
+          <label htmlFor={ids.prior}>앞선 세입자 보증금 합계 (원)</label>
           <MoneyInput id={ids.prior} hintId={`${ids.prior}-h`} value={form.priorDeposits} onChange={setMoney("priorDeposits")} placeholder="모르면 비워 두세요" />
-          <p className="hint">다가구 원룸은 등기부등본에 안 나와요. 모르면 비워 두면 '모름'으로 따로 알려 드려요.</p>
+          <p className="hint">다가구 원룸은 등기부에 안 나와요 · 모르면 비워 두세요</p>
           <PriorDepositGuide />
         </div>
         <div className="field">
           <label htmlFor={ids.market}>이 건물 시세 (원)</label>
           <MoneyInput id={ids.market} hintId={`${ids.market}-h`} value={form.marketPrice} onChange={setMoney("marketPrice")} placeholder="예: 800,000,000 또는 8억 · 모르면 비워 두세요" />
-          <p className="hint">HUG 안심전세 앱에서 주소로 시세를 볼 수 있어요. 모르면 비워 두면 '계산하지 못했어요'로 따로 알려 드리고, 안전하다고 하지 않아요.</p>
+          <p className="hint">HUG 안심전세 앱에서 볼 수 있어요 · 모르면 비워 두세요</p>
         </div>
         <div className="field">
-          <label htmlFor={ids.party}>집주인 이름 (계약서에 집주인으로 서명할 사람)</label>
+          <label htmlFor={ids.party}>집주인 이름 (계약서에 서명할 사람)</label>
           <input id={ids.party} value={form.contractParty} onChange={set("contractParty")} placeholder="예: 김도윤 · 모르면 비워 두세요" aria-describedby={`${ids.party}-h`} />
           <p className="hint" id={`${ids.party}-h`}>
-            내 이름이 아니에요. 중개사나 집주인에게 들은 집주인 이름을 적으면, 등기부등본의 진짜 집주인과 같은지 확인해 드려요.
+            내 이름 말고, 집주인이라고 들은 이름이에요
           </p>
         </div>
         <div className="sticky-cta">
@@ -580,11 +585,14 @@ function Result({
           ✎ 내가 고친 값({editedFields.join(" · ")})으로 다시 계산한 결과예요. 서류와 다르게 고쳤다면 결과도 달라져요.
         </p>
       )}
-      <ul className="summary-lines">
-        {summary.map((l) => (
-          <li key={l}>{l}</li>
-        ))}
-      </ul>
+      {/* 확인할 것이 있으면 바로 아래 '가장 먼저 확인할 것' 카드 · '자세히 보기'와 같은 말이라 요약 줄은 뺀다(11/28 글자 줄이기). 없을 때만 요약 */}
+      {toCheck.length === 0 && (
+        <ul className="summary-lines">
+          {summary.map((l) => (
+            <li key={l}>{l}</li>
+          ))}
+        </ul>
+      )}
 
       {blocking.length > 0 && (
         <div className="card warn" role="status">

@@ -166,7 +166,7 @@ describe("방에서 점검하기", () => {
     seedRooms(baseRoom);
     at("check?room=r1");
     render(<CheckClient samples={samples} />);
-    expect(await screen.findByText(/이 방엔 판정 요약만 저장해요/)).toBeTruthy();
+    expect(await screen.findByText(/이 방엔 판정 요약만 저장/)).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     asRealDoc();
@@ -247,7 +247,7 @@ describe("방에서 샘플로 해 보기 (11/23 리뷰 R1)", () => {
     seedRooms({ ...baseRoom, deposit: 1000 });
     at("check?room=r1");
     render(<CheckClient samples={samples} />);
-    expect(await screen.findByText(/이 방엔 판정 요약만 저장해요/)).toBeTruthy();
+    expect(await screen.findByText(/이 방엔 판정 요약만 저장/)).toBeTruthy();
 
     await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
     expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("10,000,000");
@@ -265,14 +265,14 @@ describe("단계 체크는 방마다 따로", () => {
     seedRooms(baseRoom, { ...baseRoom, id: "r2" });
     at("steps/1?room=r1");
     const step = steps[0];
-    render(<StepClient step={step} total={steps.length} branches={branches} />);
+    render(<StepClient step={step} total={steps.length} branches={branches} next={steps[1]} />);
     const first = (await screen.findAllByRole("checkbox"))[0];
     await user.click(first);
     const rooms = savedRooms().rooms;
     expect(Object.keys(rooms[0].checked)).toHaveLength(1);
     expect(rooms[1].checked).toEqual({});
     expect(JSON.parse(localStorage.getItem(PROGRESS) ?? "{}").checked ?? {}).toEqual({});
-    expect(screen.getByRole("link", { name: /다음 단계/ }).getAttribute("href")).toBe("/steps/2?room=r1");
+    expect(screen.getByRole("link", { name: /다음: 집 찾기/ }).getAttribute("href")).toBe("/steps/2?room=r1");
   });
 });
 
@@ -528,12 +528,12 @@ describe("다음 행동 · 계약 과정 (벤치마킹 7 · 8 · 9)", () => {
     expect(screen.getByRole("link", { name: /HUG 전세피해 및 예방지원센터 1533-8119 전화하기/ }).getAttribute("href")).toBe("tel:1533-8119");
   });
 
-  it("단계 화면 끝에 '다음은 N단계' 미리보기, 마지막 단계는 끝이라고 알려 준다", () => {
+  it("단계 화면 끝 버튼에 다음 단계 이름이 보이고, 마지막 단계는 끝이라고 알려 준다", () => {
     render(<StepClient step={steps[2]} total={steps.length} branches={branches} next={steps[3]} />);
-    expect(screen.getByRole("link", { name: /다음은 4단계예요/ }).getAttribute("href")).toBe("/steps/4");
+    expect(screen.getByRole("link", { name: "다음: 계약 전 서류 확인 →" }).getAttribute("href")).toBe("/steps/4");
     cleanup();
     render(<StepClient step={steps[5]} total={steps.length} branches={branches} next={null} />);
-    expect(screen.getByText(/계약 완료 · 보증금 지키기 끝/)).toBeTruthy();
+    expect(screen.getByText(/마지막 단계예요 · 여기까지 하면 계약 완료/)).toBeTruthy();
   });
 
   it("모든 단계를 다 체크하면 '계약 완료까지 다 챙겼어요'가 한 번 보인다", async () => {

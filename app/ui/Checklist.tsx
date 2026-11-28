@@ -46,13 +46,13 @@ export default function Checklist({
               <dl className="criteria">
                 {item.good && (
                   <>
-                    <dt className="criteria-good">✓ 이러면 괜찮아요</dt>
+                    <dt className="criteria-good"><span aria-hidden="true">✓</span><span className="visually-hidden">이러면 괜찮아요</span></dt>
                     <dd>{item.good}</dd>
                   </>
                 )}
                 {item.bad && (
                   <>
-                    <dt className="criteria-bad">▲ 이러면 다시 보세요</dt>
+                    <dt className="criteria-bad"><span aria-hidden="true">▲</span><span className="visually-hidden">이러면 다시 보세요</span></dt>
                     <dd>{item.bad}</dd>
                   </>
                 )}

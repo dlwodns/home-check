@@ -64,7 +64,6 @@ export default function DocsClient() {
       <h1 className="title">무엇을 챙기면 되나요?</h1>
       <p className="muted" aria-live="polite">
         {loaded ? `${list.length}개 중 ${done}개 챙겼어요` : " "}
-        {!room && " · 방에서 열면 그 방에 체크가 저장돼요"}
       </p>
 
       {docs.groups.map((g) => {
@@ -85,29 +84,31 @@ export default function DocsClient() {
                         {conditional && item.only && <span className="doc-only">{ONLY_LABEL[item.only]}</span>}
                         <strong>{item.title}</strong>
                       </label>
-                      {(item.where || item.cost) && (
-                        <span className="small doc-meta">
-                          {[item.where, item.cost].filter(Boolean).join(" · ")}
-                        </span>
-                      )}
                       <span className="small muted">{item.why}</span>
                       {item.room && room && (
                         <Link href={roomHref(room.id)} className="nav-btn nav-btn-sm">
                           이 방 특약 문장 보러 가기 →
                         </Link>
                       )}
-                      {item.sources.length > 0 && (
-                        <span className="small muted">
-                          근거{" "}
-                          {item.sources.map((s, i) => (
-                            <span key={s}>
-                              {i > 0 && " · "}
-                              <Link href={`/sources#${s}`}>{s}</Link>
+                      {/* 어디서 · 얼마 · 근거는 펼쳐야 보이게(11/28 첫 화면 글자 줄이기) */}
+                      {(item.where || item.cost || item.sources.length > 0 || item.guide) && (
+                        <details className="doc-more">
+                          <summary className="small">어디서 · 얼마</summary>
+                          {(item.where || item.cost) && <span className="small doc-meta">{[item.where, item.cost].filter(Boolean).join(" · ")}</span>}
+                          {item.sources.length > 0 && (
+                            <span className="small muted">
+                              근거{" "}
+                              {item.sources.map((s, i) => (
+                                <span key={s}>
+                                  {i > 0 && " · "}
+                                  <Link href={`/sources#${s}`}>{s}</Link>
+                                </span>
+                              ))}
                             </span>
-                          ))}
-                        </span>
+                          )}
+                          {item.guide && <PriorDepositGuide />}
+                        </details>
                       )}
-                      {item.guide && <PriorDepositGuide />}
                     </div>
                   </li>
                 );
@@ -122,7 +123,7 @@ export default function DocsClient() {
           계약 과정 6단계 보기 →
         </Link>
       )}
-      <p className="disclaimer">비용 · 기한은 법령 원문으로 확인한 것이에요(확인일 2026-11-17). 지역 · 기관마다 절차가 조금 다를 수 있어요.</p>
+      <p className="disclaimer">비용 · 기한은 법령 원문 기준(2026-11-17 확인) · 기관마다 조금 다를 수 있어요.</p>
     </main>
   );
 }

@@ -111,7 +111,7 @@ export default function RoomsHome() {
       {loaded && rooms.length === 0 && (
         <section className="card empty">
           <h2>아직 담은 방이 없어요</h2>
-          <p className="muted">직방 · 다방 · 중개사무소 · 직거래, 어디서 찾았든 주소와 보증금만 적으면 돼요.</p>
+          <p className="muted">어디서 찾았든 주소와 보증금만 적으면 돼요</p>
         </section>
       )}
 

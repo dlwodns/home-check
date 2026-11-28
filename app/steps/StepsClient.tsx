@@ -87,7 +87,7 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
                   <strong>
                     {s.no}. {s.title}
                   </strong>
-                  <span className="small muted">{s.summary}</span>
+                  {isCurrent && <span className="small muted">{s.summary}</span>}
                 </span>
                 <span className="small">
                   {st.done}/{st.total}
@@ -102,7 +102,7 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
         <p className="card small">모든 단계를 마쳤어요. 입주 후 전입신고 · 확정일자를 잊지 마세요!</p>
       )}
       {!branch && progress.branch !== "none" && (
-        <p className="small muted">방을 어디서 찾았는지 고르면 4단계에 맞춤 체크리스트가 붙어요.</p>
+        <p className="small muted">어디서 찾았는지 고르면 4단계에 맞춤 할 일이 붙어요.</p>
       )}
     </main>
   );

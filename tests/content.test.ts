@@ -126,3 +126,26 @@ describe("집 보러 가기 기준", () => {
     }
   });
 });
+
+// 글자 예산(11/28 사용자 피드백 "읽으려 하면 피곤함이 먼저 온다"): 첫 화면에 보이는 문장은 짧게 유지한다.
+// 숫자는 공백을 뺀 글자 수. 더 길게 써야 하면 '왜 중요해요?' · '자세히'처럼 접힌 곳에 적는다.
+describe("글자 예산: 첫 화면에 보이는 문장은 짧게", () => {
+  const len = (t?: string) => (t ?? "").replace(/\s/g, "").length;
+  it("단계 한 줄 설명 ≤ 20자", () => {
+    for (const s of steps) expect(len(s.summary), s.id).toBeLessThanOrEqual(20);
+  });
+  it("집 보러 가기 기준(괜찮아요 / 다시 보세요) ≤ 25자", () => {
+    for (const s of steps) for (const i of s.items) {
+      expect(len(i.good), i.id).toBeLessThanOrEqual(25);
+      expect(len(i.bad), i.id).toBeLessThanOrEqual(25);
+    }
+  });
+  it("판정 짧은 제목 ≤ 18자", async () => {
+    const rules = (await import("@/data/judge.json")).default as { flags: Record<string, { title: string; short?: string }> };
+    for (const [k, f] of Object.entries(rules.flags)) expect(len(f.short ?? f.title), k).toBeLessThanOrEqual(18);
+  });
+  it("서류 · 준비물 한 줄 설명 ≤ 30자", async () => {
+    const docs = (await import("@/data/documents.json")).default as { items: { id: string; why: string }[] };
+    for (const d of docs.items) expect(len(d.why), d.id).toBeLessThanOrEqual(30);
+  });
+});
