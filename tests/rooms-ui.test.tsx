@@ -350,6 +350,15 @@ describe("동네 시세 (F6)", () => {
     f.mockRestore();
   });
 
+  it("국토부가 응답하지 않으면(502) 제공 기관 쪽 장애이고 점검 · 판정과는 상관없다고 알린다", async () => {
+    const f = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ error: "upstream" }), { status: 502 }));
+    seedRooms(withRegion);
+    at("steps/3?room=r1");
+    render(<StepClient step={steps[2]} total={steps.length} branches={branches} steps={steps} />);
+    expect(await screen.findByText(/국토교통부 실거래가 서버가 지금 응답하지 않아\(제공 기관 쪽 장애\).*등기부 점검 · 판정과는 상관없어요/)).toBeTruthy();
+    f.mockRestore();
+  });
+
   it("불러오지 못하면 실거래가 공개시스템 링크로 안내", async () => {
     const f = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}", { status: 502 }));
     seedRooms(withRegion);

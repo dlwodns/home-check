@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { compareRoom, monthSpan, type RentStats, type Spread } from "@/lib/rent";
 import type { Room } from "@/lib/store/rooms";
 
-type State = { kind: "loading" } | { kind: "error" } | { kind: "ok"; stats: RentStats };
+type State = { kind: "loading" } | { kind: "error"; upstream: boolean } | { kind: "ok"; stats: RentStats };
 
 const won = (n: number) => n.toLocaleString("ko-KR");
 const range = (s: Spread) => `${won(s.p25)}–${won(s.p75)}만 원 (중간 ${won(s.mid)})`;
@@ -22,7 +22,7 @@ export default function RentCard({ room }: { room: Pick<Room, "deposit" | "rent"
     fetch(`/api/rent?${q}`)
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
       .then((stats: RentStats) => alive && setState({ kind: "ok", stats }))
-      .catch(() => alive && setState({ kind: "error" }));
+      .catch((e: Error) => alive && setState({ kind: "error", upstream: e.message === "502" }));
     return () => {
       alive = false;
     };
@@ -43,7 +43,10 @@ export default function RentCard({ room }: { room: Pick<Room, "deposit" | "rent"
   if (state.kind === "error") {
     return (
       <p className="card small rent" role="status">
-        지금은 동네 시세를 불러오지 못했어요.{" "}
+        {/* 502 = 국토부 쪽이 응답하지 않음(공공데이터포털 오류 04 등). 앱 고장으로 오해하지 않게 그대로 알린다 */}
+        {state.upstream
+          ? "국토교통부 실거래가 서버가 지금 응답하지 않아(제공 기관 쪽 장애) 동네 시세를 불러오지 못했어요. 등기부 점검 · 판정과는 상관없어요. "
+          : "지금은 동네 시세를 불러오지 못했어요. "}
         <a href="https://rt.molit.go.kr/" target="_blank" rel="noopener noreferrer">
           국토부 실거래가 공개시스템
         </a>
