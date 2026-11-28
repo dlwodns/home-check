@@ -814,7 +814,7 @@ describe("점검 화면 UX (11/28)", () => {
     render(<CheckClient samples={samples} />);
     await user.click(await screen.findByRole("button", { name: "예시 서류 2" }));
     await user.click(screen.getByRole("button", { name: "점검하기" }));
-    await user.click(screen.getByRole("button", { name: /이전: 서류 넣기 \(이 방 등기부등본 올리기\)/ }));
+    await user.click(screen.getByRole("button", { name: "← 이 방 등기부등본 올리기" }));
     expect(screen.getByRole("heading", { name: "서류 넣기" })).toBeTruthy();
   });
 });

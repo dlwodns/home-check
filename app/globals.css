@@ -774,3 +774,8 @@ input[type="checkbox"] { accent-color: var(--accent); }
 .term-hint .linklike, .term-hint button { min-height: 44px; display: inline-flex; align-items: center; padding: 0 6px; }
 .privacy a, .welcome-foot a, .home-foot a { display: inline-flex; align-items: center; min-height: 44px; }
 .flag-explain summary, .howto summary, .raw-text summary, .samples-fold summary, .doc-more > summary, .fold > summary { min-height: 44px; }
+/* 미리보기 넘김: 점은 위 줄, 이전 장 · 다음 장은 아래 줄 반씩(360px에서 넘치지 않게) */
+.flow-controls { display: grid !important; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; }
+.flow-controls .flow-dots { grid-column: 1 / -1; order: -1; justify-content: center; }
+.flow-controls button.ghost { width: 100%; }
+.flow-dots button { width: 28px; height: 28px; }

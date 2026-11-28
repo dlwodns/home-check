@@ -518,7 +518,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
                   window.scrollTo?.({ top: 0 });
                 }}
               >
-                ← 이전: 서류 넣기 (이 방 등기부등본 올리기)
+                ← 이 방 등기부등본 올리기
               </button>
             </>
           ) : (
