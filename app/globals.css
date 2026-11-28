@@ -792,3 +792,24 @@ main summary { min-height: 44px; }
 .check-extra a, .rent a, .links a { display: inline-flex; align-items: center; min-height: 44px; }
 .source-more > summary { cursor: pointer; display: flex; align-items: center; color: var(--muted); font-size: var(--fs-small); }
 .sources .nav-btn { margin-top: 4px; }
+/* 4단계 서류 하나씩 */
+.doc-steps { list-style: none; margin: 0 0 12px; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; font-size: var(--fs-small); }
+.doc-steps li { padding: 0 10px; min-height: 32px; display: inline-flex; align-items: center; border-radius: 999px; background: var(--soft); color: var(--muted); }
+.doc-steps li a { color: inherit; text-decoration: none; min-height: 32px; display: inline-flex; align-items: center; }
+.doc-steps li.done { background: var(--safe-bg); color: var(--accent); }
+.doc-steps li[aria-current="step"] { background: var(--accent); color: var(--on-accent); font-weight: 800; }
+.doc-card { display: flex; flex-direction: column; gap: 12px; }
+.doc-lines { margin: 0; display: grid; grid-template-columns: 1fr; gap: 2px; }
+.doc-lines > dt { font-size: var(--fs-small); font-weight: 800; color: var(--accent); margin-top: 10px; }
+.doc-lines > dt:first-child { margin-top: 0; }
+.doc-lines > dd { margin: 0; font-size: 15px; line-height: 1.55; }
+.doc-lines .criteria { margin: 2px 0 0; }
+.doc-lines a { display: inline-flex; align-items: center; min-height: 40px; font-weight: 700; }
+.doc-done-check { display: flex; align-items: center; gap: 12px; min-height: 52px; padding: 0 14px; border-radius: 12px; background: var(--soft); font-weight: 700; cursor: pointer; }
+.doc-done-check input { width: 24px; height: 24px; }
+.doc-done-check:has(input:checked) { background: var(--safe-bg); color: var(--accent); }
+.seg-col { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.seg-col .chip { text-align: left; min-height: 52px; padding: 8px 16px; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; border-radius: 14px; }
+.chip-hint { font-size: 13px; color: var(--muted); font-weight: 400; }
+.chip-on .chip-hint { color: inherit; opacity: 0.85; }
+.ask-broker { display: flex; flex-direction: column; gap: 8px; }

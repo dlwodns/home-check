@@ -15,7 +15,7 @@ import StepClient from "@/app/steps/[no]/StepClient";
 
 const push = vi.fn();
 const replace = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push, replace }), usePathname: () => location.pathname }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push, replace }), usePathname: () => location.pathname, useSearchParams: () => new URLSearchParams(location.search) }));
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
     <a href={href} {...rest}>
@@ -130,19 +130,6 @@ describe("방 상세", () => {
     expect(await screen.findByText("이 방을 찾을 수 없어요")).toBeTruthy();
   });
 
-  it("4단계에서 '이 방, 어떻게 계약해요?'를 고르면 이 방에만 저장되고 직거래 할 일이 붙는다", async () => {
-    const user = userEvent.setup();
-    seedRooms(baseRoom, { ...baseRoom, id: "r2", label: "후문" });
-    at("steps/4?room=r1");
-    render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
-    await user.click(await screen.findByRole("radio", { name: /직거래/ }));
-    expect(screen.getByRole("heading", { name: "직거래라서 꼭 할 것" })).toBeTruthy();
-    const rooms = savedRooms().rooms;
-    expect(rooms.find((r: { id: string }) => r.id === "r1").branch).toBe("direct");
-    expect(rooms.find((r: { id: string }) => r.id === "r2").branch).toBeNull();
-    expect(JSON.parse(localStorage.getItem(PROGRESS) ?? "{}").branch ?? null).toBeNull();
-  });
-
   it("매물 링크는 새 창 · noopener로 연다", async () => {
     seedRooms({ ...baseRoom, link: "https://example.com/r/1" });
     at("room?id=r1");
@@ -179,8 +166,8 @@ describe("방에서 점검하기", () => {
     expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("5,000,000");
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.getByText(/에 저장했어요/)).toBeTruthy();
-    expect(screen.getByRole("link", { name: "뒤로" }).getAttribute("href")).toBe("/steps/4?room=r1"); // 맨 위 ←
-    expect(screen.getByRole("link", { name: "다음: 결과에 맞춘 할 일 →" }).getAttribute("href")).toBe("/steps/4?room=r1#next-title");
+    expect(screen.getByRole("link", { name: "뒤로" }).getAttribute("href")).toBe("/steps/4?doc=registry&room=r1"); // 맨 위 ←
+    expect(screen.getByRole("link", { name: "다음: 결과에 맞춘 할 일 →" }).getAttribute("href")).toBe("/steps/4?doc=todo&room=r1");
 
     const raw = localStorage.getItem(ROOMS)!;
     const r = JSON.parse(raw).rooms[0];
@@ -217,10 +204,9 @@ describe("방에서 점검하기", () => {
     expect(await screen.findByText(/등기부 주의 · 계약 전에 확인할 것이 1가지 있어요/)).toBeTruthy();
     cleanup();
 
-    at("steps/4?room=r1");
+    at("steps/4?room=r1&doc=todo");
     render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
     expect(await screen.findByText("계약 전에 확인할 것이 1가지 있어요")).toBeTruthy();
-    expect(screen.getByRole("link", { name: "이전: 집 보러 가기" }).getAttribute("href")).toBe("/steps/3?room=r1");
     expect(screen.getByRole("link", { name: "뒤로" }).getAttribute("href")).toBe("/room?id=r1");
     expect(screen.getByRole("link", { name: "다시 점검하기" }).getAttribute("href")).toBe("/check?room=r1");
 
@@ -637,7 +623,7 @@ describe("서류 · 준비물 (10)", () => {
     expect(rooms[1].checked["docs.registry"]).toBeUndefined();
     cleanup();
     // 한 길: 받을 서류는 4단계 안에서도 같은 체크로 보인다
-    at("steps/4?room=r1");
+    at("steps/4?room=r1&doc=todo");
     render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
     expect(await screen.findByRole("heading", { name: "집주인 · 중개사에게 받거나 확인할 것" })).toBeTruthy();
     await user.click(screen.getByLabelText(/집주인 신분증 확인/));
@@ -693,11 +679,11 @@ describe("한 길: 돌아가기 · 이어 가기 (11/28)", () => {
       form: { myDeposit: "1000", priorDeposits: String(danger.inputs.prior_deposits! / 10_000), marketPrice: String(danger.inputs.market_price! / 10_000), contractParty: danger.inputs.contract_party },
     };
     render(<CheckClient samples={[dangerSample]} />);
-    expect((await screen.findByRole("link", { name: "뒤로" })).getAttribute("href")).toBe("/steps/4?room=r1");
+    expect((await screen.findByRole("link", { name: "뒤로" })).getAttribute("href")).toBe("/steps/4?doc=registry&room=r1");
     await user.click(screen.getByRole("button", { name: "예시 서류 3" }));
     asRealDoc();
     await user.click(screen.getByRole("button", { name: "점검하기" }));
-    expect(screen.getByRole("link", { name: "다음: 결과에 맞춘 할 일 →" }).getAttribute("href")).toBe("/steps/4?room=r1#next-title");
+    expect(screen.getByRole("link", { name: "다음: 결과에 맞춘 할 일 →" }).getAttribute("href")).toBe("/steps/4?doc=todo&room=r1");
     expect(screen.getByRole("link", { name: "이 방 그만 보기 · 다른 방 담기" }).getAttribute("href")).toBe("/rooms/new");
   });
 });
@@ -758,7 +744,7 @@ describe("앞뒤 맥락 (11/28)", () => {
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.queryByRole("region", { name: "결과에 맞춘 할 일" })).toBeNull(); // 방에서는 4단계에서 한 번만
     cleanup();
-    at("steps/4?room=r1");
+    at("steps/4?room=r1&doc=todo");
     render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
     await user.click((await screen.findAllByRole("button", { name: /요청 목록에 담기/ }))[0]);
     cleanup();
@@ -784,15 +770,6 @@ describe("UX 정리 (11/28): 줄 눌러 체크 · ⓘ 시트 · 4단계 점검 �
     expect(screen.queryByRole("dialog")).toBeNull();
   });
 
-  it("방 안 4단계에서 아직 점검 전이면 아래 주 버튼이 '등기부등본 점검'이고, 건너뛰기는 작게 따로 있다", async () => {
-    seedRooms(baseRoom);
-    at("steps/4?room=r1");
-    render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
-    expect(await screen.findByText("아직 등기부등본 점검 전이에요.")).toBeTruthy();
-    const bar = document.querySelector(".action-bar") as HTMLElement;
-    expect(within(bar).getByRole("link", { name: "다음: 등기부등본 점검 →" }).getAttribute("href")).toBe("/check?room=r1");
-    expect(within(bar).getByRole("link", { name: /점검 없이 계약하는 날\(으\)로 넘어가기/ }).getAttribute("href")).toBe("/steps/5?room=r1");
-  });
 });
 
 describe("점검 화면 UX (11/28)", () => {
@@ -832,18 +809,79 @@ describe("방 담기 UX (11/28)", () => {
   });
 });
 
-describe("4단계 건축물대장 (11/28)", () => {
-  it("기준(✓/▲)과 근거 S22 · S30이 있고, 계약 방법에 따라 확인 방법 안내가 바뀐다", async () => {
+
+describe("4단계 = 서류 하나씩 (11/28)", () => {
+  it("처음엔 '어떤 집 · 어떻게 계약'을 묻고, 둘 다 고르기 전엔 다음으로 못 간다 · 고르면 이 방에만 저장된다", async () => {
     const user = userEvent.setup();
+    seedRooms(baseRoom, { ...baseRoom, id: "r2", label: "후문" });
+    at("steps/4?room=r1");
     render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
-    const item = screen.getByText(/원룸 · 빌라는 꼭/).closest("li")!;
-    expect(within(item as HTMLElement).getByText(/위반건축물 표시 없고 용도가 주택/)).toBeTruthy();
-    expect(within(item as HTMLElement).getByText(/근린생활시설 → 보증보험이 안 될 수 있어요/)).toBeTruthy();
-    expect(within(item as HTMLElement).getByText(/중개사가 있으면 확인 · 설명서로 확인해도 돼요/)).toBeTruthy();
-    expect(within(item as HTMLElement).getByRole("link", { name: /정부24에서 떼기/ }).getAttribute("rel")).toContain("noopener");
+    expect(await screen.findByRole("heading", { name: "어떤 집이에요?" })).toBeTruthy();
+    const bar = document.querySelector(".action-bar") as HTMLElement;
+    expect(within(bar).getByRole("button", { name: "위 두 가지를 먼저 골라 주세요" })).toBeTruthy();
+    await user.click(screen.getByRole("radio", { name: /원룸 건물 \(다가구\)/ }));
     await user.click(screen.getByRole("radio", { name: "공인중개사를 통해서" }));
-    expect(within(item as HTMLElement).getByText(/확인 · 설명서의 '위반건축물 · 용도' 칸을 봐요. 이상하면/)).toBeTruthy();
-    const b = steps[3].items.find((i) => i.id === "building")!;
-    expect(b.sources).toEqual(["S22", "S30"]);
+    const go = await within(document.querySelector(".action-bar") as HTMLElement).findByRole("link", { name: "다음: 등기부등본 →" });
+    expect(go.getAttribute("href")).toBe("/steps/4?doc=registry&room=r1");
+    // C: 중개사에게 한 번에 부탁하는 문장
+    expect(screen.getByRole("heading", { name: "중개사에게 한 번에 부탁하기" })).toBeTruthy();
+    const rooms = savedRooms().rooms;
+    expect(rooms[0].checked["house.multi"]).toBe(true);
+    expect(rooms[0].branch).toBe("broker");
+    expect(rooms[1].checked["house.multi"]).toBeUndefined();
+  });
+
+  it("등기부등본: 왜 · 어디서 · 중개사가 있으면 같은 틀, 점검 전이면 주 버튼이 점검하기", async () => {
+    seedRooms({ ...baseRoom, branch: "broker", checked: { "house.multi": true } });
+    at("steps/4?room=r1&doc=registry");
+    render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
+    expect(await screen.findByRole("heading", { level: 1, name: "등기부등본" })).toBeTruthy();
+    expect(screen.getByText("왜 봐요?")).toBeTruthy();
+    expect(screen.getByText("중개사가 있으면")).toBeTruthy();
+    const bar = document.querySelector(".action-bar") as HTMLElement;
+    expect(within(bar).getByRole("link", { name: "등기부등본 PDF 올려서 점검하기 →" }).getAttribute("href")).toBe("/check?room=r1");
+    expect(within(bar).getByRole("link", { name: "점검 없이 다음 서류로" }).getAttribute("href")).toBe("/steps/4?doc=building&room=r1");
+    expect(screen.getByRole("list", { name: "서류 확인 순서" })).toBeTruthy();
+  });
+
+  it("건축물대장: 기준(✓/▲) · 근거 S22 · S30 · 정부24 링크 · '확인했어요' 체크", async () => {
+    const user = userEvent.setup();
+    seedRooms({ ...baseRoom, branch: "direct", checked: { "house.villa": true } });
+    at("steps/4?room=r1&doc=building");
+    render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
+    expect(await screen.findByText(/위반건축물 표시 없고 용도가 주택/)).toBeTruthy();
+    expect(screen.getByText(/근린생활시설 → 보증보험이 안 될 수 있어요/)).toBeTruthy();
+    expect(screen.getByRole("link", { name: "정부24 ↗" }).getAttribute("rel")).toContain("noopener");
+    expect(screen.getByRole("link", { name: "S30" })).toBeTruthy();
+    expect(screen.queryByText("중개사가 있으면")).toBeNull(); // 직거래면 안 보인다
+    await user.click(screen.getByRole("checkbox", { name: "확인했어요" }));
+    expect(savedRooms().rooms[0].checked["documents.building"]).toBe(true);
+    // 빌라는 앞선 보증금 단계가 없어 다음이 바로 할 일 정리
+    expect(within(document.querySelector(".action-bar") as HTMLElement).getByRole("link", { name: "다음: 할 일 정리 →" })).toBeTruthy();
+  });
+
+  it("아파트면 건축물대장 · 앞선 보증금을 건너뛰고(해당 없음으로 끝남), 다시 원룸 건물로 바꾸면 되돌린다", async () => {
+    const user = userEvent.setup();
+    seedRooms(baseRoom);
+    at("steps/4?room=r1");
+    render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
+    await user.click(await screen.findByRole("radio", { name: "아파트" }));
+    let c = savedRooms().rooms[0].checked;
+    expect(c["documents.building"]).toBe(true);
+    expect(c["documents.prior_deposits"]).toBe(true);
+    expect(screen.getAllByRole("listitem").map((li) => li.textContent)).toEqual(expect.arrayContaining(["어떤 집", "등기부등본", "할 일 정리"]));
+    await user.click(screen.getByRole("radio", { name: /원룸 건물/ }));
+    c = savedRooms().rooms[0].checked;
+    expect(c["documents.building"]).toBeUndefined();
+    expect(c["documents.prior_deposits"]).toBeUndefined();
+  });
+
+  it("할 일 정리: 점검 결과 · 결과에 맞춘 할 일 · 계약 방법별 할 일이 모이고, 다음은 계약하는 날", async () => {
+    seedRooms({ ...baseRoom, branch: "direct", checked: { "house.multi": true } });
+    at("steps/4?room=r1&doc=todo");
+    render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
+    expect(await screen.findByRole("heading", { name: "직거래라서 꼭 할 것" })).toBeTruthy();
+    expect(within(document.querySelector(".action-bar") as HTMLElement).getByRole("link", { name: "다음: 계약하는 날 →" }).getAttribute("href")).toBe("/steps/5?room=r1");
   });
 });
+

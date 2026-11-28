@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import CloudSync from "./ui/CloudSync";
 import { NavTrack } from "./ui/Back";
@@ -44,7 +45,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {commit ? ` · 버전 ${commit.slice(0, 7)}` : ""}
         </footer>
         <CloudSync />
-        <NavTrack />
+        <Suspense fallback={null}>
+          <NavTrack />
+        </Suspense>
         <Toaster />
       </body>
     </html>

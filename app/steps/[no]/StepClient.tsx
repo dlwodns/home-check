@@ -27,6 +27,7 @@ import NextActions, { RequestCard } from "../../check/NextActions";
 import RentCard from "../../room/RentCard";
 import { DocGroup, docKey, visibleDocs } from "../../docs/DocsClient";
 import BackButton from "../../ui/Back";
+import DocsWizard from "./DocsWizard";
 
 const BRANCH_TITLE = { broker: "중개사를 통해서라면 내가 직접 확인할 것", direct: "직거래라서 꼭 할 것" } as const;
 const BRANCH_OPTIONS: { id: BranchId; title: string }[] = [
@@ -45,7 +46,14 @@ const CHECK_HINT: Record<string, string> = {
   move_in: "마친 것부터",
 };
 
-export default function StepClient({ step, total, branches, steps }: { step: Step; total: number; branches: Branch[]; steps: Step[] }) {
+type Props = { step: Step; total: number; branches: Branch[]; steps: Step[] };
+
+/** 4단계(계약 전 서류 확인)는 서류 하나씩 화면(DocsWizard), 나머지 단계는 체크리스트 화면 */
+export default function StepClient(props: Props) {
+  return props.step.key ? <DocsWizard {...props} /> : <StepBody {...props} />;
+}
+
+function StepBody({ step, total, branches, steps }: Props) {
   const { progress, update, room, roomId } = useProgress();
   const r = (href: string) => withRoom(href, roomId);
   const branch = step.key ? branches.find((b) => b.id === progress.branch) : undefined;

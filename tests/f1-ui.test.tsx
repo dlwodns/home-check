@@ -10,7 +10,7 @@ import StepsClient from "@/app/steps/StepsClient";
 import StepClient from "@/app/steps/[no]/StepClient";
 
 const push = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push }), useSearchParams: () => new URLSearchParams(location.search) }));
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
     <a href={href} {...rest}>
@@ -68,8 +68,9 @@ describe("방 없이 보는 계약까지 가는 길 (/steps)", () => {
 describe("단계 화면", () => {
   const step4 = steps.find((s) => s.no === 4)!;
 
-  it("4단계 + 직거래: 직거래 체크리스트가 붙고, 체크하면 저장된다", async () => {
-    seed({ branch: "direct" });
+  it("4단계 할 일 정리 + 직거래: 직거래 체크리스트가 붙고, 체크하면 저장된다", async () => {
+    seed({ branch: "direct", checked: { "house.multi": true } });
+    window.history.replaceState(null, "", "/steps/4?doc=todo");
     const user = userEvent.setup();
     render(<StepClient step={step4} total={6} branches={branches} steps={steps} />);
     expect(await screen.findByRole("heading", { name: "직거래라서 꼭 할 것" })).toBeTruthy();
@@ -79,22 +80,23 @@ describe("단계 화면", () => {
     // 체크하면 줄을 긋지 않고 색 + '✓ 했어요'로 표시(11/28)
     expect(box.closest("li")!.className).toContain("done");
     expect(within(box.closest("li")!).getByText("✓ 했어요")).toBeTruthy();
-    expect(screen.getAllByText("확인한 것부터 체크해 주세요 · 다 체크하면 다음 단계로 넘어가요").length).toBe(1);
     await user.click(box);
     expect(saved().checked["direct.owner_id"]).toBeUndefined();
   });
 
-  it("갈래를 안 골랐으면 다른 화면으로 보내지 않고 이 화면에서 묻는다 → 고르면 맞춤 할 일이 붙는다", async () => {
+  it("4단계 첫 화면에서 어떤 집 · 어떻게 계약을 묻고, 고르면 저장된다(다른 화면으로 보내지 않음)", async () => {
+    window.history.replaceState(null, "", "/steps/4");
     const user = userEvent.setup();
     render(<StepClient step={step4} total={6} branches={branches} steps={steps} />);
-    expect(await screen.findByRole("heading", { name: "방, 어디서 찾았어요?" })).toBeTruthy();
+    expect(await screen.findByRole("heading", { name: "어떻게 계약해요?" })).toBeTruthy();
     await user.click(screen.getByRole("radio", { name: "집주인과 직접 (직거래)" }));
+    await user.click(screen.getByRole("radio", { name: "오피스텔" }));
     expect(saved().branch).toBe("direct");
-    expect(screen.getByRole("heading", { name: "직거래라서 꼭 할 것" })).toBeTruthy();
-    expect(screen.queryByRole("heading", { name: "방, 어디서 찾았어요?" })).toBeNull();
+    expect(saved().checked["house.officetel"]).toBe(true);
   });
 
   it("용어를 누르면 한 줄 설명이 나오고, 체크는 바뀌지 않는다", async () => {
+    window.history.replaceState(null, "", "/steps/4?doc=building");
     const user = userEvent.setup();
     render(<StepClient step={step4} total={6} branches={branches} steps={steps} />);
     const term = screen.getAllByRole("button", { name: "등기부등본" })[0];
@@ -110,6 +112,7 @@ describe("단계 화면", () => {
   });
 
   it("React StrictMode(두 번 그리기)에서도 용어 밑줄이 살아 있다", () => {
+    window.history.replaceState(null, "", "/steps/4?doc=building");
     render(
       <StrictMode>
         <StepClient step={step4} total={6} branches={branches} steps={steps} />
@@ -118,9 +121,9 @@ describe("단계 화면", () => {
     expect(screen.getAllByRole("button", { name: "등기부등본" }).length).toBeGreaterThan(0);
   });
 
-  it("등기부등본 점검 항목에서 점검 화면으로 갈 수 있다", () => {
+  it("등기부등본 서류 화면에서 점검 화면으로 갈 수 있다", () => {
+    window.history.replaceState(null, "", "/steps/4?doc=registry");
     render(<StepClient step={step4} total={6} branches={branches} steps={steps} />);
-    const item = screen.getByRole("checkbox", { name: /등기부등본 점검하기/ }).closest("li")!;
-    expect(within(item).getByRole("link", { name: "등기부등본 점검하러 가기 →" }).getAttribute("href")).toBe("/check");
+    expect(screen.getByRole("link", { name: "등기부등본 PDF 올려서 점검하기 →" }).getAttribute("href")).toBe("/check");
   });
 });

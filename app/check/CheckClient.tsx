@@ -267,7 +267,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   return (
     <main className="container check">
       <nav className="topbar">
-        <BackButton fallback={room ? withRoom("/steps/4", room.id) : "/"} />
+        <BackButton fallback={room ? withRoom("/steps/4?doc=registry", room.id) : "/"} />
         <HomeLink />
         <span>{room ? "4단계 · 등기부등본 점검" : "등기부등본 점검"}</span>
       </nav>
@@ -493,7 +493,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           <h2>다음 단계</h2>
           {room && !isSample ? (
             <>
-              <Link href={`${withRoom("/steps/4", room.id)}#next-title`} className="primary-link">
+              <Link href={withRoom("/steps/4?doc=todo", room.id)} className="primary-link">
                 다음: 결과에 맞춘 할 일 →
               </Link>
               <p className="small muted">집주인에게 물어볼 말 · 특약을 4단계(계약 전 서류 확인)에서 이어서 챙겨요.</p>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { branches, steps } from "@/lib/content";
+import { Suspense } from "react";
 import StepClient from "./StepClient";
 
 export const dynamicParams = false;
@@ -19,5 +20,10 @@ export default async function StepPage({ params }: { params: Promise<{ no: strin
   const { no } = await params;
   const step = steps.find((s) => String(s.no) === no);
   if (!step) notFound();
-  return <StepClient step={step} total={steps.length} branches={branches} steps={steps} />;
+  // 4단계는 ?doc= 로 서류를 고르므로(useSearchParams) Suspense로 감싼다
+  return (
+    <Suspense fallback={<main className="container check" aria-busy="true" />}>
+      <StepClient step={step} total={steps.length} branches={branches} steps={steps} />
+    </Suspense>
+  );
 }

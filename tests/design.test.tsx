@@ -10,7 +10,7 @@ import TermText from "@/app/ui/TermText";
 import TermHint from "@/app/ui/TermHint";
 import TrafficLight from "@/app/ui/TrafficLight";
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), useSearchParams: () => new URLSearchParams(location.search) }));
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
     <a href={href} {...rest}>
@@ -212,10 +212,11 @@ describe("용어 말풍선 세부 (11/16 합의)", () => {
 });
 
 describe("앞선 세입자 보증금 확인 방법 (A3)", () => {
-  it("4단계에 안내가 붙고, 낼 서류 · 부탁 문장 복사 · 근거가 있다", async () => {
+  it("4단계 '앞선 보증금' 서류 화면에 안내가 붙고, 낼 서류 · 부탁 문장 복사 · 근거가 있다", async () => {
     const { steps, branches } = await import("@/lib/content");
     const { default: StepClient } = await import("@/app/steps/[no]/StepClient");
     const step4 = steps.find((s) => s.items.some((i) => i.id === "prior_deposits"))!;
+    window.history.replaceState(null, "", "/steps/4?doc=prior");
     render(<StepClient step={step4} total={steps.length} branches={branches} steps={steps} />);
     const guide = screen.getByText("앞선 세입자 보증금, 어떻게 확인해요?").closest("details")!;
     for (const doc of ["임대차 정보제공 요청서", "집주인의 동의서", "인감증명서", "내 신분증"]) expect(guide.textContent).toContain(doc);

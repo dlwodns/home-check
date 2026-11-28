@@ -2,7 +2,7 @@
 // 맨 위 왼쪽 ←: 브라우저 '뒤로'처럼 방금 보던 화면으로 그대로 돌아간다(11/28 사용자: 정해 둔 화면으로 새로 가면 헷갈린다).
 // 앱 안에서 이동해 온 기록이 있을 때만 history.back(), 링크로 바로 들어와 돌아갈 곳이 없으면 fallback 주소로 간다.
 // 기록은 이 탭의 sessionStorage에 주소 목록으로 둔다(NavTrack이 화면이 바뀔 때마다 갱신: 새 화면이면 쌓고, 뒤로 간 것이면 뺀다).
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 
 const KEY = "homecheck.nav.v1";
@@ -27,6 +27,7 @@ function save(stack: string[]) {
 /** 이동 기록 갱신. app/layout에 한 번 둔다 */
 export function NavTrack() {
   const pathname = usePathname();
+  const search = useSearchParams()?.toString() ?? "";
   useEffect(() => {
     const url = here();
     const stack = load();
@@ -34,7 +35,7 @@ export function NavTrack() {
     if (stack[stack.length - 2] === url) stack.pop(); // 뒤로 온 것
     else stack.push(url);
     save(stack);
-  }, [pathname]);
+  }, [pathname, search]);
   return null;
 }
 

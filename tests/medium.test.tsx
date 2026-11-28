@@ -11,7 +11,7 @@ import NextActions, { reqKey, requestText } from "@/app/check/NextActions";
 import CheckClient, { editedFieldsOf, ratioRangeText, type Sample } from "@/app/check/CheckClient";
 import type { RegistryRead } from "@/lib/registry/types";
 
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: vi.fn() }), useSearchParams: () => new URLSearchParams(location.search) }));
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
     <a href={href} {...rest}>
