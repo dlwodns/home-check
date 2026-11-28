@@ -99,7 +99,7 @@ export function DocGroup({
   return (
     <section className="docs-group" aria-labelledby={`g-${g.id}`}>
       <h2 id={`g-${g.id}`}>{g.title}</h2>
-      <p className="check-hint small muted">챙겼으면 왼쪽 네모를 눌러 체크해 주세요</p>
+      <p className="check-hint small muted">챙긴 서류부터 체크해 주세요</p>
       <ul className="docs-list">
         {items.map(({ item, conditional }) => {
           const id = `doc-${item.id}`;

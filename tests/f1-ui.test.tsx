@@ -78,7 +78,7 @@ describe("단계 화면", () => {
     // 체크하면 줄을 긋지 않고 색 + '✓ 했어요'로 표시(11/28)
     expect(box.closest("li")!.className).toContain("done");
     expect(within(box.closest("li")!).getByText("✓ 했어요")).toBeTruthy();
-    expect(screen.getAllByText("다 했으면 왼쪽 네모를 눌러 체크해 주세요").length).toBe(1);
+    expect(screen.getAllByText("확인한 것부터 체크해 주세요 · 다 체크하면 다음 단계로 넘어가요").length).toBe(1);
     await user.click(box);
     expect(saved().checked["direct.owner_id"]).toBeUndefined();
   });

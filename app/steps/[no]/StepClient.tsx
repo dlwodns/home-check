@@ -32,6 +32,15 @@ const BRANCH_OPTIONS: { id: BranchId; title: string }[] = [
 ];
 /** 이 단계 안에 넣는 서류 묶음 (data/documents.json의 groups). 계약 전 '뗄 서류'는 4단계 할 일과 같아서 넣지 않는다 */
 const DOC_GROUP: Record<string, string> = { documents: "receive", contract: "day" };
+/** 체크 안내: 단계마다 그 일에 맞는 말로(11/28). 다 체크하면 길에서 다음 단계로 넘어간다 */
+const CHECK_HINT: Record<string, string> = {
+  prepare: "정한 것부터",
+  search: "알아본 것부터",
+  visit: "현장에서 확인한 것부터",
+  documents: "확인한 것부터",
+  contract: "챙긴 것부터",
+  move_in: "마친 것부터",
+};
 
 export default function StepClient({ step, total, branches, steps }: { step: Step; total: number; branches: Branch[]; steps: Step[] }) {
   const { progress, update, room, roomId } = useProgress();
@@ -122,7 +131,9 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
       </p>
       {segs.some((g) => g.some((x) => x.term)) && <TermHint />}
 
-      <p className="check-hint small muted">다 했으면 왼쪽 네모를 눌러 체크해 주세요</p>
+      <p className="check-hint small muted">
+        {CHECK_HINT[step.id] ?? "한 것부터"} 체크해 주세요 · {next ? "다 체크하면 다음 단계로 넘어가요" : "다 체크하면 계약 완료예요"}
+      </p>
       <Checklist groupId={step.id} items={step.items} checked={progress.checked} onToggle={setChecked} segments={stepSegs} checkSlot={checkSlot} />
 
       {step.items.some((i) => i.id === "prior_deposits") && <PriorDepositGuide />}
