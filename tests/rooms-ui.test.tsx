@@ -331,6 +331,15 @@ describe("동네 시세 (F6)", () => {
     f.mockRestore();
   });
 
+  it("받아 온 주택 종류를 그대로 밝힌다(한 종류가 장애면 '지금 받아 온 종류만')", async () => {
+    const f = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify({ ...rentStats(12), types: ["연립 · 다세대", "오피스텔"] })));
+    seedRooms(withRegion);
+    at("steps/3?room=r1");
+    render(<StepClient step={steps[2]} total={steps.length} branches={branches} steps={steps} />);
+    expect(await screen.findByText(/서교동 연립 · 다세대 · 오피스텔 월세 신고 거래 12건.*지금 받아 온 종류만/)).toBeTruthy();
+    f.mockRestore();
+  });
+
   it("거래가 적으면 비교하지 않고 '거래 기록이 적어요'", async () => {
     const f = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(rentStats(2))));
     seedRooms(withRegion);

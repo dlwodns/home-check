@@ -54,6 +54,7 @@ export default function RentCard({ room }: { room: Pick<Room, "deposit" | "rent"
 
   const { stats } = state;
   const cmp = compareRoom({ deposit: room.deposit, rent: room.rent }, stats);
+  const types = stats.types?.length ? stats.types : ["단독 · 다가구"];
   const isMonthly = (room.rent ?? 0) > 0;
   return (
     <div className={`card rent rent-${cmp.level}`}>
@@ -75,14 +76,15 @@ export default function RentCard({ room }: { room: Pick<Room, "deposit" | "rent"
         </ul>
       )}
       <p className="small muted">
-        {region.dong} 단독 · 다가구 {isMonthly ? "월세" : "전세"} 신고 거래 {(isMonthly ? stats.monthly?.count : stats.jeonse?.count) ?? 0}건, 최근{" "}
-        {stats.months.length}개월({monthSpan(stats.months)} 계약) 기준 · 오피스텔 · 빌라는 들어 있지 않은 참고용이에요.
+        {region.dong} {types.join(" · ")} {isMonthly ? "월세" : "전세"} 신고 거래 {(isMonthly ? stats.monthly?.count : stats.jeonse?.count) ?? 0}건, 최근{" "}
+        {stats.months.length}개월({monthSpan(stats.months)} 계약) 기준 · {types.length < 3 ? "아파트 제외 · 지금 받아 온 종류만 담은 " : "아파트 제외 "}참고용이에요.
       </p>
       <p className="small muted">
         출처:{" "}
-        <a href="https://www.data.go.kr/data/15126472/openapi.do" target="_blank" rel="noopener noreferrer">
-          국토교통부 단독/다가구 전월세 신고(공공데이터포털)
-        </a>
+        국토교통부 전월세 실거래가 신고(공공데이터포털:{" "}
+        <a href="https://www.data.go.kr/data/15126472/openapi.do" target="_blank" rel="noopener noreferrer">단독 · 다가구</a> ·{" "}
+        <a href="https://www.data.go.kr/data/15126473/openapi.do" target="_blank" rel="noopener noreferrer">연립 · 다세대</a> ·{" "}
+        <a href="https://www.data.go.kr/data/15126475/openapi.do" target="_blank" rel="noopener noreferrer">오피스텔</a>)
       </p>
     </div>
   );

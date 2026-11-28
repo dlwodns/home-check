@@ -1,4 +1,4 @@
-// F6 동네 원룸 시세: 국토부 단독/다가구 전월세 신고 자료를 읽고, 같은 동의 보증금 · 월세 분포를 계산한다.
+// F6 동네 원룸 시세: 국토부 전월세 신고 자료(단독 · 다가구 · 연립 · 다세대 · 오피스텔)를 읽고, 같은 동의 보증금 · 월세 분포를 계산한다.
 // 화면 · 서버 어디서나 쓰는 순수 함수만 둔다(키 · 네트워크 없음 → 테스트 가능).
 
 export interface RentDeal {
@@ -51,6 +51,8 @@ export interface RentStats {
   monthly: { count: number; deposit: Spread; rent: Spread } | null;
   /** 전세 거래 (월세 = 0) */
   jeonse: { count: number; deposit: Spread } | null;
+  /** 받아 온 주택 종류(서버가 붙임). 없으면 예전 응답(단독 · 다가구만) */
+  types?: string[];
 }
 
 /** 사분위(25% · 50% · 75%) — 정렬 후 선형 보간 */

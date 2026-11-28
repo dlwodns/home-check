@@ -139,14 +139,16 @@ describe("서버 처리 /api/rent", () => {
     expect((await handleRent(q("11440", "서교동"), {}, vi.fn() as unknown as typeof fetch, now)).status).toBe(503);
   });
 
-  it("최근 6개월을 묻고 같은 동만 모아 돌려준다, 응답에 키가 없다", async () => {
+  it("최근 6개월 × 세 종류(단독 · 다가구, 연립 · 다세대, 오피스텔)를 묻고 같은 동만 모아 돌려준다, 응답에 키가 없다", async () => {
     const f = vi.fn(async () => new Response(xml([item("서교동", "500", "50"), item("망원동", "300", "40")])));
     const res = await handleRent(q("11440", "서교동"), env, f as unknown as typeof fetch, now);
     expect(res.status).toBe(200);
     const body = await res.text();
-    expect(JSON.parse(body)).toMatchObject({ dong: "서교동", months: ["202611", "202610", "202609", "202608", "202607", "202606"], monthly: { count: 6 } });
+    expect(JSON.parse(body)).toMatchObject({ dong: "서교동", months: ["202611", "202610", "202609", "202608", "202607", "202606"], monthly: { count: 18 }, types: ["단독 · 다가구", "연립 · 다세대", "오피스텔"] });
     expect(body).not.toContain(KEY);
-    expect(f).toHaveBeenCalledTimes(6);
+    expect(f).toHaveBeenCalledTimes(18);
+    const paths = f.mock.calls.map((c) => new URL(String((c as unknown[])[0])).pathname.split("/")[2]);
+    expect([...new Set(paths)].sort()).toEqual(["RTMSDataSvcOffiRent", "RTMSDataSvcRHRent", "RTMSDataSvcSHRent"]);
     const url = String((f.mock.calls[0] as unknown[])[0]);
     expect(url).toContain("LAWD_CD=11440");
     expect(url).not.toContain("%25"); // 키를 두 번 인코딩하지 않음
@@ -156,7 +158,7 @@ describe("서버 처리 /api/rent", () => {
     const f = vi.fn(async () => new Response(xml([item("서교동", "500", "50")])));
     await handleRent(q("11440", "서교동"), env, f as unknown as typeof fetch, now);
     await handleRent(q("11440", "망원동"), env, f as unknown as typeof fetch, now);
-    expect(f).toHaveBeenCalledTimes(6);
+    expect(f).toHaveBeenCalledTimes(18);
   });
 
   it("503 · 429는 한 번 다시 시도해서 성공하면 그대로", async () => {
@@ -164,16 +166,27 @@ describe("서버 처리 /api/rent", () => {
     const f = vi.fn(async () => (n++ === 0 ? new Response("busy", { status: 503 }) : new Response(xml([item("서교동", "500", "50")]))));
     const res = await handleRent(q("11440", "서교동"), env, f as unknown as typeof fetch, now);
     expect(res.status).toBe(200);
-    expect(f).toHaveBeenCalledTimes(7);
+    expect(f).toHaveBeenCalledTimes(19);
   });
 
   it("400 같은 오류는 다시 시도하지 않고, 실패해도 로그에 키가 남지 않는다", async () => {
     const f = vi.fn(async () => new Response("bad", { status: 400 }));
     const res = await handleRent(q("11440", "서교동"), env, f as unknown as typeof fetch, now);
     expect(res.status).toBe(502);
-    expect(f.mock.calls.length).toBeLessThanOrEqual(6);
+    expect(f.mock.calls.length).toBeLessThanOrEqual(18);
     expect(logs.join(" ")).not.toContain(KEY);
     expect(logs.join(" ")).toContain("http_400");
+  });
+
+  it("한 종류가 장애(04)여도 나머지 종류로 보여 주고, 어떤 종류를 썼는지 알린다(11/28 단독 · 다가구 장애)", async () => {
+    const f = vi.fn(async (u: URL | string) =>
+      String(u).includes("SHRent") ? new Response(xml([], "04")) : new Response(xml([item("서교동", "1,000", "60", "다세대")])),
+    );
+    const res = await handleRent(q("11440", "서교동"), env, f as unknown as typeof fetch, now);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toMatchObject({ monthly: { count: 12 }, types: ["연립 · 다세대", "오피스텔"] });
+    expect(res.headers.get("Cache-Control")).toContain("s-maxage=600"); // 일부만 받았으면 CDN에 짧게
+    expect(logs.join(" ")).toContain("RTMSDataSvcSHRent");
   });
 
   it("한도 초과(22) 같은 오류 코드는 실패로 알린다", async () => {

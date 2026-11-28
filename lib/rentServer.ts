@@ -5,7 +5,15 @@
 import { isKnownRegion } from "@/lib/region";
 import { monthsBack, parseRentXml, summarizeRent, type RentDeal } from "@/lib/rent";
 
-const ENDPOINT = "https://apis.data.go.kr/1613000/RTMSDataSvcSHRent/getRTMSDataSvcSHRent";
+// 원룸이 많은 세 종류를 함께 본다(11/28): 단독 · 다가구, 연립 · 다세대, 오피스텔. 아파트는 원룸보다 훨씬 비싸 시세가 부풀어 넣지 않는다.
+// 응답 항목(umdNm · deposit · monthlyRent)은 세 API가 같다(공공데이터포털 기술문서). 한 종류가 실패해도 나머지로 보여 준다.
+const BASE = "https://apis.data.go.kr/1613000/";
+export const RENT_SOURCES = [
+  { type: "단독 · 다가구", path: "RTMSDataSvcSHRent/getRTMSDataSvcSHRent" },
+  { type: "연립 · 다세대", path: "RTMSDataSvcRHRent/getRTMSDataSvcRHRent" },
+  { type: "오피스텔", path: "RTMSDataSvcOffiRent/getRTMSDataSvcOffiRent" },
+] as const;
+type Source = (typeof RENT_SOURCES)[number];
 const MONTHS = 6;
 const TTL_MS = 12 * 3600_000;
 const MAX_CACHE = 600;
@@ -68,13 +76,13 @@ async function call(f: Fetcher, url: URL): Promise<string> {
   throw new UpstreamError("retry");
 }
 
-async function monthDeals(f: Fetcher, key: string, sgg: string, ym: string): Promise<RentDeal[]> {
-  const ck = `${sgg}|${ym}`;
+async function monthDeals(f: Fetcher, key: string, src: Source, sgg: string, ym: string): Promise<RentDeal[]> {
+  const ck = `${src.path}|${sgg}|${ym}`;
   const hit = cache.get(ck);
   if (hit && Date.now() - hit.at < TTL_MS) return hit.deals;
   const deals: RentDeal[] = [];
   for (let page = 1; page <= 3; page++) {
-    const url = new URL(ENDPOINT);
+    const url = new URL(BASE + src.path);
     url.searchParams.set("serviceKey", key);
     url.searchParams.set("LAWD_CD", sgg);
     url.searchParams.set("DEAL_YMD", ym);
@@ -82,7 +90,7 @@ async function monthDeals(f: Fetcher, key: string, sgg: string, ym: string): Pro
     url.searchParams.set("pageNo", String(page));
     const parsed = parseRentXml(await call(f, url));
     if (!parsed.ok) throw new UpstreamError(`code_${parsed.code}`);
-    deals.push(...parsed.deals);
+    deals.push(...parsed.deals.map((d) => ({ ...d, houseType: d.houseType || src.type })));
     if (page * PAGE >= parsed.total) break;
   }
   if (cache.size >= MAX_CACHE) cache.delete(cache.keys().next().value!);
@@ -100,14 +108,24 @@ export async function handleRent(params: URLSearchParams, env: Record<string, st
   if (!key) return Response.json({ error: "unavailable" }, { status: 503 });
 
   const months = monthsBack(MONTHS, now);
-  try {
-    const all = await Promise.all(months.map((ym) => monthDeals(f, key, sgg, ym)));
-    const stats = summarizeRent(all.flat(), dong, months);
-    return Response.json(stats, { headers: { "Cache-Control": "public, s-maxage=43200, stale-while-revalidate=86400" } });
-  } catch (e) {
-    // 주소(키가 들어 있음)는 남기지 않고 이유만 남긴다
-    console.error("rent upstream failed:", e instanceof UpstreamError ? e.reason : "unknown");
-    return Response.json({ error: "upstream" }, { status: 502 });
-  }
+  // 종류마다 6개월을 모두 받아야 그 종류를 쓴다(몇 달만 빠지면 분포가 틀어지므로). 실패한 종류는 빼고 나머지로
+  const results = await Promise.all(
+    RENT_SOURCES.map(async (src) => {
+      try {
+        const all = await Promise.all(months.map((ym) => monthDeals(f, key, src, sgg, ym)));
+        return { src, deals: all.flat() };
+      } catch (e) {
+        // 주소(키가 들어 있음)는 남기지 않고 이유만 남긴다
+        console.error(`rent upstream failed (${src.path.split("/")[0]}):`, e instanceof UpstreamError ? e.reason : "unknown");
+        return null;
+      }
+    }),
+  );
+  const ok = results.filter((r): r is { src: Source; deals: RentDeal[] } => r !== null);
+  if (!ok.length) return Response.json({ error: "upstream" }, { status: 502 });
+  const stats = { ...summarizeRent(ok.flatMap((r) => r.deals), dong, months), types: ok.map((r) => r.src.type) };
+  // 일부 종류만 받았으면 CDN에 오래 두지 않는다(나머지가 살아나면 곧 다시 받게)
+  const cache = ok.length === RENT_SOURCES.length ? "public, s-maxage=43200, stale-while-revalidate=86400" : "public, s-maxage=600";
+  return Response.json(stats, { headers: { "Cache-Control": cache } });
 }
 
