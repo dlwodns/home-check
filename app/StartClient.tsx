@@ -3,9 +3,9 @@
 import Link from "next/link";
 import FlowPreview from "./ui/FlowPreview";
 import BrandMark from "./ui/BrandMark";
+import { replayEntry } from "./ui/entered";
 import { useRouter } from "next/navigation";
 import { useProgress } from "./ui/useProgress";
-import HomeLink from "./ui/HomeLink";
 import BackButton from "./ui/Back";
 
 export default function StartClient() {
@@ -22,13 +22,13 @@ export default function StartClient() {
     <main className="container start">
       <nav className="topbar">
         <BackButton fallback={"/"} />
-        <HomeLink />
         <span>계약 과정 미리 보기</span>
       </nav>
-      <p className="brand">
+      {/* 이 화면은 원래 있던 홈체크 로고가 홈 · 처음으로(새로고침). 위쪽 작은 집 아이콘과 겹치지 않게 하나만 */}
+      <a href="/" onClick={replayEntry} className="brand brand-link" aria-label="홈체크 처음으로 (새로고침)">
         <BrandMark />
         홈체크
-      </p>
+      </a>
       <h1>
         처음 하는 집계약,
         <br />

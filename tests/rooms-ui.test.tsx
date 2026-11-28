@@ -715,3 +715,12 @@ describe("맨 위 ←는 방금 보던 화면으로 (11/28)", () => {
     expect(nav()).toEqual(["/room?id=r1"]);
   });
 });
+
+describe("집 모양 로고는 화면마다 하나 (11/28)", () => {
+  it("계약 과정 미리 보기(/guide)는 원래 있던 홈체크 로고 하나가 처음으로(새로고침) 간다", async () => {
+    const { default: StartClient } = await import("@/app/StartClient");
+    const { container } = render(<StartClient />);
+    expect(container.querySelectorAll(".home-link, .brand").length).toBe(1);
+    expect(screen.getByRole("link", { name: "홈체크 처음으로 (새로고침)" }).getAttribute("href")).toBe("/");
+  });
+});

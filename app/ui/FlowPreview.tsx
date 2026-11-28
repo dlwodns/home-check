@@ -122,7 +122,7 @@ export default function FlowPreview() {
             <strong>왜 해요?</strong> {s.why}
           </p>
           <p className="flow-help">
-            <span aria-hidden="true">🏠</span> <strong>홈체크가</strong> {s.help}
+            <strong>홈체크가</strong> {s.help}
           </p>
         </div>
       </div>
