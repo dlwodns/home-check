@@ -118,6 +118,20 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
   );
   const docList = visibleDocs(progress.branch, check?.unknowns ?? null);
   const docGroup = DOC_GROUP[step.id];
+  // 건축물대장: 누가 확인하는지가 계약 방법에 따라 다르다(중개사는 확인 · 설명서에 적어 보여 줘야 함, S17). 중개사가 있어도 이상하면 직접 뗀다
+  const gov24 = (
+    <a href="https://www.gov.kr/mw/AA020InfoCappView.do?HighCtgCD=A04004&CappBizCD=15000000098" target="_blank" rel="noopener noreferrer">
+      정부24에서 떼기 ↗
+    </a>
+  );
+  const buildingHow =
+    progress.branch === "broker" ? (
+      <>중개사가 주는 확인 · 설명서의 &apos;위반건축물 · 용도&apos; 칸을 봐요. 이상하면 {gov24} (인터넷 무료)</>
+    ) : progress.branch === "direct" ? (
+      <>직거래는 직접 떼서 봐요 · {gov24} (인터넷 무료)</>
+    ) : (
+      <>{gov24} (인터넷 무료) · 중개사가 있으면 확인 · 설명서로 확인해도 돼요</>
+    );
   const needCheck = Boolean(step.key) && Boolean(room) && !check && !progress.checked["documents.registry"];
   const mainKeys = step.items.filter((i) => !i.optional).map((i) => `${step.id}.${i.id}`);
   const allDone = mainKeys.length > 0 && mainKeys.every((k) => progress.checked[k]);
@@ -146,7 +160,7 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
       <p className="check-hint small muted">
         {CHECK_HINT[step.id] ?? "한 것부터"} 체크해 주세요 · {next ? "다 체크하면 다음 단계로 넘어가요" : "다 체크하면 계약 완료예요"}
       </p>
-      <Checklist groupId={step.id} items={step.items} checked={progress.checked} onToggle={setChecked} segments={stepSegs} checkSlot={checkSlot} />
+      <Checklist groupId={step.id} items={step.items} checked={progress.checked} onToggle={setChecked} segments={stepSegs} checkSlot={checkSlot} extra={{ building: buildingHow }} />
 
       {step.items.some((i) => i.id === "prior_deposits") && <PriorDepositGuide />}
 

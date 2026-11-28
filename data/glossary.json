@@ -187,6 +187,28 @@
         "S25"
       ],
       "verified": true
+    },
+    {
+      "id": "illegal_building",
+      "term": "위반건축물",
+      "aliases": [],
+      "short": "허가 없이 늘리거나 고친 건물이에요. 건축물대장 맨 위에 표시돼요.",
+      "sources": [
+        "S30"
+      ],
+      "verified": true
+    },
+    {
+      "id": "neighborhood_facility",
+      "term": "근린생활시설",
+      "aliases": [
+        "근생"
+      ],
+      "short": "가게 · 사무실 같은 용도예요. 주택이 아니라서 원룸이어도 전세보증보험 대상이 아니에요.",
+      "sources": [
+        "S30"
+      ],
+      "verified": true
     }
   ]
 }

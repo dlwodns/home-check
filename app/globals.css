@@ -783,3 +783,5 @@ input[type="checkbox"] { accent-color: var(--accent); }
 .flow-controls .flow-dots { grid-column: 1 / -1; order: -1; justify-content: center; }
 .flow-controls button.ghost { width: 100%; }
 .flow-dots button { width: 28px; height: 28px; }
+.check-extra { margin: -4px 14px 14px 50px; font-size: var(--fs-small); color: var(--muted); line-height: 1.5; }
+.check-extra a { display: inline-flex; align-items: center; min-height: 32px; font-weight: 700; }

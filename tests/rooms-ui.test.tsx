@@ -831,3 +831,19 @@ describe("방 담기 UX (11/28)", () => {
     expect(screen.getByText(/보증금을 적어 주세요/)).toBeTruthy(); // 안 고친 칸은 그대로
   });
 });
+
+describe("4단계 건축물대장 (11/28)", () => {
+  it("기준(✓/▲)과 근거 S22 · S30이 있고, 계약 방법에 따라 확인 방법 안내가 바뀐다", async () => {
+    const user = userEvent.setup();
+    render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
+    const item = screen.getByText(/원룸 · 빌라는 꼭/).closest("li")!;
+    expect(within(item as HTMLElement).getByText(/위반건축물 표시 없고 용도가 주택/)).toBeTruthy();
+    expect(within(item as HTMLElement).getByText(/근린생활시설 → 보증보험이 안 될 수 있어요/)).toBeTruthy();
+    expect(within(item as HTMLElement).getByText(/중개사가 있으면 확인 · 설명서로 확인해도 돼요/)).toBeTruthy();
+    expect(within(item as HTMLElement).getByRole("link", { name: /정부24에서 떼기/ }).getAttribute("rel")).toContain("noopener");
+    await user.click(screen.getByRole("radio", { name: "공인중개사를 통해서" }));
+    expect(within(item as HTMLElement).getByText(/확인 · 설명서의 '위반건축물 · 용도' 칸을 봐요. 이상하면/)).toBeTruthy();
+    const b = steps[3].items.find((i) => i.id === "building")!;
+    expect(b.sources).toEqual(["S22", "S30"]);
+  });
+});

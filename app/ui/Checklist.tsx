@@ -16,6 +16,7 @@ export default function Checklist({
   onToggle,
   segments,
   checkSlot,
+  extra,
 }: {
   groupId: string;
   items: ChecklistItem[];
@@ -25,6 +26,8 @@ export default function Checklist({
   segments: Segment[][][];
   /** '등기부등본 점검' 항목(opens F2) 아래에 넣을 것(방 안이면 그 방 점검으로 가는 버튼 · 결과). 없으면 기본 버튼 */
   checkSlot?: React.ReactNode;
+  /** 항목 id → 줄 아래에 붙일 안내(예: 건축물대장을 계약 방법에 따라 어떻게 확인하는지) */
+  extra?: Record<string, React.ReactNode>;
 }) {
   const [why, setWhy] = useState<number | null>(null);
   const open = why === null ? null : items[why];
@@ -67,6 +70,7 @@ export default function Checklist({
                   )}
                 </dl>
               )}
+              {extra?.[item.id] && <div className="check-extra">{extra[item.id]}</div>}
               {item.opens === "F2" &&
                 (checkSlot ?? (
                   <Link href="/check" className="cta small-cta">
