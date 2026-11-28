@@ -90,6 +90,16 @@ const ArtMoveIn = () => (
   </Frame>
 );
 
+/** 단계 화면 맨 위에 다시 쓰는 그림(단계 id → 그림). 글을 읽지 않아도 지금 어느 단계인지 알아보게 */
+export const STEP_ART: Record<string, ReactNode> = {
+  prepare: <ArtBudget />,
+  search: <ArtSearch />,
+  visit: <ArtVisit />,
+  documents: <ArtDocs />,
+  contract: <ArtContract />,
+  move_in: <ArtMoveIn />,
+};
+
 export const SLIDES: Slide[] = [
   { title: "1. 준비", body: "보증금 · 월세로 쓸 수 있는 돈부터 정해요", why: "보증금은 큰돈이라, 정해 둬야 볼 방이 좁혀져요", help: "할 일을 체크리스트로 챙겨요", art: <ArtBudget /> },
   { title: "2. 집 찾기", body: "앱 · 중개사무소에서 후보 방을 모아요", why: "여러 곳을 봐야 동네 시세를 알 수 있어요", help: "마음에 드는 방을 담아 둬요. 그다음부터는 방마다 길을 따라가요", art: <ArtSearch /> },

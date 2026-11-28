@@ -20,6 +20,8 @@ import TrafficLight from "../../ui/TrafficLight";
 import { roomsStore, useProgress } from "../../ui/useProgress";
 import { toCheckCount } from "../../ui/roomView";
 import HomeLink from "../../ui/HomeLink";
+import ActionBar from "../../ui/ActionBar";
+import { STEP_ART } from "../../ui/FlowPreview";
 import NextActions, { RequestCard } from "../../check/NextActions";
 import RentCard from "../../room/RentCard";
 import { DocGroup, docKey, visibleDocs } from "../../docs/DocsClient";
@@ -107,12 +109,16 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
       </Link>
     </div>
   ) : (
-    <Link href={checkHref} className="cta small-cta">
-      다음: 등기부등본 점검 →
+    // 주 버튼은 아래 고정 줄 하나만: 목록 안에서는 같은 곳으로 가는 보조 버튼
+    <Link href={checkHref} className="nav-btn nav-btn-accent small-cta">
+      등기부등본 점검하러 가기 →
     </Link>
   );
   const docList = visibleDocs(progress.branch, check?.unknowns ?? null);
   const docGroup = DOC_GROUP[step.id];
+  const needCheck = Boolean(step.key) && Boolean(room) && !check && !progress.checked["documents.registry"];
+  const mainKeys = step.items.filter((i) => !i.optional).map((i) => `${step.id}.${i.id}`);
+  const allDone = mainKeys.length > 0 && mainKeys.every((k) => progress.checked[k]);
   const needBranch = Boolean(step.key) && (!progress.branch || (Boolean(room) && progress.branch === "none"));
 
   return (
@@ -120,15 +126,19 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
       <nav className="topbar">
         <BackButton fallback={backHref} />
         <HomeLink />
-        <span>
-          {room ? `${room.label} · ` : ""}
-          {step.no}단계 / {total}
-        </span>
+        <span>{room ? room.label : "계약 과정"}</span>
       </nav>
-      <h1 className="title">{step.title}</h1>
-      <p className="muted">
-        <TermText segments={summarySegs} />
-      </p>
+      {/* 단계 머리: 미리보기와 같은 그림 + 몇 번째 단계인지 + 한 줄 설명 */}
+      <header className="step-head">
+        <div className="step-art" aria-hidden="true">{STEP_ART[step.id]}</div>
+        <div>
+          <p className="step-count">{step.no} / {total} 단계</p>
+          <h1 className="title">{step.title}</h1>
+          <p className="muted step-summary">
+            <TermText segments={summarySegs} />
+          </p>
+        </div>
+      </header>
       {segs.some((g) => g.some((x) => x.term)) && <TermHint />}
 
       <p className="check-hint small muted">
@@ -191,7 +201,6 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
         <details className="card fold step-docs">
           <summary>
             <h2 className="h3">{docGroup === "receive" ? "집주인 · 중개사에게 받을 서류" : "계약하는 날 챙길 것"}</h2>
-            <span className="small muted">눌러서 보기</span>
           </summary>
           <DocGroup groupId={docGroup} list={docList} checked={progress.checked} onToggle={(id, v) => setChecked(docKey(id), v)} roomId={roomId} />
         </details>
@@ -199,22 +208,33 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
 
       {(step.id === "contract" || (step.key && check && check.verdict !== "safe")) && <HelpCard />}
 
-      {!next && (
-        <p className="card next-step">
-          <strong>마지막 단계예요 · 여기까지 하면 계약 완료</strong>
-        </p>
-      )}
-      <nav className="step-nav" aria-label="단계 이동">
-        {prev ? <Link href={r(`/steps/${prev.no}`)}>← 이전: {prev.title}</Link> : room ? <Link href={backHref}>← 이전: 계약까지 가는 길</Link> : <span />}
-        {/* 방 없이 1 · 2단계(준비 · 집 찾기)를 하면, 집 찾기 다음은 방 담기(3단계부터는 방마다 한다) */}
-        {!room && step.no === 2 ? (
-          <Link href="/rooms/new">다음: 방 담기 →</Link>
-        ) : next ? (
-          <Link href={r(`/steps/${next.no}`)}>다음: {next.title} →</Link>
-        ) : (
-          <Link href={backHref}>{room ? "다음: 계약까지 가는 길 →" : "다음: 내 계약 진행 →"}</Link>
-        )}
-      </nav>
+      {/* 아래 고정 줄: 주 버튼 하나. 4단계에서 아직 등기부 점검 전이면 점검을 먼저 권한다(가장 중요한 단계를 모르고 넘어가지 않게) */}
+      <ActionBar
+        prev={prev ? { label: "← 이전", href: r(`/steps/${prev.no}`), aria: `이전: ${prev.title}` } : room ? { label: "← 이전", href: backHref, aria: "이전: 계약까지 가는 길" } : undefined}
+        primary={
+          needCheck
+            ? { label: "다음: 등기부등본 점검 →", href: checkHref }
+            : !room && step.no === 2
+              ? { label: "다음: 방 담기 →", href: "/rooms/new" }
+              : next
+                ? { label: `다음: ${next.title} →`, href: r(`/steps/${next.no}`) }
+                : { label: room ? "다음: 계약까지 가는 길 →" : "다음: 내 계약 진행 →", href: backHref }
+        }
+        note={
+          needCheck ? (
+            <><strong>아직 등기부등본 점검 전이에요.</strong> 진짜 집주인과 빚을 확인하는, 가장 중요한 단계예요.</>
+          ) : allDone ? (
+            <strong>✓ 이 단계를 다 했어요{next ? "" : " · 계약 완료까지 챙겼어요"}</strong>
+          ) : undefined
+        }
+        extra={
+          needCheck && next ? (
+            <Link href={r(`/steps/${next.no}`)} className="action-skip">
+              점검 없이 {next.title}(으)로 넘어가기
+            </Link>
+          ) : undefined
+        }
+      />
     </main>
   );
 }

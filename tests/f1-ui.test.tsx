@@ -120,6 +120,6 @@ describe("단계 화면", () => {
   it("등기부등본 점검 항목에서 점검 화면으로 갈 수 있다", () => {
     render(<StepClient step={step4} total={6} branches={branches} steps={steps} />);
     const item = screen.getByRole("checkbox", { name: /등기부등본 점검하기/ }).closest("li")!;
-    expect(within(item).getByRole("link", { name: "다음: 등기부등본 점검 →" }).getAttribute("href")).toBe("/check");
+    expect(within(item).getByRole("link", { name: "등기부등본 점검하러 가기 →" }).getAttribute("href")).toBe("/check");
   });
 });
