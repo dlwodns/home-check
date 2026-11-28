@@ -91,9 +91,11 @@ export default function Welcome({ returning = false, hasRooms = false, onSkip }:
           다음: 방 담기 →
         </Link>
       )}
-      <Link href="/guide" className="nav-btn" onClick={markEntered}>
-        아직 방을 못 찾았어요 · 6단계 미리 보기
+      {/* 방이 아직 없으면 같은 미리보기(/guide)를 또 보여 주지 않고 1단계(준비)부터 한 길로 */}
+      <Link href="/steps/1" className="nav-btn" onClick={markEntered}>
+        다음: 방 찾기부터 →
       </Link>
+      <p className="small muted">방을 찾았으면 &apos;방 담기&apos;, 아직이면 &apos;방 찾기부터&apos;</p>
     </main>
   );
 }

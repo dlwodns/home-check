@@ -184,7 +184,14 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
       )}
       <nav className="step-nav" aria-label="단계 이동">
         {prev ? <Link href={r(`/steps/${prev.no}`)}>← 이전: {prev.title}</Link> : room ? <Link href={backHref}>← 방으로</Link> : <span />}
-        {next ? <Link href={r(`/steps/${next.no}`)}>다음: {next.title} →</Link> : <Link href={backHref}>{room ? "다음: 완료 →" : "다음: 진행 보기 →"}</Link>}
+        {/* 방 없이 1 · 2단계(준비 · 집 찾기)를 하면, 집 찾기 다음은 방 담기(3단계부터는 방마다 한다) */}
+        {!room && step.no === 2 ? (
+          <Link href="/rooms/new">다음: 방 담기 →</Link>
+        ) : next ? (
+          <Link href={r(`/steps/${next.no}`)}>다음: {next.title} →</Link>
+        ) : (
+          <Link href={backHref}>{room ? "다음: 완료 →" : "다음: 진행 보기 →"}</Link>
+        )}
       </nav>
     </main>
   );

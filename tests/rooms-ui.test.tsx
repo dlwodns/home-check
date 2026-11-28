@@ -422,6 +422,19 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     expect(localStorage.getItem("homecheck.entered.v1")).toBe("1");
   });
 
+  it("처음이에요 → 미리보기 끝에서 방이 없으면 '다음: 방 찾기부터 →'로 1단계에, 2단계 다음은 방 담기", async () => {
+    const { default: HomeGate } = await import("@/app/HomeGate");
+    const user = userEvent.setup();
+    render(<HomeGate />);
+    await user.click(await screen.findByRole("button", { name: "시작하기" }));
+    await user.click(screen.getByRole("button", { name: "처음이에요 · 과정 먼저 알아보기" }));
+    expect(screen.getByRole("link", { name: "다음: 방 찾기부터 →" }).getAttribute("href")).toBe("/steps/1");
+    expect(screen.queryByText(/6단계 미리 보기/)).toBeNull();
+    cleanup();
+    render(<StepClient step={steps[1]} total={steps.length} branches={branches} steps={steps} />);
+    expect(screen.getByRole("link", { name: "다음: 방 담기 →" }).getAttribute("href")).toBe("/rooms/new");
+  });
+
   it("다시 온 사람도 앱을 새로 열면 입구(로고 + 시작하기)가 떠 있다 → 건너뛰기 → '내 후보 방', 같은 탭에서는 바로 '내 후보 방'", async () => {
     const { default: HomeGate } = await import("@/app/HomeGate");
     const user = userEvent.setup();
