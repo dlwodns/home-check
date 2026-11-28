@@ -69,7 +69,7 @@ export default function PrivacyPage() {
 
       <ClearData />
 
-      <p className="disclaimer">홈체크는 참고용 안내예요. 최종 확인은 공인중개사 · 법률 전문가에게 받아 주세요.</p>
+      <p className="disclaimer">홈체크는 법률 자문이 아닌 참고용 안내예요. 최종 확인은 공인중개사 · 법률 전문가에게 받아 주세요.</p>
     </main>
   );
 }

@@ -54,7 +54,7 @@ export default function Welcome({ returning = false, hasRooms = false, onSkip }:
           </Link>
         </div>
         <p className="small muted welcome-foot">
-          참고용 안내예요. 최종 확인은 공인중개사 · 법률 전문가에게. · <Link href="/welcome">홈체크 소개</Link>
+          법률 자문이 아닌 참고용 안내예요. 최종 확인은 공인중개사 · 법률 전문가에게. · <Link href="/welcome">홈체크 소개</Link>
         </p>
       </main>
     );

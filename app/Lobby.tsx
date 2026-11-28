@@ -106,7 +106,7 @@ export default function Lobby() {
           방 담기
         </Link>
         <p className="small muted">
-          참고용 안내예요. 최종 확인은 공인중개사 · 법률 전문가에게 받아 주세요. · <Link href="/privacy">개인정보 · 데이터 안내</Link>
+          법률 자문이 아닌 참고용 안내예요. 최종 확인은 공인중개사 · 법률 전문가에게 받아 주세요. · <Link href="/privacy">개인정보 · 데이터 안내</Link>
         </p>
       </section>
     </main>

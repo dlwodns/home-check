@@ -535,7 +535,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       )}
 
       <p className="disclaimer">
-        참고용 안내예요. 최종 확인은 공인중개사 · 법률 전문가에게 받아 주세요.
+        법률 자문이 아닌 참고용 안내예요. 최종 확인은 공인중개사 · 법률 전문가에게 받아 주세요.
       </p>
     </main>
   );
