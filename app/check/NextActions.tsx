@@ -125,6 +125,9 @@ function PickButton({ on, onClick }: { on: boolean; onClick: () => void }) {
 /**
  * @param picked · onPick 방 화면에서는 방에 저장되게 넘기고, 없으면 이 화면 안에서만 기억한다.
  */
+const Q_SHOW = 2;
+const T_SHOW = 3;
+
 export default function NextActions({
   actions,
   picked: pickedProp,
@@ -159,6 +162,24 @@ export default function NextActions({
   const qSeg = (i: number) => segs[i];
   const tSeg = (i: number) => segs[actions.questions.length + i];
   const hasTerm = segs.some((g) => g.some((x) => x.term));
+  const question = (q: string, i: number) => (
+    <li key={q}>
+      <p className="bubble">
+        <TermText segments={qSeg(i)} />
+      </p>
+      <div className="row-buttons">
+        <CopyButton text={q} />
+        <PickButton on={Boolean(picked[reqKey("q", q)])} onClick={() => toggle(reqKey("q", q))} />
+      </div>
+      {note(q)}
+    </li>
+  );
+  const todo = (t: string, i: number) => (
+    <li key={t}>
+      <TermText segments={tSeg(i)} />
+      {note(t)}
+    </li>
+  );
 
   return (
     <section className="next" aria-labelledby="next-title">
@@ -168,33 +189,26 @@ export default function NextActions({
       {actions.questions.length > 0 && (
         <div className="card">
           <h3>집주인 · 중개사에게 이렇게 물어보세요</h3>
-          <ul className="bubbles">
-            {actions.questions.map((q, i) => (
-              <li key={q}>
-                <p className="bubble">
-                  <TermText segments={qSeg(i)} />
-                </p>
-                <div className="row-buttons">
-                  <CopyButton text={q} />
-                  <PickButton on={Boolean(picked[reqKey("q", q)])} onClick={() => toggle(reqKey("q", q))} />
-                </div>
-                {note(q)}
-              </li>
-            ))}
-          </ul>
+          {/* 우선순위대로 2개만 펼치고 나머지는 접는다(11/28 UX: 할 일 화면이 휴대폰 6장 길이였음) */}
+          <ul className="bubbles">{actions.questions.slice(0, Q_SHOW).map((q, i) => question(q, i))}</ul>
+          {actions.questions.length > Q_SHOW && (
+            <details className="more">
+              <summary>질문 {actions.questions.length - Q_SHOW}개 더 보기</summary>
+              <ul className="bubbles">{actions.questions.slice(Q_SHOW).map((q, i) => question(q, i + Q_SHOW))}</ul>
+            </details>
+          )}
         </div>
       )}
 
       <div className="card">
         <h3>이렇게 하세요</h3>
-        <ol className="plain">
-          {actions.todos.map((t, i) => (
-            <li key={t}>
-              <TermText segments={tSeg(i)} />
-              {note(t)}
-            </li>
-          ))}
-        </ol>
+        <ol className="plain">{actions.todos.slice(0, T_SHOW).map((t, i) => todo(t, i))}</ol>
+        {actions.todos.length > T_SHOW && (
+          <details className="more">
+            <summary>할 일 {actions.todos.length - T_SHOW}개 더 보기</summary>
+            <ol className="plain" start={T_SHOW + 1}>{actions.todos.slice(T_SHOW).map((t, i) => todo(t, i + T_SHOW))}</ol>
+          </details>
+        )}
       </div>
 
       {/* 결과가 길어서 특약 · 가족에게 보내기는 접어 둔다(필요할 때 펼침) */}
@@ -292,7 +306,7 @@ export function RequestCard({
           </div>
         </>
       ) : (
-        <p className="small muted">{empty}</p>
+        <p className="small muted request-empty">{empty}</p>
       )}
     </div>
   );

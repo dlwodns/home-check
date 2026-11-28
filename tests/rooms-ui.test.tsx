@@ -791,3 +791,27 @@ describe("UX 정리 (11/28): 줄 눌러 체크 · ⓘ 시트 · 4단계 점검 �
     expect(within(bar).getByRole("link", { name: /점검 없이 계약하는 날\(으\)로 넘어가기/ }).getAttribute("href")).toBe("/steps/5?room=r1");
   });
 });
+
+describe("점검 화면 UX (11/28)", () => {
+  it("보증금을 비우고 점검하면 그 칸이 빨갛게 표시되고 바로 아래에 고칠 말이 나온다", async () => {
+    const user = userEvent.setup();
+    render(<CheckClient samples={samples} />);
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
+    const dep = screen.getByLabelText("내 보증금 (원)");
+    await user.clear(dep);
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(dep.getAttribute("aria-invalid")).toBe("true");
+    expect(dep.closest(".field")!.querySelector(".field-error")!.textContent).toMatch(/내 보증금을 적어 주세요/);
+  });
+
+  it("방에서 예시 서류로 점검하면 끝에서 '이 방 등기부등본 올리기'로 바로 돌아갈 수 있다(막다른 곳 X)", async () => {
+    const user = userEvent.setup();
+    seedRooms(baseRoom);
+    at("check?room=r1");
+    render(<CheckClient samples={samples} />);
+    await user.click(await screen.findByRole("button", { name: "예시 서류 2" }));
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    await user.click(screen.getByRole("button", { name: /이전: 서류 넣기 \(이 방 등기부등본 올리기\)/ }));
+    expect(screen.getByRole("heading", { name: "서류 넣기" })).toBeTruthy();
+  });
+});

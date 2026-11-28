@@ -166,6 +166,17 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     }
   };
 
+  // 내 계약 정보 칸의 오류는 그 칸 바로 아래에(11/28 UX: 맨 아래 상자에만 뜨면 어디를 고칠지 찾아야 함)
+  const errs = outcome && !outcome.ok ? outcome.errors : [];
+  const errFor = (label: string) => errs.find((e) => e.startsWith(label)) ?? null;
+  const fieldErr = Boolean(errs.length) && errs.every((e) => /^(내 보증금|앞선 세입자 보증금|건물 시세|계약할 사람)/.test(e));
+  useEffect(() => {
+    if (!fieldErr) return;
+    const el = document.querySelector<HTMLElement>(".check [aria-invalid='true']");
+    el?.focus();
+    el?.scrollIntoView?.({ block: "center" });
+  }, [fieldErr, run]);
+
   const start = () => {
     setInputsOpen(false);
     setRun((n) => n + 1);
@@ -256,7 +267,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       <nav className="topbar">
         <BackButton fallback={room ? withRoom("/steps/4", room.id) : "/"} />
         <HomeLink />
-        <span>{room ? `${room.label} · 등기부등본 점검` : "등기부등본 점검"}</span>
+        <span>{room ? "4단계 · 등기부등본 점검" : "등기부등본 점검"}</span>
       </nav>
 
       <nav className="check-steps" aria-label="점검 단계">
@@ -410,22 +421,26 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         <h2>내 계약 정보</h2>
         <div className="field">
           <label htmlFor={ids.my} data-mark="필수">내 보증금 (원)</label>
-          <MoneyInput id={ids.my} aria-required="true" hintId={`${ids.my}-h`} value={form.myDeposit} onChange={setMoney("myDeposit")} placeholder="예: 5,000,000" />
+          <MoneyInput id={ids.my} aria-required="true" aria-invalid={Boolean(errFor("내 보증금"))} aria-describedby={errFor("내 보증금") ? `${ids.my}-e` : undefined} hintId={`${ids.my}-h`} value={form.myDeposit} onChange={setMoney("myDeposit")} placeholder="예: 5,000,000" />
+          {errFor("내 보증금") && <p className="field-error" role="alert" id={`${ids.my}-e`}>{errFor("내 보증금")}</p>}
         </div>
         <div className="field">
           <label htmlFor={ids.prior} data-mark="선택">앞선 세입자 보증금 합계 (원)</label>
-          <MoneyInput id={ids.prior} hintId={`${ids.prior}-h`} value={form.priorDeposits} onChange={setMoney("priorDeposits")} placeholder="모르면 비워 두세요" />
+          <MoneyInput id={ids.prior} aria-invalid={Boolean(errFor("앞선 세입자 보증금"))} hintId={`${ids.prior}-h`} value={form.priorDeposits} onChange={setMoney("priorDeposits")} placeholder="모르면 비워 두세요" />
+          {errFor("앞선 세입자 보증금") && <p className="field-error" role="alert" id={`${ids.prior}-e`}>{errFor("앞선 세입자 보증금")}</p>}
           <p className="hint">다가구 원룸은 등기부에 안 나와요 · 모르면 비워 두세요</p>
           <PriorDepositGuide />
         </div>
         <div className="field">
           <label htmlFor={ids.market} data-mark="선택">이 건물 시세 (원)</label>
-          <MoneyInput id={ids.market} hintId={`${ids.market}-h`} value={form.marketPrice} onChange={setMoney("marketPrice")} placeholder="예: 800,000,000 또는 8억 · 모르면 비워 두세요" />
+          <MoneyInput id={ids.market} aria-invalid={Boolean(errFor("건물 시세"))} hintId={`${ids.market}-h`} value={form.marketPrice} onChange={setMoney("marketPrice")} placeholder="예: 800,000,000 또는 8억 · 모르면 비워 두세요" />
+          {errFor("건물 시세") && <p className="field-error" role="alert" id={`${ids.market}-e`}>{errFor("건물 시세")}</p>}
           <p className="hint">HUG 안심전세 앱에서 볼 수 있어요 · 모르면 비워 두세요</p>
         </div>
         <div className="field">
           <label htmlFor={ids.party} data-mark="선택">집주인 이름 (계약서에 서명할 사람)</label>
-          <input id={ids.party} value={form.contractParty} onChange={set("contractParty")} placeholder="예: 김도윤 · 모르면 비워 두세요" aria-describedby={`${ids.party}-h`} />
+          <input id={ids.party} aria-invalid={Boolean(errFor("계약할 사람"))} value={form.contractParty} onChange={set("contractParty")} placeholder="예: 김도윤 · 모르면 비워 두세요" aria-describedby={`${ids.party}-h`} />
+          {errFor("계약할 사람") && <p className="field-error" role="alert">{errFor("계약할 사람")}</p>}
           <p className="hint" id={`${ids.party}-h`}>
             내 이름 말고, 집주인이라고 들은 이름이에요
           </p>
@@ -439,7 +454,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       </>
       )}
 
-      {outcome && !outcome.ok && (
+      {outcome && !outcome.ok && !fieldErr && (
         <section className="card errors" role="alert">
           <h2>이것만 고쳐 주세요</h2>
           <ul>
@@ -491,7 +506,21 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
               )}
             </>
           ) : room ? (
-            <p className="small">예시 서류 결과는 이 방에 저장하지 않아요. 위에서 이 방의 등기부등본을 올려 점검해 주세요.</p>
+            <>
+              <p className="small">예시 서류 결과는 이 방에 저장하지 않아요. 이 방의 등기부등본을 올리면 결과가 방에 저장되고 4단계로 이어져요.</p>
+              {/* 막다른 곳이 되지 않게(11/28 UX): 서류 넣기로 바로 돌아가는 버튼 */}
+              <button
+                type="button"
+                className="primary"
+                onClick={() => {
+                  setInputsOpen(true);
+                  setPane("doc");
+                  window.scrollTo?.({ top: 0 });
+                }}
+              >
+                ← 이전: 서류 넣기 (이 방 등기부등본 올리기)
+              </button>
+            </>
           ) : (
             <>
               <Link href="/rooms/new" className="primary-link">
