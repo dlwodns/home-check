@@ -414,7 +414,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
     await user.click(screen.getByRole("button", { name: "처음이에요 · 과정 먼저 알아보기" }));
-    expect(screen.getByRole("region", { name: "홈체크 사용 흐름 미리보기" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "집 계약 과정 미리보기" })).toBeTruthy();
     expect(JSON.parse(localStorage.getItem("homecheck.progress.v1")!).mode).toBe("first");
     const go = screen.getByRole("link", { name: "다음: 방 담기 →" });
     expect(go.getAttribute("href")).toBe("/rooms/new");
@@ -461,7 +461,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
     await user.click(screen.getByRole("button", { name: "과정 알아보기" }));
-    expect(screen.getByRole("region", { name: "홈체크 사용 흐름 미리보기" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "집 계약 과정 미리보기" })).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "다음: 홈 →" }));
     expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
   });

@@ -1,26 +1,29 @@
 // @vitest-environment jsdom
-// 계약 과정 미리보기(A): 화면 파일이 실제로 있고, 이전 · 다음 · 멈춤이 되며, 동작 줄이기 환경에서는 자동으로 넘기지 않는다.
-import { existsSync } from "node:fs";
+// 집 계약 과정 미리보기(그림): 6단계가 그림 · 한 줄 · 왜 해요 · 홈체크가 도와주는 것으로 하나씩 넘어가고, 자동으로 넘기지 않는다.
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it } from "vitest";
 import FlowPreview, { SLIDES } from "@/app/ui/FlowPreview";
+import { steps } from "@/lib/content";
 
-describe("계약 과정 미리보기", () => {
-  it("미리보기 화면 파일이 모두 있다", () => {
-    for (const s of SLIDES) expect(existsSync(`public${s.src}`), s.src).toBe(true);
+describe("집 계약 과정 미리보기", () => {
+  it("6단계 제목이 계약 단계 데이터와 같은 순서 · 이름이다", () => {
+    expect(SLIDES.map((s) => s.title)).toEqual(steps.map((s) => `${s.no}. ${s.title}`));
   });
 
-  it("처음엔 ①, 다음 · 이전으로 넘기고, 자동 재생은 멈춘 채로 시작한다(matchMedia 없는 환경)", async () => {
+  it("장마다 그림(이름 있는 그림) · 왜 해요 · 홈체크가 도와주는 것이 있고, 이전 · 다음 · 점으로 넘긴다", async () => {
     const user = userEvent.setup();
     render(<FlowPreview />);
-    expect(screen.getByText(SLIDES[0].title)).toBeTruthy();
-    expect(screen.getByRole("button", { name: "재생" })).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "다음 화면" }));
-    expect(screen.getByText(SLIDES[1].title)).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "이전 화면" }));
-    await user.click(screen.getByRole("button", { name: "이전 화면" }));
-    expect(screen.getByText(SLIDES[SLIDES.length - 1].title)).toBeTruthy();
-    expect(screen.getByRole("img", { name: `${SLIDES[SLIDES.length - 1].title} 화면` })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: SLIDES[0].title })).toBeTruthy();
+    expect(screen.getByRole("img", { name: /지갑과 동전/ })).toBeTruthy();
+    expect(screen.getByText("왜 해요?")).toBeTruthy();
+    expect((screen.getByRole("button", { name: "← 이전" }) as HTMLButtonElement).disabled).toBe(true);
+    await user.click(screen.getByRole("button", { name: "다음 →" }));
+    expect(screen.getByRole("heading", { name: SLIDES[1].title })).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "4. 계약 전 서류 확인" }));
+    expect(screen.getByText("가장 중요해요")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "6. 입주 후" }));
+    expect((screen.getByRole("button", { name: "다음 →" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(screen.getByText(/여기까지가 계약 완료예요/)).toBeTruthy();
   });
 });

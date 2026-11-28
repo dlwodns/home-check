@@ -80,7 +80,7 @@ export default function Welcome({ returning = false, hasRooms = false, onSkip }:
 
   return (
     <main className="welcome welcome-preview">
-      <h1 className="welcome-q">이렇게 함께 해요</h1>
+      <h1 className="welcome-q">집 계약, 이렇게 흘러가요</h1>
       <FlowPreview />
       {returning ? (
         <button type="button" className="primary" onClick={onSkip}>
