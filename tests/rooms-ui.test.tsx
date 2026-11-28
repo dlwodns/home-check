@@ -419,6 +419,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
     expect(screen.getByRole("heading", { name: "집 구하는 과정, 다시 볼까요?" })).toBeTruthy();
+    expect(screen.getByText("건너뛰면 홈으로 가요. 관심 있는 방을 바로 담을 수 있어요.")).toBeTruthy(); // 담은 방이 없을 때
     await user.click(screen.getByRole("button", { name: "건너뛰기" }));
     expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
     expect(push).not.toHaveBeenCalled();
@@ -438,7 +439,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
     await user.click(screen.getByRole("button", { name: "과정 알아보기" }));
     expect(screen.getByRole("region", { name: "홈체크 사용 흐름 미리보기" })).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: "내 후보 방으로 →" }));
+    await user.click(screen.getByRole("button", { name: "홈으로 →" }));
     expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
   });
 
@@ -451,6 +452,17 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     logo.addEventListener("click", (e) => e.preventDefault()); // jsdom은 페이지 이동을 못 함
     logo.click();
     expect(sessionStorage.getItem("homecheck.opened.v1")).toBeNull();
+  });
+
+  it("방을 담아 둔 사람이 새로 열면: '건너뛰면 담아 둔 방으로 바로 가요' → 건너뛰기 → 방 목록", async () => {
+    const { default: HomeGate } = await import("@/app/HomeGate");
+    const user = userEvent.setup();
+    seedRooms(baseRoom);
+    render(<HomeGate />);
+    await user.click(await screen.findByRole("button", { name: "시작하기" }));
+    expect(screen.getByText("건너뛰면 담아 둔 방으로 바로 가요.")).toBeTruthy();
+    await user.click(screen.getByRole("button", { name: "건너뛰기" }));
+    expect(await screen.findByRole("link", { name: /정문 원룸.*보증금/ })).toBeTruthy();
   });
 
   it("방을 담아 둔 사람도 바로 '내 후보 방' (예전 사용자)", async () => {

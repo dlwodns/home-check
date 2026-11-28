@@ -11,14 +11,17 @@ import { roomsStore } from "./ui/useProgress";
 export default function HomeGate() {
   const [view, setView] = useState<"wait" | "welcome" | "rooms">("wait");
   const [returning, setReturning] = useState(false);
+  const [hasRooms, setHasRooms] = useState(false);
   useEffect(() => {
-    const back = hasEntered() || roomsStore().load().rooms.length > 0;
+    const rooms = roomsStore().load().rooms.length > 0;
+    const back = hasEntered() || rooms;
     const fresh = firstOpenInTab();
     if (back) markEntered();
     setReturning(back);
+    setHasRooms(rooms);
     setView(!back || fresh ? "welcome" : "rooms");
   }, []);
   const toRooms = useCallback(() => setView("rooms"), []);
   if (view === "wait") return <main className="container" aria-busy="true" />;
-  return view === "welcome" ? <Welcome returning={returning} onSkip={toRooms} /> : <RoomsHome />;
+  return view === "welcome" ? <Welcome returning={returning} hasRooms={hasRooms} onSkip={toRooms} /> : <RoomsHome />;
 }

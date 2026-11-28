@@ -11,7 +11,7 @@ import FlowPreview from "./ui/FlowPreview";
 import { markEntered } from "./ui/entered";
 import { useProgress } from "./ui/useProgress";
 
-export default function Welcome({ returning = false, onSkip }: { returning?: boolean; onSkip?: () => void }) {
+export default function Welcome({ returning = false, hasRooms = false, onSkip }: { returning?: boolean; hasRooms?: boolean; onSkip?: () => void }) {
   const router = useRouter();
   const { update } = useProgress();
   const [stage, setStage] = useState<"start" | "ask" | "preview">("start");
@@ -63,7 +63,7 @@ export default function Welcome({ returning = false, onSkip }: { returning?: boo
     return (
       <main className="welcome welcome-ask">
         <h1 className="welcome-q">{returning ? "집 구하는 과정, 다시 볼까요?" : "집 계약, 해 본 적 있어요?"}</h1>
-        <p className="muted">{returning ? "건너뛰면 담아 둔 방으로 바로 가요." : "해 봤다면 아는 단계(준비 · 집 찾기 · 집 보기)는 접어 둘게요."}</p>
+        <p className="muted">{returning ? hasRooms ? "건너뛰면 담아 둔 방으로 바로 가요." : "건너뛰면 홈으로 가요. 관심 있는 방을 바로 담을 수 있어요." : "해 봤다면 아는 단계(준비 · 집 찾기 · 집 보기)는 접어 둘게요."}</p>
         <div className="welcome-choices">
           <button type="button" className="primary" onClick={() => choose("first")}>
             {returning ? "과정 알아보기" : "처음이에요 · 과정 먼저 알아보기"}
@@ -84,7 +84,7 @@ export default function Welcome({ returning = false, onSkip }: { returning?: boo
       <FlowPreview />
       {returning ? (
         <button type="button" className="primary" onClick={onSkip}>
-          내 후보 방으로 →
+          {hasRooms ? "내 후보 방으로 →" : "홈으로 →"}
         </button>
       ) : (
         <Link href="/rooms/new" className="primary-link" onClick={markEntered}>
