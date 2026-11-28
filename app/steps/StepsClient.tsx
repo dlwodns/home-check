@@ -1,6 +1,8 @@
 "use client";
 // 내 계약 진행: 6단계와 단계별 진행, "지금 할 차례" 강조.
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import type { Branch, Step } from "@/lib/content";
 import { branchFor, stepStats } from "@/lib/store/stats";
 import { roomHref, withRoom } from "@/lib/store/rooms";
@@ -12,6 +14,11 @@ const BRANCH_LABEL = { broker: "중개사를 통해서", direct: "직거래", no
 
 export default function StepsClient({ steps, branches }: { steps: Step[]; branches: Branch[] }) {
   const { progress, update, loaded, room, roomId } = useProgress();
+  const router = useRouter();
+  // 한 길(11/28): 방 안에서는 6단계 목록 대신 방 화면(길)이 같은 일을 한다 → 그쪽으로 보낸다
+  useEffect(() => {
+    if (room) router.replace(roomHref(room.id));
+  }, [room, router]);
   const r = (href: string) => withRoom(href, roomId);
   const termsOff = useTermsOff();
   const experienced = progress.mode === "experienced";

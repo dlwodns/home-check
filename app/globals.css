@@ -670,3 +670,19 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .step-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .doc-more > summary { cursor: pointer; min-height: 36px; display: flex; align-items: center; color: var(--muted); }
 .doc-more[open] { display: flex; flex-direction: column; gap: 4px; }
+/* 방 화면 = 한 길(11/28): 세로 줄 위에 단계 동그라미. 지금 단계만 크게 펼친다 */
+.path { list-style: none; margin: 12px 0 16px; padding: 0; display: flex; flex-direction: column; gap: 10px; position: relative; }
+.path::before { content: ""; position: absolute; left: 15px; top: 16px; bottom: 16px; width: 2px; background: var(--border); }
+.path-step { display: grid; grid-template-columns: 32px 1fr; gap: 10px; align-items: start; position: relative; }
+.path-dot { width: 32px; height: 32px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; background: var(--surface); border: 2px solid var(--border); color: var(--muted); z-index: 1; }
+.path-done .path-dot, .path-skipped .path-dot { background: var(--safe-bg); border-color: var(--safe); color: var(--safe); }
+.path-current .path-dot { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.path-body { display: flex; flex-direction: column; gap: 4px; min-height: 32px; justify-content: center; }
+.path-title { font-weight: 700; text-decoration: none; color: var(--text); min-height: 32px; display: inline-flex; align-items: center; gap: 4px; }
+a.path-title { color: var(--text); }
+.path-locked .path-title { font-weight: 600; }
+.path-current .path-body { margin: 0; }
+.step-nav a:last-child:not(:first-child) { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.step-nav > span:first-child + a { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.inline-q { display: flex; flex-direction: column; gap: 8px; border: 2px solid var(--accent); }
+.inline-q h2 { margin: 0; font-size: 17px; }

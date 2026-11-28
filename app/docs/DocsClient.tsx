@@ -66,57 +66,9 @@ export default function DocsClient() {
         {loaded ? `${list.length}개 중 ${done}개 챙겼어요` : " "}
       </p>
 
-      {docs.groups.map((g) => {
-        const items = list.filter((d) => d.item.when === g.id);
-        if (!items.length) return null;
-        return (
-          <section key={g.id} className="docs-group" aria-labelledby={`g-${g.id}`}>
-            <h2 id={`g-${g.id}`}>{g.title}</h2>
-            <ul className="docs-list">
-              {items.map(({ item, conditional }) => {
-                const id = `doc-${item.id}`;
-                const on = Boolean(progress.checked[docKey(item.id)]);
-                return (
-                  <li key={item.id} className={on ? "doc-done" : undefined}>
-                    <input id={id} type="checkbox" checked={on} onChange={(e) => toggle(item.id, e.target.checked)} />
-                    <div>
-                      <label htmlFor={id}>
-                        {conditional && item.only && <span className="doc-only">{ONLY_LABEL[item.only]}</span>}
-                        <strong>{item.title}</strong>
-                      </label>
-                      <span className="small muted">{item.why}</span>
-                      {item.room && room && (
-                        <Link href={roomHref(room.id)} className="nav-btn nav-btn-sm">
-                          이 방 특약 문장 보러 가기 →
-                        </Link>
-                      )}
-                      {/* 어디서 · 얼마 · 근거는 펼쳐야 보이게(11/28 첫 화면 글자 줄이기) */}
-                      {(item.where || item.cost || item.sources.length > 0 || item.guide) && (
-                        <details className="doc-more">
-                          <summary className="small">어디서 · 얼마</summary>
-                          {(item.where || item.cost) && <span className="small doc-meta">{[item.where, item.cost].filter(Boolean).join(" · ")}</span>}
-                          {item.sources.length > 0 && (
-                            <span className="small muted">
-                              근거{" "}
-                              {item.sources.map((s, i) => (
-                                <span key={s}>
-                                  {i > 0 && " · "}
-                                  <Link href={`/sources#${s}`}>{s}</Link>
-                                </span>
-                              ))}
-                            </span>
-                          )}
-                          {item.guide && <PriorDepositGuide />}
-                        </details>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          </section>
-        );
-      })}
+      {docs.groups.map((g) => (
+        <DocGroup key={g.id} groupId={g.id} list={list} checked={progress.checked} onToggle={toggle} roomId={room?.id ?? null} />
+      ))}
 
       {room && (
         <Link href={withRoom("/steps", roomId)} className="nav-btn">
@@ -125,5 +77,71 @@ export default function DocsClient() {
       )}
       <p className="disclaimer">비용 · 기한은 법령 원문 기준(2026-11-17 확인) · 기관마다 조금 다를 수 있어요.</p>
     </main>
+  );
+}
+
+/** 서류 한 묶음(언제 챙기는지 기준). 서류 화면과 단계 화면(4 · 5단계 안)에서 같이 쓴다 */
+export function DocGroup({
+  groupId,
+  list,
+  checked,
+  onToggle,
+  roomId,
+}: {
+  groupId: string;
+  list: { item: DocItem; conditional: boolean }[];
+  checked: Record<string, boolean>;
+  onToggle: (id: string, value: boolean) => void;
+  roomId: string | null;
+}) {
+  const g = docs.groups.find((x) => x.id === groupId);
+  const items = list.filter((d) => d.item.when === groupId);
+  if (!g || !items.length) return null;
+  return (
+    <section className="docs-group" aria-labelledby={`g-${g.id}`}>
+      <h2 id={`g-${g.id}`}>{g.title}</h2>
+      <ul className="docs-list">
+        {items.map(({ item, conditional }) => {
+          const id = `doc-${item.id}`;
+          const on = Boolean(checked[docKey(item.id)]);
+          return (
+            <li key={item.id} className={on ? "doc-done" : undefined}>
+              <input id={id} type="checkbox" checked={on} onChange={(e) => onToggle(item.id, e.target.checked)} />
+              <div>
+                <label htmlFor={id}>
+                  {conditional && item.only && <span className="doc-only">{ONLY_LABEL[item.only]}</span>}
+                  <strong>{item.title}</strong>
+                </label>
+                <span className="small muted">{item.why}</span>
+                {item.room && roomId && (
+                  <Link href={withRoom("/steps/4", roomId)} className="nav-btn nav-btn-sm">
+                    이 방 특약 문장 보기 (4단계) →
+                  </Link>
+                )}
+                {/* 어디서 · 얼마 · 근거는 펼쳐야 보이게(11/28 첫 화면 글자 줄이기) */}
+                {(item.where || item.cost || item.sources.length > 0 || item.guide) && (
+                  <details className="doc-more">
+                    <summary className="small">어디서 · 얼마</summary>
+                    {(item.where || item.cost) && <span className="small doc-meta">{[item.where, item.cost].filter(Boolean).join(" · ")}</span>}
+                    {item.sources.length > 0 && (
+                      <span className="small muted">
+                        근거{" "}
+                        {item.sources.map((s, i) => (
+                          <span key={s}>
+                            {i > 0 && " · "}
+                            <Link href={`/sources#${s}`}>{s}</Link>
+                          </span>
+                        ))}
+                      </span>
+                    )}
+                    {item.guide && <PriorDepositGuide />}
+                  </details>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
   );
 }

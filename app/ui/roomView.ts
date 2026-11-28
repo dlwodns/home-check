@@ -52,36 +52,34 @@ export function moneyLine(room: Pick<Room, "deposit" | "rent">): string {
 }
 
 export type FocusTask =
-  | { kind: "check"; title: string; why: string; cta: string; href: string }
   | { kind: "step"; title: string; why: string; cta: string; href: string; step: Step }
   | { kind: "done"; title: string; why: string; cta: string; href: string };
 
 /**
- * 이 방에서 지금 할 일 하나 — 방 화면 · 방 카드 · 홈 '이어하기'가 모두 이것만 쓴다(같은 답).
- * 규칙: 등기부등본을 아직 점검하지 않았으면 그게 먼저(집 보러 가기 전에 해 두면 헛걸음을 줄임) → 그다음은 6단계의 지금 단계.
+ * 이 방에서 지금 할 일 하나 — 방 화면(길) · 홈 '이어하기'가 모두 이것만 쓴다(같은 답).
+ * 한 길(11/28): 6단계를 순서대로. 등기부 점검은 4단계(계약 전 서류 확인) 안에서 한다(NN/g 마법사 · 듀오링고 패스 참고).
  */
 export function focusTask(room: Room, mode: Mode | null, steps: Step[], branches: BranchContent[]): FocusTask {
   const q = `room=${encodeURIComponent(room.id)}`;
-  // 4단계의 '등기부등본 점검하기'를 직접 체크했으면(다른 곳에서 확인함) 점검한 것으로 본다
-  if (!room.check && !room.checked["documents.registry"])
-    return {
-      kind: "check",
-      title: "등기부등본을 점검할 차례예요",
-      why: "진짜 집주인인지, 빚(근저당)이 얼마인지 5분이면 알 수 있어요. 집을 보러 가기 전에 해 두면 헛걸음을 줄여요.",
-      cta: "등기부등본 올려서 점검하기",
-      href: `/check?${q}`,
-    };
   const { current } = roomSteps(room, mode, steps, branches);
-  if (current)
-    return { kind: "step", title: `${current.no}단계 · ${current.title} 할 차례예요`, why: current.summary, cta: `${current.no}단계 할 일 보기`, href: `/steps/${current.no}?${q}`, step: current };
-  return { kind: "done", title: "6단계를 모두 마쳤어요", why: "이사 뒤 전입신고 · 확정일자까지 했다면, 보증금을 지키는 준비가 끝났어요.", cta: "6단계 다시 보기", href: `/steps?${q}` };
+  if (current) {
+    const needsCheck = current.key && !room.check && !room.checked["documents.registry"];
+    return {
+      kind: "step",
+      title: `${current.no}단계 · ${current.title}`,
+      why: needsCheck ? "등기부등본으로 진짜 집주인과 빚을 확인해요" : current.summary,
+      cta: `${current.no}단계 시작하기 →`,
+      href: `/steps/${current.no}?${q}`,
+      step: current,
+    };
+  }
+  return { kind: "done", title: "6단계를 모두 마쳤어요", why: "보증금을 지키는 준비가 끝났어요.", cta: "", href: `/room?id=${encodeURIComponent(room.id)}` };
 }
 
-/** 방 카드 · '이어하기' 카드용 한 줄 (focusTask와 같은 답) */
+/** 홈 '이어하기' 카드용 한 줄 (focusTask와 같은 답) */
 export function nextAction(room: Room, mode: Mode | null, steps: Step[], branches: BranchContent[]): { text: string; href: string; stepId?: string } {
   const t = focusTask(room, mode, steps, branches);
-  if (t.kind === "check") return { text: t.cta, href: t.href };
-  if (t.kind === "step") return { text: `${t.step.no}단계 · ${t.step.title}`, href: t.href, stepId: t.step.id };
+  if (t.kind === "step") return { text: `${t.step.no}단계 · ${t.step.title}`, href: `/room?id=${encodeURIComponent(room.id)}`, stepId: t.step.id };
   return { text: "계약 완료 · 보증금 지키기까지 마쳤어요", href: `/room?id=${encodeURIComponent(room.id)}` };
 }
 

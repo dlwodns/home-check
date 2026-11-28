@@ -8,7 +8,7 @@ import { NOT_REGISTRY, formatWon, parseManwon, runCheck, todayKST, type CheckFor
 import type { Mortgage, RegistryRead } from "@/lib/registry/types";
 import { buildActions, todoFor } from "@/lib/registry/actions";
 import { readRegistry } from "@/lib/registry/read";
-import { roomHref, roomIdFrom, summarize, updateRoom, type Room } from "@/lib/store/rooms";
+import { roomIdFrom, summarize, updateRoom, withRoom, type Room } from "@/lib/store/rooms";
 import { roomsStore } from "../ui/useProgress";
 import { goodPoints, headline, summaryLines } from "@/lib/registry/goodPoints";
 import { unknownsFor } from "@/lib/registry/unknowns";
@@ -244,7 +244,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         </p>
       ) : savedToRoom ? (
         <p className="saved-note" role="status">
-          ✓ <strong>{room.label}</strong>에 저장했어요. <Link href={roomHref(room.id)} className="nav-btn nav-btn-sm">이 방으로 돌아가 계약 방법 보기 →</Link>
+          ✓ <strong>{room.label}</strong>에 저장했어요.
         </p>
       ) : null
     ) : null;
@@ -259,7 +259,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   return (
     <main className="container check">
       <nav className="topbar">
-        <Link href={room ? roomHref(room.id) : "/"} className="back" aria-label={room ? "이 방으로" : "처음 화면으로"}>
+        <Link href={room ? withRoom("/steps/4", room.id) : "/"} className="back" aria-label={room ? "4단계로 돌아가기" : "처음 화면으로"}>
           ←
         </Link>
         <span>{room ? `${room.label} · 등기부등본 점검` : "등기부등본 점검"}</span>
@@ -485,10 +485,19 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           <h2>다음 단계</h2>
           {room && !isSample ? (
             <>
-              <Link href={roomHref(room.id)} className="primary-link">
-                이 방 계약 준비 이어 가기 →
+              <Link href={withRoom("/steps/4", room.id)} className="primary-link">
+                4단계로 돌아가 이어 하기 →
               </Link>
-              <p className="small muted">이 결과에 맞춘 질문 · 특약과 계약 6단계가 {room.label}에 이어져요.</p>
+              <p className="small muted">이 결과에 맞춘 질문 · 특약이 4단계에 이어져요.</p>
+              {/* 갈래길: 위험이면 이 방을 계속 볼지 묻는다(그만 보면 다른 방 담기로) */}
+              {outcome.result.verdict === "danger" && (
+                <>
+                  <p className="small strong">위험 신호가 있어요. 이 방은 그만 보고 다른 방을 찾아도 괜찮아요.</p>
+                  <Link href="/rooms/new" className="nav-btn">
+                    이 방 그만 보기 · 다른 방 담기
+                  </Link>
+                </>
+              )}
             </>
           ) : room ? (
             <p className="small">예시 서류 결과는 이 방에 저장하지 않아요. 위에서 이 방의 등기부등본을 올려 점검해 주세요.</p>

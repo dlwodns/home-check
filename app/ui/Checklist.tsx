@@ -12,6 +12,7 @@ export default function Checklist({
   checked,
   onToggle,
   segments,
+  checkSlot,
 }: {
   groupId: string;
   items: ChecklistItem[];
@@ -19,6 +20,8 @@ export default function Checklist({
   onToggle: (key: string, value: boolean) => void;
   /** 항목마다 [할 일, 왜 중요해요] 순서로 미리 나눈 용어 조각 */
   segments: Segment[][][];
+  /** '등기부등본 점검' 항목(opens F2) 아래에 넣을 것(방 안이면 그 방 점검으로 가는 버튼 · 결과). 없으면 기본 버튼 */
+  checkSlot?: React.ReactNode;
 }) {
   return (
     <ul className="checklist">
@@ -75,11 +78,12 @@ export default function Checklist({
                 </p>
               )}
             </details>
-            {item.opens === "F2" && (
-              <Link href="/check" className="cta small-cta">
-                등기부등본 점검하러 가기
-              </Link>
-            )}
+            {item.opens === "F2" &&
+              (checkSlot ?? (
+                <Link href="/check" className="cta small-cta">
+                  등기부등본 점검하러 가기
+                </Link>
+              ))}
           </li>
         );
       })}

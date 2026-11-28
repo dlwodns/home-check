@@ -14,7 +14,8 @@ import CheckClient, { type Sample } from "@/app/check/CheckClient";
 import StepClient from "@/app/steps/[no]/StepClient";
 
 const push = vi.fn();
-vi.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
+const replace = vi.fn();
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push, replace }) }));
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) => (
     <a href={href} {...rest}>
@@ -107,16 +108,19 @@ describe("후보 방 추가", () => {
 });
 
 describe("방 상세", () => {
-  it("점검 전이면 '등기부등본 올려서 점검하기'가 이 방 주소로 이어진다", async () => {
+  it("한 길: 새 방은 1 · 2단계를 건너뛰고, 3단계 '지금 할 일' 버튼 하나, 뒤 단계는 잠겨 있다", async () => {
     seedRooms(baseRoom);
     at("room?id=r1");
     render(<RoomDetailClient steps={steps} branches={branches} />);
     expect(await screen.findByRole("heading", { name: "정문 원룸" })).toBeTruthy();
-    // 지금 할 일 카드 하나: 점검 전이면 등기부 점검이 먼저(홈 '이어하기'와 같은 답)
-    expect(screen.getByRole("heading", { name: "등기부등본을 점검할 차례예요" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "등기부등본 올려서 점검하기" }).getAttribute("href")).toBe("/check?room=r1");
-    expect(screen.queryByRole("link", { name: "3단계 할 일 보기" })).toBeNull();
-    expect(screen.getByText(/계약 완료 · 보증금 지키기/)).toBeTruthy();
+    const path = screen.getByRole("list", { name: "계약까지 가는 길" });
+    expect(within(path).getByText(/준비 · 집 찾기 · 방을 찾았으니 건너뛰었어요/)).toBeTruthy();
+    expect(within(path).getByRole("heading", { name: "3단계 · 집 보러 가기" })).toBeTruthy();
+    expect(within(path).getByRole("link", { name: "3단계 시작하기 →" }).getAttribute("href")).toBe("/steps/3?room=r1");
+    // 아직 안 온 단계는 링크가 아니다(앞 단계부터 차례대로)
+    expect(within(path).getByText("4. 계약 전 서류 확인").closest("a")).toBeNull();
+    expect(within(path).getAllByRole("link")).toHaveLength(1);
+    expect(screen.queryByText("이 방 전부 보기")).toBeNull();
   });
 
   it("없는 방이면 '찾을 수 없어요'와 돌아가는 길", async () => {
@@ -125,13 +129,13 @@ describe("방 상세", () => {
     expect(await screen.findByText("이 방을 찾을 수 없어요")).toBeTruthy();
   });
 
-  it("직거래를 고르면 이 방에만 저장되고 본인 확인 안내가 나온다", async () => {
+  it("4단계에서 '이 방, 어떻게 계약해요?'를 고르면 이 방에만 저장되고 직거래 할 일이 붙는다", async () => {
     const user = userEvent.setup();
     seedRooms(baseRoom, { ...baseRoom, id: "r2", label: "후문" });
-    at("room?id=r1");
-    render(<RoomDetailClient steps={steps} branches={branches} />);
+    at("steps/4?room=r1");
+    render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
     await user.click(await screen.findByRole("radio", { name: /직거래/ }));
-    expect(screen.getByText(/집주인 본인 확인/)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "직거래라서 꼭 할 것" })).toBeTruthy();
     const rooms = savedRooms().rooms;
     expect(rooms.find((r: { id: string }) => r.id === "r1").branch).toBe("direct");
     expect(rooms.find((r: { id: string }) => r.id === "r2").branch).toBeNull();
@@ -142,7 +146,7 @@ describe("방 상세", () => {
     seedRooms({ ...baseRoom, link: "https://example.com/r/1" });
     at("room?id=r1");
     render(<RoomDetailClient steps={steps} branches={branches} />);
-    const a = await screen.findByRole("link", { name: "매물 링크 열기" });
+    const a = await screen.findByRole("link", { name: /매물 링크 열기/ });
     expect(a.getAttribute("href")).toBe("https://example.com/r/1");
     expect(a.getAttribute("rel")).toContain("noopener");
   });
@@ -174,7 +178,8 @@ describe("방에서 점검하기", () => {
     expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("5,000,000");
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.getByText(/에 저장했어요/)).toBeTruthy();
-    expect(screen.getByRole("link", { name: /이 방으로 돌아가 계약 방법 보기/ }).getAttribute("href")).toBe("/room?id=r1");
+    expect(screen.getByRole("link", { name: "4단계로 돌아가기" }).getAttribute("href")).toBe("/steps/4?room=r1"); // 맨 위 ←
+    expect(screen.getByRole("link", { name: "4단계로 돌아가 이어 하기 →" }).getAttribute("href")).toBe("/steps/4?room=r1");
 
     const raw = localStorage.getItem(ROOMS)!;
     const r = JSON.parse(raw).rooms[0];
@@ -196,7 +201,7 @@ describe("방에서 점검하기", () => {
     expect(steps.find((x) => x.id === "documents")?.items.some((i) => i.id === "registry")).toBe(true);
   });
 
-  it("저장된 결과가 방 상세에 신호등 · 다음 행동으로 보인다", async () => {
+  it("저장된 결과가 4단계에 신호등 · 다음 행동으로 보이고, 방(길)에도 한 줄로 보인다", async () => {
     const user = userEvent.setup();
     seedRooms(baseRoom);
     at("check?room=r1");
@@ -208,9 +213,14 @@ describe("방에서 점검하기", () => {
 
     at("room?id=r1");
     render(<RoomDetailClient steps={steps} branches={branches} />);
-    expect((await screen.findAllByText("주의")).length).toBeGreaterThan(0);
-    expect(screen.getByText("계약 전에 확인할 것이 1가지 있어요")).toBeTruthy();
-    expect(screen.getByText(/계약 상대가 등기부등본의 지금 집주인이에요/)).toBeTruthy();
+    expect(await screen.findByText(/등기부 주의 · 계약 전에 확인할 것이 1가지 있어요/)).toBeTruthy();
+    cleanup();
+
+    at("steps/4?room=r1");
+    render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
+    expect(await screen.findByText("계약 전에 확인할 것이 1가지 있어요")).toBeTruthy();
+    expect(screen.getByRole("link", { name: "← 이전: 집 보러 가기" }).getAttribute("href")).toBe("/steps/3?room=r1");
+    expect(screen.getByRole("link", { name: "이 방(길)으로" }).getAttribute("href")).toBe("/room?id=r1");
     expect(screen.getByRole("link", { name: "다시 점검하기" }).getAttribute("href")).toBe("/check?room=r1");
 
     // 알아낸 것 적기(10번): 할 일 옆에 적고 저장하면 방에 남고, 그 옆에서 바로 다시 점검하러 간다
@@ -226,13 +236,11 @@ describe("방에서 점검하기", () => {
 describe("오늘은 여기까지 · 그날 만나요", () => {
   it("지금 단계의 날짜를 정하면 방에 저장되고 'OO에 만나요' · 캘린더 버튼이 나온다", async () => {
     const user = userEvent.setup();
-    seedRooms({ ...baseRoom, checked: { "documents.registry": true } }); // 등기부는 확인함 → 지금 할 일은 3단계 집 보러 가기
+    seedRooms(baseRoom);
     at("room?id=r1");
     render(<RoomDetailClient steps={steps} branches={branches} />);
     expect(await screen.findByText("오늘은 여기까지 해도 괜찮아요")).toBeTruthy();
-    expect(screen.getByRole("heading", { name: "3단계 · 집 보러 가기 할 차례예요" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "3단계 할 일 보기" }).getAttribute("href")).toBe("/steps/3?room=r1");
-    expect(screen.getByRole("link", { name: /다음: 계약 전 서류 확인/ }).getAttribute("href")).toBe("/steps/4?room=r1");
+    expect(screen.getByRole("heading", { name: "3단계 · 집 보러 가기" })).toBeTruthy();
     fireEvent.change(screen.getByLabelText(/집 보러 가는 날/), { target: { value: "2099-12-01" } });
     await user.click(screen.getByRole("button", { name: "이날로 정하기" }));
     expect(screen.getByText(/12월 1일\(.\)에 만나요/)).toBeTruthy();
@@ -265,7 +273,7 @@ describe("단계 체크는 방마다 따로", () => {
     seedRooms(baseRoom, { ...baseRoom, id: "r2" });
     at("steps/1?room=r1");
     const step = steps[0];
-    render(<StepClient step={step} total={steps.length} branches={branches} next={steps[1]} />);
+    render(<StepClient step={step} total={steps.length} branches={branches} steps={steps} />);
     const first = (await screen.findAllByRole("checkbox"))[0];
     await user.click(first);
     const rooms = savedRooms().rooms;
@@ -308,11 +316,11 @@ describe("동네 시세 (F6)", () => {
   });
   const withRegion = { ...baseRoom, deposit: 500, rent: 70, region: { sgg: "11440", dong: "서교동" } };
 
-  it("방 상세: 이 방 월세가 동네 중간값보다 높으면 그렇게 알려 주고, 범위와 출처를 보여 준다", async () => {
+  it("3단계(집 보러 가기): 이 방 월세가 동네 중간값보다 높으면 그렇게 알려 주고, 범위와 출처를 보여 준다", async () => {
     const f = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(rentStats(12))));
     seedRooms(withRegion);
-    at("room?id=r1");
-    render(<RoomDetailClient steps={steps} branches={branches} />);
+    at("steps/3?room=r1");
+    render(<StepClient step={steps[2]} total={steps.length} branches={branches} steps={steps} />);
     expect(await screen.findByText("월세가 동네 중간값보다 높은 편이에요")).toBeTruthy();
     expect(screen.getByText(/월세: 45–55만 원 \(중간 50\)/)).toBeTruthy();
     expect(screen.getByText(/서교동 단독 · 다가구 월세 신고 거래 12건, 최근 6개월/)).toBeTruthy();
@@ -323,8 +331,8 @@ describe("동네 시세 (F6)", () => {
   it("거래가 적으면 비교하지 않고 '거래 기록이 적어요'", async () => {
     const f = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response(JSON.stringify(rentStats(2))));
     seedRooms(withRegion);
-    at("room?id=r1");
-    render(<RoomDetailClient steps={steps} branches={branches} />);
+    at("steps/3?room=r1");
+    render(<StepClient step={steps[2]} total={steps.length} branches={branches} steps={steps} />);
     expect(await screen.findByText(/거래 기록이 적어요 \(2건\)/)).toBeTruthy();
     expect(screen.queryByText(/높은 편|비슷해요|낮은 편/)).toBeNull();
     f.mockRestore();
@@ -333,8 +341,8 @@ describe("동네 시세 (F6)", () => {
   it("불러오지 못하면 실거래가 공개시스템 링크로 안내", async () => {
     const f = vi.spyOn(globalThis, "fetch").mockResolvedValue(new Response("{}", { status: 502 }));
     seedRooms(withRegion);
-    at("room?id=r1");
-    render(<RoomDetailClient steps={steps} branches={branches} />);
+    at("steps/3?room=r1");
+    render(<StepClient step={steps[2]} total={steps.length} branches={branches} steps={steps} />);
     expect((await screen.findByRole("link", { name: "국토부 실거래가 공개시스템" })).getAttribute("rel")).toContain("noopener");
     f.mockRestore();
   });
@@ -487,15 +495,15 @@ describe("홈 버튼", () => {
 });
 
 describe("홈: 이어하기 · 다음 할 일", () => {
-  it("맨 위 '이어하기'는 지난번 본 방의 다음 할 일로 가고, 방 카드에도 다음 할 일이 보인다", async () => {
+  it("맨 위 '이어하기'는 지난번 본 방(길)으로 가고, 방 카드에도 다음 할 일이 보인다", async () => {
     seedRooms(baseRoom, { ...baseRoom, id: "r2", label: "후문 원룸" });
     localStorage.setItem("homecheck.lastRoom.v1", "r2");
     render(<RoomsHome />);
     const cont = await screen.findByRole("link", { name: /지난번 본 방 · 후문 원룸/ });
-    expect(cont.getAttribute("href")).toBe("/check?room=r2");
-    expect(cont.textContent).toContain("등기부등본 올려서 점검하기");
+    expect(cont.getAttribute("href")).toBe("/room?id=r2");
+    expect(cont.textContent).toContain("3단계 · 집 보러 가기");
     const card = screen.getByRole("link", { name: /정문 원룸.*보증금/ });
-    expect(card.textContent).toContain("다음 할 일: 등기부등본 올려서 점검하기");
+    expect(card.textContent).toContain("다음 할 일: 3단계 · 집 보러 가기");
   });
 
   it("방 화면을 열면 '지난번 본 방'으로 기억한다", async () => {
@@ -520,19 +528,19 @@ describe("홈: 이어하기 · 다음 할 일", () => {
 });
 
 describe("다음 행동 · 계약 과정 (벤치마킹 7 · 8 · 9)", () => {
-  it("막히면 물어볼 공공 상담 창구가 전화 링크로 있다 (번호는 공식 확인한 것)", async () => {
+  it("막히면 물어볼 공공 상담 창구가 5단계(계약하는 날)에 전화 링크로 있다 (번호는 공식 확인한 것)", async () => {
     seedRooms(baseRoom);
-    at("room?id=r1");
-    render(<RoomDetailClient steps={steps} branches={branches} />);
+    at("steps/5?room=r1");
+    render(<StepClient step={steps[4]} total={steps.length} branches={branches} steps={steps} />);
     expect((await screen.findByRole("link", { name: /대한법률구조공단 법률상담 132 전화하기/ })).getAttribute("href")).toBe("tel:132");
     expect(screen.getByRole("link", { name: /HUG 전세피해 및 예방지원센터 1533-8119 전화하기/ }).getAttribute("href")).toBe("tel:1533-8119");
   });
 
   it("단계 화면 끝 버튼에 다음 단계 이름이 보이고, 마지막 단계는 끝이라고 알려 준다", () => {
-    render(<StepClient step={steps[2]} total={steps.length} branches={branches} next={steps[3]} />);
+    render(<StepClient step={steps[2]} total={steps.length} branches={branches} steps={steps} />);
     expect(screen.getByRole("link", { name: "다음: 계약 전 서류 확인 →" }).getAttribute("href")).toBe("/steps/4");
     cleanup();
-    render(<StepClient step={steps[5]} total={steps.length} branches={branches} next={null} />);
+    render(<StepClient step={steps[5]} total={steps.length} branches={branches} steps={steps} />);
     expect(screen.getByText(/마지막 단계예요 · 여기까지 하면 계약 완료/)).toBeTruthy();
   });
 
@@ -550,8 +558,8 @@ describe("다음 행동 · 계약 과정 (벤치마킹 7 · 8 · 9)", () => {
   it("동네 시세를 불러오는 동안 회색 틀(로딩)을 보여 준다", async () => {
     const f = vi.spyOn(globalThis, "fetch").mockReturnValue(new Promise(() => {}));
     seedRooms({ ...baseRoom, region: { sgg: "11440", dong: "서교동" } });
-    at("room?id=r1");
-    render(<RoomDetailClient steps={steps} branches={branches} />);
+    at("steps/3?room=r1");
+    render(<StepClient step={steps[2]} total={steps.length} branches={branches} steps={steps} />);
     expect(await screen.findByRole("status", { name: "서교동 시세를 찾는 중이에요" })).toBeTruthy();
     f.mockRestore();
   });
@@ -574,7 +582,7 @@ describe("서류 · 준비물 (10)", () => {
     for (const it of docs.items) for (const s of it.sources) expect(findSource(s), `${it.id}: ${s}`).toBeTruthy();
   });
 
-  it("방에서 열고 체크하면 그 방에만 저장되고, 방 화면에 몇 개 챙겼는지 보인다", async () => {
+  it("방에서 열고 체크하면 그 방에만 저장되고, 4단계 안에서도 같은 체크로 보인다", async () => {
     const { default: DocsClient } = await import("@/app/docs/DocsClient");
     const user = userEvent.setup();
     seedRooms({ ...baseRoom, branch: "direct" }, { ...baseRoom, id: "r2" });
@@ -587,13 +595,13 @@ describe("서류 · 준비물 (10)", () => {
     expect(rooms[0].checked["docs.registry"]).toBe(true);
     expect(rooms[1].checked["docs.registry"]).toBeUndefined();
     cleanup();
-    at("room?id=r1");
-    render(<RoomDetailClient steps={steps} branches={branches} />);
-    const link = await screen.findByRole("link", { name: /서류 · 준비물/ });
-    expect(link.getAttribute("href")).toBe("/docs?room=r1");
-    expect(link.textContent).toMatch(/1\/\d+/);
+    // 한 길: 받을 서류는 4단계 안에서도 같은 체크로 보인다
+    at("steps/4?room=r1");
+    render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
+    expect(await screen.findByRole("heading", { name: "집주인 · 중개사에게 받거나 확인할 것" })).toBeTruthy();
+    await user.click(screen.getByLabelText(/집주인 신분증 확인/));
+    expect(savedRooms().rooms[0].checked["docs.owner_id"]).toBe(true);
   });
-
   it("서류를 체크해도 계약 단계 진행률은 바뀌지 않는다", async () => {
     const { roomSteps } = await import("@/app/ui/roomView");
     const a = roomSteps({ ...baseRoom, branch: null, checked: {} } as never, "first", steps, branches).stats.done;
@@ -601,3 +609,51 @@ describe("서류 · 준비물 (10)", () => {
     expect(b).toBe(a);
   });
 });
+
+describe("한 길: 돌아가기 · 이어 가기 (11/28)", () => {
+  it("방 안 단계 화면의 ←는 언제나 방(길)으로, 마지막 단계의 다음은 '완료 · 방으로'", async () => {
+    seedRooms(baseRoom);
+    at("steps/6?room=r1");
+    render(<StepClient step={steps[5]} total={steps.length} branches={branches} steps={steps} />);
+    expect((await screen.findByRole("link", { name: "이 방(길)으로" })).getAttribute("href")).toBe("/room?id=r1");
+    expect(screen.getByRole("link", { name: "완료 · 방으로 →" }).getAttribute("href")).toBe("/room?id=r1");
+    expect(screen.getByRole("link", { name: "← 이전: 계약하는 날" }).getAttribute("href")).toBe("/steps/5?room=r1");
+  });
+
+  it("해 봤어요(1–3단계 건너뜀)면 4단계의 이전은 '← 방으로'", async () => {
+    localStorage.setItem(PROGRESS, JSON.stringify({ v: 1, mode: "experienced", branch: null, checked: {} }));
+    seedRooms(baseRoom);
+    at("steps/4?room=r1");
+    render(<StepClient step={steps[3]} total={steps.length} branches={branches} steps={steps} />);
+    expect((await screen.findByRole("link", { name: "← 방으로" })).getAttribute("href")).toBe("/room?id=r1");
+  });
+
+  it("방 안에서 6단계 목록을 열면 방(길)으로 보낸다", async () => {
+    const { default: StepsClient } = await import("@/app/steps/StepsClient");
+    seedRooms(baseRoom);
+    at("steps?room=r1");
+    replace.mockClear();
+    render(<StepsClient steps={steps} branches={branches} />);
+    await vi.waitFor(() => expect(replace).toHaveBeenCalledWith("/room?id=r1"));
+  });
+
+  it("방에서 점검: ←와 결과 뒤 '다음'은 4단계로, 위험이면 '이 방 그만 보기' 갈래가 나온다", async () => {
+    const user = userEvent.setup();
+    seedRooms(baseRoom);
+    at("check?room=r1");
+    const danger = expected.samples.find((x) => x.expected.verdict === "danger")!;
+    const dangerSample: Sample = {
+      label: "예시 서류 3",
+      text: readFileSync(`samples/${danger.file}`, "utf8"),
+      form: { myDeposit: "1000", priorDeposits: String(danger.inputs.prior_deposits! / 10_000), marketPrice: String(danger.inputs.market_price! / 10_000), contractParty: danger.inputs.contract_party },
+    };
+    render(<CheckClient samples={[dangerSample]} />);
+    expect((await screen.findByRole("link", { name: "4단계로 돌아가기" })).getAttribute("href")).toBe("/steps/4?room=r1");
+    await user.click(screen.getByRole("button", { name: "예시 서류 3" }));
+    asRealDoc();
+    await user.click(screen.getByRole("button", { name: "점검하기" }));
+    expect(screen.getByRole("link", { name: "4단계로 돌아가 이어 하기 →" }).getAttribute("href")).toBe("/steps/4?room=r1");
+    expect(screen.getByRole("link", { name: "이 방 그만 보기 · 다른 방 담기" }).getAttribute("href")).toBe("/rooms/new");
+  });
+});
+

@@ -6,10 +6,10 @@ import { useEffect, useState } from "react";
 
 export const SLIDES = [
   { src: "/preview/1-room.jpg", title: "① 관심 있는 방 담기", body: "어디서 찾았든 주소 · 보증금 · 월세만 적어요." },
-  { src: "/preview/2-doc.jpg", title: "② 등기부등본 올리기", body: "인터넷등기소에서 뗀 PDF를 올려요. 휴대폰 안에서만 읽어요." },
-  { src: "/preview/3-result.jpg", title: "③ 신호등으로 결과 보기", body: "위험 · 주의 · 안전과 가장 먼저 확인할 것 하나를 알려 줘요." },
-  { src: "/preview/4-next.jpg", title: "④ 집주인에게 물어볼 말 · 특약", body: "복사해서 바로 보낼 수 있는 문장을 이 방에 맞춰 만들어요." },
-  { src: "/preview/5-steps.jpg", title: "⑤ 지금 할 일 하나 · 그날 만나요", body: "방마다 지금 할 일 하나만 보여 주고, 다음 날짜를 챙겨요." },
+  { src: "/preview/2-path.jpg", title: "② 한 길로 하나씩", body: "지금 할 단계 하나만 크게 보여요. 그날을 정해 두면 그때 이어 해요." },
+  { src: "/preview/3-doc.jpg", title: "③ 4단계에서 등기부등본 올리기", body: "인터넷등기소에서 뗀 PDF를 올려요. 휴대폰 안에서만 읽어요." },
+  { src: "/preview/4-result.jpg", title: "④ 신호등으로 결과 보기", body: "위험 · 주의 · 안전과 가장 먼저 확인할 것 하나를 알려 줘요." },
+  { src: "/preview/5-next.jpg", title: "⑤ 결과는 4단계에 이어져요", body: "점검이 끝나면 4단계로 돌아와, 집주인에게 물어볼 말 · 특약까지 챙겨요." },
 ] as const;
 
 const INTERVAL_MS = 3200;

@@ -19,5 +19,5 @@ export default async function StepPage({ params }: { params: Promise<{ no: strin
   const { no } = await params;
   const step = steps.find((s) => String(s.no) === no);
   if (!step) notFound();
-  return <StepClient step={step} total={steps.length} branches={branches} next={steps.find((s) => s.no === step.no + 1) ?? null} />;
+  return <StepClient step={step} total={steps.length} branches={branches} steps={steps} />;
 }

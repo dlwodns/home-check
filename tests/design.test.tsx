@@ -216,7 +216,7 @@ describe("앞선 세입자 보증금 확인 방법 (A3)", () => {
     const { steps, branches } = await import("@/lib/content");
     const { default: StepClient } = await import("@/app/steps/[no]/StepClient");
     const step4 = steps.find((s) => s.items.some((i) => i.id === "prior_deposits"))!;
-    render(<StepClient step={step4} total={steps.length} branches={branches} />);
+    render(<StepClient step={step4} total={steps.length} branches={branches} steps={steps} />);
     const guide = screen.getByText("앞선 세입자 보증금, 어떻게 확인해요?").closest("details")!;
     for (const doc of ["임대차 정보제공 요청서", "집주인의 동의서", "인감증명서", "내 신분증"]) expect(guide.textContent).toContain(doc);
     expect(guide.textContent).toContain("보여 줄 의무");
@@ -227,7 +227,7 @@ describe("앞선 세입자 보증금 확인 방법 (A3)", () => {
   it("다른 단계에는 붙지 않는다", async () => {
     const { steps, branches } = await import("@/lib/content");
     const { default: StepClient } = await import("@/app/steps/[no]/StepClient");
-    render(<StepClient step={steps[0]} total={steps.length} branches={branches} />);
+    render(<StepClient step={steps[0]} total={steps.length} branches={branches} steps={steps} />);
     expect(screen.queryByText("앞선 세입자 보증금, 어떻게 확인해요?")).toBeNull();
   });
 });

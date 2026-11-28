@@ -108,7 +108,7 @@ describe("단계 화면", () => {
   it("4단계 + 직거래: 직거래 체크리스트가 붙고, 체크하면 저장된다", async () => {
     seed({ branch: "direct" });
     const user = userEvent.setup();
-    render(<StepClient step={step4} total={6} branches={branches} />);
+    render(<StepClient step={step4} total={6} branches={branches} steps={steps} />);
     expect(await screen.findByRole("heading", { name: "직거래라서 꼭 할 것" })).toBeTruthy();
     const box = screen.getByRole("checkbox", { name: /신분증으로 확인하기/ });
     await user.click(box);
@@ -117,14 +117,19 @@ describe("단계 화면", () => {
     expect(saved().checked["direct.owner_id"]).toBeUndefined();
   });
 
-  it("갈래를 안 골랐으면 고르러 가기 안내", async () => {
-    render(<StepClient step={step4} total={6} branches={branches} />);
-    expect(await screen.findByRole("link", { name: "고르러 가기" })).toBeTruthy();
+  it("갈래를 안 골랐으면 다른 화면으로 보내지 않고 이 화면에서 묻는다 → 고르면 맞춤 할 일이 붙는다", async () => {
+    const user = userEvent.setup();
+    render(<StepClient step={step4} total={6} branches={branches} steps={steps} />);
+    expect(await screen.findByRole("heading", { name: "방, 어디서 찾았어요?" })).toBeTruthy();
+    await user.click(screen.getByRole("radio", { name: "집주인과 직접 (직거래)" }));
+    expect(saved().branch).toBe("direct");
+    expect(screen.getByRole("heading", { name: "직거래라서 꼭 할 것" })).toBeTruthy();
+    expect(screen.queryByRole("heading", { name: "방, 어디서 찾았어요?" })).toBeNull();
   });
 
   it("용어를 누르면 한 줄 설명이 나오고, 체크는 바뀌지 않는다", async () => {
     const user = userEvent.setup();
-    render(<StepClient step={step4} total={6} branches={branches} />);
+    render(<StepClient step={step4} total={6} branches={branches} steps={steps} />);
     const term = screen.getAllByRole("button", { name: "등기부등본" })[0];
     await user.click(term);
     expect(term.getAttribute("aria-expanded")).toBe("true");
@@ -133,22 +138,22 @@ describe("단계 화면", () => {
   });
 
   it("해당 없을 수 있는 항목에는 '건너뛰어도 돼요' 안내가 붙는다", () => {
-    render(<StepClient step={steps[0]} total={6} branches={branches} />);
+    render(<StepClient step={steps[0]} total={6} branches={branches} steps={steps} />);
     expect(screen.getByRole("checkbox", { name: /기숙사 · 사택.*해당 없으면 건너뛰어도 돼요/ })).toBeTruthy();
   });
 
   it("React StrictMode(두 번 그리기)에서도 용어 밑줄이 살아 있다", () => {
     render(
       <StrictMode>
-        <StepClient step={step4} total={6} branches={branches} />
+        <StepClient step={step4} total={6} branches={branches} steps={steps} />
       </StrictMode>,
     );
     expect(screen.getAllByRole("button", { name: "등기부등본" }).length).toBeGreaterThan(0);
   });
 
   it("등기부등본 점검 항목에서 점검 화면으로 갈 수 있다", () => {
-    render(<StepClient step={step4} total={6} branches={branches} />);
+    render(<StepClient step={step4} total={6} branches={branches} steps={steps} />);
     const item = screen.getByRole("checkbox", { name: /등기부등본 점검하기/ }).closest("li")!;
-    expect(within(item).getByRole("link", { name: "등기부등본 점검하러 가기" }).getAttribute("href")).toBe("/check");
+    expect(within(item).getByRole("link", { name: "등기부등본 점검하기 →" }).getAttribute("href")).toBe("/check");
   });
 });

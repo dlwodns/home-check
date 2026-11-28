@@ -15,9 +15,16 @@ await p.fill("input[placeholder^='예: OO동']", "마포구 서교동 123-4");
 await p.fill("input[placeholder='예: 10,000,000']", "10000000");
 await p.fill("input[placeholder='전세면 비워 두세요']", "500000");
 await shot("1-room");
-await p.getByRole("button", { name: /저장하고/ }).click(); await p.waitForURL(/room\?id=/);
-await p.getByText("등기부등본 올려서 점검하기").click(); await p.waitForURL(/check/); await p.waitForTimeout(500);
-await shot("2-doc");
+await p.getByRole("button", { name: /저장하고/ }).click(); await p.waitForURL(/room\?id=/); await p.waitForTimeout(600);
+// 2: 방 = 한 길(지금 단계 하나 + 그날 만나요)
+const d = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
+await p.getByLabel(/집 보러 가는 날/).fill(d); await p.getByRole("button", { name: "이날로 정하기" }).click();
+await p.evaluate(() => window.scrollTo(0, 0)); await shot("2-path");
+// 3: 3단계 → 4단계 → 등기부 점검
+await p.getByRole("link", { name: "3단계 시작하기 →" }).click(); await p.waitForURL(/steps\/3/);
+await p.getByRole("link", { name: /다음: 계약 전 서류 확인/ }).click(); await p.waitForURL(/steps\/4/);
+await p.getByRole("link", { name: "등기부등본 점검하기 →" }).click(); await p.waitForURL(/check/); await p.waitForTimeout(500);
+await shot("3-doc");
 await p.getByText(/예시 서류로 먼저 보기/).click();
 await p.getByRole("button", { name: "예시 서류 2" }).click();
 // 예시 그대로면 방에 저장하지 않으므로 글자 끝에 줄바꿈을 더해 '올린 서류'처럼(포스터 캡처와 같은 방법)
@@ -25,11 +32,8 @@ await p.getByRole("button", { name: /서류 바꾸기/ }).click();
 const box = p.getByLabel(/내용을 그대로 붙여 넣어 주세요/); await box.fill((await box.inputValue()) + "\n");
 await p.getByRole("button", { name: /다음: 내 계약 정보/ }).click();
 await p.getByRole("button", { name: "점검하기" }).click(); await p.waitForTimeout(1500);
-await top(p.locator(".result")); await shot("3-result");
-await top(p.getByText("다음에 할 일").first()); await shot("4-next");
-// 5: 방 화면 맨 위 '지금 할 일' 한 장(등기부는 확인했으니 3단계 집 보러 가기 + 그날 만나요)
-await p.goBack(); await p.waitForURL(/room\?id=/); await p.waitForTimeout(600);
-const d = new Date(Date.now() + 3 * 86_400_000).toISOString().slice(0, 10);
-await p.getByLabel(/집 보러 가는 날/).fill(d); await p.getByRole("button", { name: "이날로 정하기" }).click();
-await p.evaluate(() => window.scrollTo(0, 0)); await shot("5-steps");
+await top(p.locator(".result")); await shot("4-result");
+// 5: 점검 뒤 4단계로 돌아오면 질문 · 특약이 이어진다
+await p.getByRole("link", { name: "4단계로 돌아가 이어 하기 →" }).click(); await p.waitForURL(/steps\/4/); await p.waitForTimeout(600);
+await top(p.getByText("다음에 할 일").first()); await shot("5-next");
 await b.close();

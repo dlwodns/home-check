@@ -29,7 +29,7 @@ await step("https로 열리고 처음 온 사람에게 입구(로고 + 시작하
   await p.getByRole("button", { name: "시작하기" }).waitFor({ timeout: 8000 });
 });
 
-await step("방을 담으면 그 방 화면으로 가고 동네 시세가 나온다(공공데이터 키 · /api/rent)", async () => {
+await step("방을 담으면 그 방(길)으로 가고, 3단계에 동네 시세가 나온다(공공데이터 키 · /api/rent)", async () => {
   await p.goto(U + "/rooms/new", { waitUntil: "networkidle" });
   await p.fill("input[placeholder^='예: OO동']", "마포구 서교동 123-4");
   await p.fill("input[placeholder='예: 10,000,000']", "10000000");
@@ -37,13 +37,16 @@ await step("방을 담으면 그 방 화면으로 가고 동네 시세가 나온
   await p.fill("input[placeholder^='직방 링크']", "점검용 방");
   await p.getByRole("button", { name: /저장하고/ }).click();
   await p.waitForURL(/room\?id=/);
-  await expectText(p, "등기부등본을 점검할 차례예요"); // 방 화면 맨 위는 '지금 할 일' 카드 하나
-  await p.getByText("이 방 전부 보기").click(); // 동네 시세는 '이 방 전부 보기' 안에
+  await expectText(p, "3단계 · 집 보러 가기"); // 방 = 한 길: 방을 찾았으니 3단계부터
+  await p.getByRole("link", { name: "3단계 시작하기 →" }).click();
+  await p.waitForURL(/steps\/3/);
   await expectText(p, /월세 신고 거래 \d+건/, 20000);
 });
 
 await step("샘플로 해 보면 판정은 나오지만 방에는 저장하지 않는다", async () => {
-  await p.getByText("등기부등본 올려서 점검하기").click();
+  await p.getByRole("link", { name: /다음: 계약 전 서류 확인/ }).click(); // 3단계 → 4단계(한 길)
+  await p.waitForURL(/steps\/4/);
+  await p.getByRole("link", { name: "등기부등본 점검하기 →" }).click();
   await p.waitForURL(/check/);
   // 방에서 점검할 때는 예시 서류가 접혀 있다 → 펼치고 누른다
   if (!(await p.getByRole("button", { name: "예시 서류 2" }).isVisible())) await p.getByText(/예시 서류로 먼저 보기/).click();
@@ -61,6 +64,9 @@ await step("서류를 올린 것처럼 점검하면 방에 저장되고 홈 카�
   await p.getByRole("button", { name: /다음: 내 계약 정보/ }).click();
   await p.getByRole("button", { name: "점검하기" }).click();
   await expectText(p, /점검용 방.*에 저장했어요|에 저장했어요/);
+  await p.getByRole("link", { name: "4단계로 돌아가 이어 하기 →" }).click(); // 점검 뒤에는 4단계로 돌아간다
+  await p.waitForURL(/steps\/4/);
+  await expectText(p, "계약 전에 확인할 것이 1가지 있어요");
   await p.goto(U + "/", { waitUntil: "networkidle" });
   await expectText(p, "점검용 방");
   await expectText(p, "주의");
