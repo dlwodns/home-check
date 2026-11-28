@@ -2,6 +2,7 @@
 // 기준값 · 이유 문구 · 근거는 data/judge.json에만 두고, 여기서는 규칙만 적용한다.
 // 같은 입력이면 항상 같은 결과가 나오도록, "오늘"도 인자로 받는다.
 import rules from "@/data/judge.json";
+import { isSharedBuilding } from "./unknowns";
 import type { CheckInputs, CheckResult, FlagCode, RegistryRead, RiskType, Verdict } from "./types";
 
 type Level = "danger" | "caution" | "info";
@@ -68,7 +69,8 @@ export function judge(
   if (read.seizures.length) flags.add("seizure");
   if (jeonse_total > 0) flags.add("jeonse");
 
-  if (prior_deposits === null) flags.add("prior_deposits_unknown");
+  // 아파트 · 다세대 · 연립 · 오피스텔은 호수마다 따로 등기된 집이라, 다른 호수 세입자 보증금이 내 보증금보다 앞서지 않는다
+  if (prior_deposits === null && isSharedBuilding(read.building_type)) flags.add("prior_deposits_unknown");
   if (ratio === null) flags.add("ratio_unknown");
   else if (ratio >= rules.ratio.danger_from) flags.add("ratio_danger");
   else if (ratio >= rules.ratio.caution_from) flags.add("ratio_caution");

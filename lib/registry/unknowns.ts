@@ -67,11 +67,13 @@ export const UNKNOWN_IDS = Object.keys(ALL);
 export const unknownById = (id: string): Unknown | undefined => ALL[id];
 
 const SHARED_BUILDING = /다가구|다중|단독|근린/;
+/** 한 건물을 여러 세입자가 나눠 쓰는 집(다가구 등)인가. 종류를 못 읽었으면 조심해서 그렇다고 본다 */
+export const isSharedBuilding = (type: string) => !type || SHARED_BUILDING.test(type);
 
 /** 이 결과에서 '등기부로는 알 수 없는 것' (확인한 순서대로 중요한 것부터) */
 export function unknownsFor(read: Pick<RegistryRead, "building_type">, result: Pick<CheckResult, "flags" | "ratio">): Unknown[] {
   const ids: string[] = [];
-  const shared = !read.building_type || SHARED_BUILDING.test(read.building_type);
+  const shared = isSharedBuilding(read.building_type);
   if (result.flags.includes("prior_deposits_unknown") && shared) ids.push("prior_deposits");
   ids.push("tax", "identity", "building");
   if (result.flags.includes("trust")) ids.push("trust_deed");

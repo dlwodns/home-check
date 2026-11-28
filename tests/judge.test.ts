@@ -138,6 +138,14 @@ describe("앞선 세입자 보증금을 모를 때", () => {
     expect(r.flags).toContain("prior_deposits_unknown");
     expect(r.verdict).toBe("caution");
   });
+  it("아파트 · 다세대처럼 호수마다 따로 등기된 집이면 비워 둬도 '모름'으로 치지 않는다", () => {
+    for (const building_type of ["아파트", "다세대주택", "오피스텔"]) {
+      const r = judge(readB({ active_mortgages: [], building_type }), { market_price: 1000, prior_deposits: null, my_deposit: 100, contract_party: "김도윤" }, AS_OF);
+      expect(r.flags).not.toContain("prior_deposits_unknown");
+      expect(r.verdict).toBe("safe");
+    }
+  });
+
 });
 
 describe("최근 소유권 이전 (참고, 6개월)", () => {

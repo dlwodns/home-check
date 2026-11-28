@@ -46,7 +46,12 @@ await step("방을 담으면 그 방(길)으로 가고, 3단계에 동네 시세
 await step("샘플로 해 보면 판정은 나오지만 방에는 저장하지 않는다", async () => {
   await p.getByRole("link", { name: /다음: 계약 전 서류 확인/ }).click(); // 3단계 → 4단계(한 길)
   await p.waitForURL(/steps\/4/);
-  await p.getByRole("link", { name: "다음: 등기부등본 점검 →" }).click();
+  // 4단계는 서류 하나씩: 어떤 집 · 계약 방법 → 등기부등본 → 점검하기
+  await p.getByRole("radio", { name: /원룸 건물/ }).click();
+  await p.getByRole("radio", { name: "공인중개사를 통해서" }).click();
+  await p.locator(".action-bar").getByRole("link", { name: "다음: 등기부등본 →" }).click();
+  await p.waitForURL(/doc=registry/);
+  await p.locator(".action-bar").getByRole("link", { name: /PDF 올려서 점검하기/ }).click();
   await p.waitForURL(/check/);
   // 방에서 점검할 때는 예시 서류가 접혀 있다 → 펼치고 누른다
   if (!(await p.getByRole("button", { name: "예시 서류 2" }).isVisible())) await p.getByText(/예시 서류로 먼저 보기/).click();
