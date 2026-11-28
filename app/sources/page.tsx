@@ -5,6 +5,7 @@ import Link from "next/link";
 import { sources, type SourceStatus } from "@/lib/content";
 import HomeLink from "../ui/HomeLink";
 import BackButton from "../ui/Back";
+import OpenTarget from "./OpenTarget";
 
 export const metadata: Metadata = {
   title: "근거 목록 · 홈체크",
@@ -28,6 +29,7 @@ export default function SourcesPage() {
       <p className="muted small">
         홈체크의 안내는 아래 근거를 바탕으로 해요. 법은 바뀔 수 있으니 계약 전에는 공식 링크에서 한 번 더 확인해 주세요.
       </p>
+      <OpenTarget />
       <ol className="sources">
         {sources.map((s) => (
           <li key={s.id} id={s.id} className="card">
@@ -35,24 +37,28 @@ export default function SourcesPage() {
               <strong>{s.id}</strong> <span className={`badge badge-${s.status}`}>{STATUS[s.status].label}</span>
             </p>
             <h2>{s.title}</h2>
-            <p className="small">{s.summary}</p>
-            <p className="small muted">{STATUS[s.status].note}</p>
-            <ul className="links">
-              {s.official_url && (
-                <li>
-                  <a href={s.official_url} target="_blank" rel="noopener noreferrer">
-                    공식 확인 링크
-                  </a>
-                </li>
+            {s.official_url && (
+              <a href={s.official_url} target="_blank" rel="noopener noreferrer" className="nav-btn nav-btn-sm">
+                공식 원문 보기 ↗
+              </a>
+            )}
+            {/* 자세한 내용 · 참고 자료는 접는다(11/28 UX: 근거 목록이 휴대폰 11장 길이였음). 앱에서 근거 번호를 누르면 그 항목으로 와서 펼쳐 본다 */}
+            <details className="source-more">
+              <summary>자세히{s.refs.length ? ` · 참고 자료 ${s.refs.length}개` : ""}</summary>
+              <p className="small">{s.summary}</p>
+              <p className="small muted">{STATUS[s.status].note}</p>
+              {s.refs.length > 0 && (
+                <ul className="links">
+                  {s.refs.map((r) => (
+                    <li key={r.url}>
+                      <a href={r.url} target="_blank" rel="noopener noreferrer">
+                        참고: {r.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
               )}
-              {s.refs.map((r) => (
-                <li key={r.url}>
-                  <a href={r.url} target="_blank" rel="noopener noreferrer">
-                    참고: {r.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            </details>
           </li>
         ))}
       </ol>

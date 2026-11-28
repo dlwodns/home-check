@@ -132,40 +132,13 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
     ) : (
       <>{gov24} (인터넷 무료) · 중개사가 있으면 확인 · 설명서로 확인해도 돼요</>
     );
-  const needCheck = Boolean(step.key) && Boolean(room) && !check && !progress.checked["documents.registry"];
-  const mainKeys = step.items.filter((i) => !i.optional).map((i) => `${step.id}.${i.id}`);
-  const allDone = mainKeys.length > 0 && mainKeys.every((k) => progress.checked[k]);
   const needBranch = Boolean(step.key) && (!progress.branch || (Boolean(room) && progress.branch === "none"));
-
-  return (
-    <main className="container check">
-      <nav className="topbar">
-        <BackButton fallback={backHref} />
-        <HomeLink />
-        <span>{room ? room.label : "계약 과정"}</span>
-      </nav>
-      {/* 단계 머리: 미리보기와 같은 그림 + 몇 번째 단계인지 + 한 줄 설명 */}
-      <header className="step-head">
-        <div className="step-art" aria-hidden="true">{STEP_ART[step.id]}</div>
-        <div>
-          <p className="step-count">{step.no} / {total} 단계</p>
-          <h1 className="title">{step.title}</h1>
-          <p className="muted step-summary">
-            <TermText segments={summarySegs} />
-          </p>
-        </div>
-      </header>
-      {segs.some((g) => g.some((x) => x.term)) && <TermHint />}
-
-      <p className="check-hint small muted">
-        {CHECK_HINT[step.id] ?? "한 것부터"} 체크해 주세요 · {next ? "다 체크하면 다음 단계로 넘어가요" : "다 체크하면 계약 완료예요"}
-      </p>
-      <Checklist groupId={step.id} items={step.items} checked={progress.checked} onToggle={setChecked} segments={stepSegs} checkSlot={checkSlot} extra={{ building: buildingHow }} />
-
-      {step.items.some((i) => i.id === "prior_deposits") && <PriorDepositGuide />}
-
-      {step.no === 3 && room && <RentCard room={room} />}
-
+  // 점검 뒤에는 결과 · 다시 점검하기가 맨 위에 있으니, 접힌 목록 안에는 아무것도 붙이지 않는다(같은 버튼 두 번 X)
+  const recheckLink = <></>;
+  const checkedMode = Boolean(step.key) && Boolean(check) && Boolean(room);
+  const doneCount = step.items.filter((i) => progress.checked[`${step.id}.${i.id}`]).length;
+  const branchQuestion = (
+    <>
       {/* 갈래길은 질문 한 번으로만(어디서 찾았는지에 따라 4단계 할 일이 달라짐). 다른 화면으로 보내지 않고 여기서 고른다 */}
       {needBranch && (
         <section className="card inline-q" aria-labelledby="branch-q">
@@ -190,16 +163,76 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
         </section>
       )}
 
-      {step.key && check && room && (
-        <NextActions
+    </>
+  );
+  const needCheck = Boolean(step.key) && Boolean(room) && !check && !progress.checked["documents.registry"];
+  const mainKeys = step.items.filter((i) => !i.optional).map((i) => `${step.id}.${i.id}`);
+  const allDone = mainKeys.length > 0 && mainKeys.every((k) => progress.checked[k]);
+
+  return (
+    <main className="container check">
+      <nav className="topbar">
+        <BackButton fallback={backHref} />
+        <HomeLink />
+        <span>{room ? room.label : "계약 과정"}</span>
+      </nav>
+      {/* 단계 머리: 미리보기와 같은 그림 + 몇 번째 단계인지 + 한 줄 설명 */}
+      <header className="step-head">
+        <div className="step-art" aria-hidden="true">{STEP_ART[step.id]}</div>
+        <div>
+          <p className="step-count">{step.no} / {total} 단계</p>
+          <h1 className="title">{step.title}</h1>
+          <p className="muted step-summary">
+            <TermText segments={summarySegs} />
+          </p>
+        </div>
+      </header>
+      {segs.some((g) => g.some((x) => x.term)) && <TermHint />}
+
+
+
+      {/* 4단계에서 점검을 마쳤으면(11/28 UX): 결과와 결과에 맞춘 할 일을 맨 위에, 계약 방법 질문은 그 바로 아래,
+          체크리스트는 접어 둔다(점검 뒤 화면이 휴대폰 3.6장 길이였음) */}
+      {checkedMode && check ? (
+        <>
+          <section className="card step-result" aria-label="등기부 점검 결과">{checkSlot}</section>
+          <NextActions
           actions={withBranch(check.actions, progress.branch)}
           notes={notes}
           onNote={saveNote}
           recheckHref={checkHref}
           picked={progress.checked}
           onPick={setChecked}
+          termHint={false}
         />
+          {branchQuestion}
+          <details className="card fold">
+            <summary>
+              <h2 className="h3">4단계 할 일 목록</h2>
+              <span className="small muted">
+                {doneCount}/{step.items.length} 했어요
+              </span>
+            </summary>
+      <p className="check-hint small muted">
+        {CHECK_HINT[step.id] ?? "한 것부터"} 체크해 주세요 · {next ? "다 체크하면 다음 단계로 넘어가요" : "다 체크하면 계약 완료예요"}
+      </p>
+      <Checklist groupId={step.id} items={step.items} checked={progress.checked} onToggle={setChecked} segments={stepSegs} checkSlot={recheckLink} extra={{ building: buildingHow }} />
+      {step.items.some((i) => i.id === "prior_deposits") && <PriorDepositGuide />}
+          </details>
+        </>
+      ) : (
+        <>
+      <p className="check-hint small muted">
+        {CHECK_HINT[step.id] ?? "한 것부터"} 체크해 주세요 · {next ? "다 체크하면 다음 단계로 넘어가요" : "다 체크하면 계약 완료예요"}
+      </p>
+      <Checklist groupId={step.id} items={step.items} checked={progress.checked} onToggle={setChecked} segments={stepSegs} checkSlot={checkSlot} extra={{ building: buildingHow }} />
+      {step.items.some((i) => i.id === "prior_deposits") && <PriorDepositGuide />}
+          {branchQuestion}
+        </>
       )}
+
+      {step.no === 3 && room && <RentCard room={room} />}
+
 
       {/* 받을 서류 · 챙길 것은 접어 둔다(지금 할 일 목록보다 앞에 나서지 않게) */}
       {/* 5단계: 4단계에서 담은 요청 목록을 그대로 이어서 보며 계약서에 들어갔는지 확인 */}

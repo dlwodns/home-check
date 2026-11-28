@@ -87,7 +87,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
           ...active.map((x) => {
             const st = stats.perStep[x.no - 1];
             const isCurrent = current?.no === x.no;
-            const status = isCurrent ? ("current" as const) : st.done === st.total ? ("done" as const) : ("locked" as const);
+            const status = isCurrent ? ("current" as const) : st.done === st.total ? ("done" as const) : st.done > 0 || (x.key && check) ? ("started" as const) : ("locked" as const);
             const verdict =
               x.key && check ? (
                 <span className={`small verdict-${check.verdict}`}>

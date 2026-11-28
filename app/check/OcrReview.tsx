@@ -193,12 +193,15 @@ function CropOrMissing({ e, ocr }: { e: Evidence; ocr: OcrPdfResult }) {
 /** 쪽 그림의 한 부분만 잘라 보여 준다(그림을 새로 만들지 않고 배경 위치로 자름) */
 function Crop({ page, box, label }: { page: OcrPdfResult["pages"][number] | undefined; box: NonNullable<Evidence["box"]>; label: string }) {
   if (!page) return null;
-  const pad = 8;
-  const x = Math.max(0, box.x0 - pad),
-    y = Math.max(0, box.y0 - pad);
-  const w = Math.min(page.width, box.x1 + pad) - x,
-    h = Math.min(page.height, box.y1 + pad) - y;
-  const s = Math.min(1, 280 / w); // 휴대폰 폭에 맞게 줄이기만 함
+  // 옆으로 넉넉히(글자 앞뒤가 잘려 '다른 값'처럼 보이지 않게, 11/28), 위아래는 조금
+  const padX = 48,
+    padY = 10;
+  const x = Math.max(0, box.x0 - padX),
+    y = Math.max(0, box.y0 - padY);
+  const w = Math.min(page.width, box.x1 + padX) - x,
+    h = Math.min(page.height, box.y1 + padY) - y;
+  // 카드 안 폭(360px 화면에서 약 250px)에 맞게 줄인다. 넘치면 CSS max-width가 오른쪽을 잘라 버리므로 여기서 맞춘다
+  const s = Math.min(1, 240 / w);
   return (
     <span
       className="ocr-crop"

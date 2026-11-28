@@ -550,7 +550,7 @@ button.cta { border: 0; width: 100%; font: inherit; font-weight: 700; cursor: po
 .ocr-evidence ul.ocr-missed { padding: 10px 12px; margin: 10px 0 0; border-radius: 12px; }
 /* 점검 단계 표시: 지금 어디인지 · 지금 할 일 */
 .check-steps { margin: 4px 0 12px; }
-.check-steps ol { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 0; padding: 0; font-size: 14px; color: var(--muted, #6b7280); }
+.check-steps ol { list-style: none; display: flex; flex-wrap: wrap; gap: 4px 5px; margin: 0; padding: 0; font-size: 14px; color: var(--muted, #6b7280); }
 .check-steps li { display: inline-flex; align-items: center; gap: 4px; }
 .check-steps li + li::before { content: "›"; margin-right: 2px; opacity: .6; }
 .check-steps .step-no { display: inline-grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; border: 1px solid currentColor; font-size: 11px; }
@@ -785,3 +785,10 @@ input[type="checkbox"] { accent-color: var(--accent); }
 .flow-dots button { width: 28px; height: 28px; }
 .check-extra { margin: -4px 14px 14px 50px; font-size: var(--fs-small); color: var(--muted); line-height: 1.5; }
 .check-extra a { display: inline-flex; align-items: center; min-height: 32px; font-weight: 700; }
+.path-started .path-dot { border-color: var(--accent); color: var(--accent); }
+.help-site { display: inline-flex; align-items: center; min-height: 44px; }
+.flag-sources a, .result a[href^='/sources'] { display: inline-flex; align-items: center; min-height: 44px; padding: 0 4px; }
+main summary { min-height: 44px; }
+.check-extra a, .rent a, .links a { display: inline-flex; align-items: center; min-height: 44px; }
+.source-more > summary { cursor: pointer; display: flex; align-items: center; color: var(--muted); font-size: var(--fs-small); }
+.sources .nav-btn { margin-top: 4px; }

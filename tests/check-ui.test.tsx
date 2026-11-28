@@ -342,14 +342,14 @@ describe("PDF 올리기", () => {
     const user = userEvent.setup();
     await uploadOcr(user);
     const steps = screen.getByRole("navigation", { name: "점검 단계" });
-    expect(within(steps).getAllByRole("listitem").map((li) => li.textContent)).toEqual(["✓서류 넣기", "2원본과 맞춰 보기", "3내 계약 정보", "4결과 보기"]);
-    expect(within(steps).getByText("원본과 맞춰 보기").closest("li")!.getAttribute("aria-current")).toBe("step");
+    expect(within(steps).getAllByRole("listitem").map((li) => li.textContent)).toEqual(["✓서류 넣기", "2원본 확인", "3내 정보", "4결과"]);
+    expect(within(steps).getByText("원본 확인").closest("li")!.getAttribute("aria-current")).toBe("step");
     expect(screen.queryByRole("button", { name: "예시 서류 2" })).toBeNull(); // 진짜 서류를 넣으면 샘플은 숨김
     await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
-    expect(within(steps).getByText("내 계약 정보").closest("li")!.getAttribute("aria-current")).toBe("step");
+    expect(within(steps).getByText("내 정보").closest("li")!.getAttribute("aria-current")).toBe("step");
     await fillForm(user);
     await user.click(screen.getByRole("button", { name: "점검하기" }));
-    expect(within(steps).getByText("결과 보기").closest("li")!.getAttribute("aria-current")).toBe("step");
+    expect(within(steps).getByText("결과").closest("li")!.getAttribute("aria-current")).toBe("step");
     expect(screen.queryByText("읽은 내용 확인 · 고치기")).toBeNull(); // 위에서 맞춰 봤으니 겹치는 칸은 뺌
     // 결과 뒤에는 무엇을 이어서 할지 버튼 하나 + 이전 단계로 돌아가기
     const next = screen.getByRole("navigation", { name: "다음 단계" });

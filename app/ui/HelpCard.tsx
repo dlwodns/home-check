@@ -13,18 +13,16 @@ export default function HelpCard() {
             </a>
             <span>
               <strong>{p.name}</strong>
-              <span className="small muted">
-                {p.what}
-                {p.hours ? ` · ${p.hours}` : ""}
-              </span>
-              <a href={p.url} target="_blank" rel="noopener noreferrer" className="small">
-                공식 사이트
+              {/* 설명은 한 줄만(11/28 UX: 카드가 길었음). 운영 시간 · 공식 사이트는 이름 옆 링크로 */}
+              <span className="small muted">{p.what}</span>
+              <a href={p.url} target="_blank" rel="noopener noreferrer" className="small help-site">
+                {p.hours ? `${p.hours} · ` : ""}공식 사이트 ↗
               </a>
             </span>
           </li>
         ))}
       </ul>
-      <p className="small muted">무료 상담이에요(통화료는 걸 수 있어요). 번호 확인일 {help.checked}</p>
+      <p className="small muted">무료 상담(통화료 별도) · 번호 확인 {help.checked}</p>
     </section>
   );
 }

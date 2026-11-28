@@ -188,6 +188,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
   };
 
   // 지금 어느 단계인지: 처음 쓰는 사람이 다음에 뭘 할지 한 줄로 알게
+  // 단계가 넷(그림 PDF)이면 360px에서 두 줄로 깨지므로 짧은 이름으로 보여 준다(11/28)
+  const SHORT_STEP: Record<string, string> = ocr ? { "원본과 맞춰 보기": "원본 확인", "내 계약 정보": "내 정보", "결과 보기": "결과" } : {};
   const stepNames = ["서류 넣기", ...(ocr ? ["원본과 맞춰 보기"] : []), "내 계약 정보", "결과 보기"];
   const stepNow =
     outcome?.ok && !inputsOpen ? "결과 보기" : pane === "info" && text.trim() ? "내 계약 정보" : ocr && ocrReview === "pending" ? "원본과 맞춰 보기" : "서류 넣기";
@@ -277,12 +279,12 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
               {stepNames.indexOf(stepNow) > i && n !== "원본과 맞춰 보기" ? (
                 <button type="button" className="step-back" onClick={() => goStep(n)} aria-label={`${n}(으)로 돌아가기`}>
                   <span className="step-no">✓</span>
-                  {n}
+                  {SHORT_STEP[n] ?? n}
                 </button>
               ) : (
                 <>
                   <span className="step-no">{stepNames.indexOf(stepNow) > i ? "✓" : i + 1}</span>
-                  {n}
+                  {SHORT_STEP[n] ?? n}
                 </>
               )}
             </li>

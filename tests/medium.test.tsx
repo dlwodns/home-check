@@ -46,16 +46,17 @@ describe("A. 요청 목록", () => {
     expect(reqKey("q", actions.questions[1])).not.toBe(k);
   });
 
-  it("'요청 목록에 담기'를 누르면 아래 목록에 모이고, 다시 누르면 빠진다", async () => {
+  it("'요청 목록에 담기'를 누르면 목록 카드가 생기고 모이며, 다시 누르면 빠진다(비면 카드를 두지 않음)", async () => {
     const user = userEvent.setup();
     render(<NextActions actions={actions} />);
-    const box = screen.getByText(/^내 요청 목록/).closest(".request") as HTMLElement;
-    expect(within(box).getByText(/담기'를 누르면 여기에 모여요/)).toBeTruthy();
+    expect(document.querySelector(".request")).toBeNull();
     const [pickQ] = screen.getAllByRole("button", { name: "+ 요청 목록에 담기" });
     await user.click(pickQ);
+    const box = document.querySelector(".request") as HTMLElement;
+    expect(within(box).getByText(/^내 요청 목록/)).toBeTruthy();
     expect(box.querySelector("pre")!.textContent).toContain("1. 근저당을 언제 갚으실 건가요?");
     await user.click(screen.getByRole("button", { name: "✓ 요청 목록에 담았어요" }));
-    expect(box.querySelector("pre")).toBeNull();
+    expect(document.querySelector(".request")).toBeNull();
   });
 
   it("방 화면처럼 저장 함수를 넘기면 그쪽에 저장한다", async () => {

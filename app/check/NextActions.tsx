@@ -240,7 +240,8 @@ export default function NextActions({
         </ul>
       </details>
 
-      <RequestCard actions={actions} picked={picked} />
+      {/* 아직 담은 게 없으면 빈 카드를 두지 않는다(11/28 UX: 결과 화면 길이 줄이기) — 담기 버튼 이름이 할 일을 말해 줌 */}
+      <RequestCard actions={actions} picked={picked} hideEmpty />
 
       <details className="card parent fold">
         <summary>
@@ -276,17 +277,20 @@ export function RequestCard({
   title = "내 요청 목록",
   hint = "집주인 · 중개사에게 한 번에 보내거나, 계약하는 날 보면서 하나씩 확인해요.",
   empty = "위의 질문 · 특약에서 '요청 목록에 담기'를 누르면 여기에 모여요.",
+  hideEmpty = false,
 }: {
   actions: Actions;
   picked: Record<string, boolean>;
   title?: string;
   hint?: string;
   empty?: string;
+  hideEmpty?: boolean;
 }) {
   const canShare = typeof navigator !== "undefined" && typeof navigator.share === "function";
   const pickedQuestions = actions.questions.filter((q) => picked[reqKey("q", q)]);
   const pickedClauses = actions.clauses.filter((c) => picked[reqKey("c", c.id)]);
   const request = requestText(pickedQuestions, pickedClauses);
+  if (hideEmpty && !request) return null;
   return (
     <div className="card request" aria-live="polite">
       <h3>

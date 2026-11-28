@@ -5,7 +5,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { toast } from "./Toast";
 
-export type PathRow = { key: string; no: number | "✓"; title: string; status: "done" | "current" | "locked" | "skipped"; href?: string; caption?: ReactNode; lockedHint?: string };
+export type PathRow = { key: string; no: number | "✓"; title: string; status: "done" | "current" | "started" | "locked" | "skipped"; href?: string; caption?: ReactNode; lockedHint?: string };
 
 export default function PathList({ rows, current }: { rows: PathRow[]; current: ReactNode }) {
   return (
@@ -28,13 +28,15 @@ export default function PathList({ rows, current }: { rows: PathRow[]; current: 
             </li>
           );
         const done = row.status === "done";
+        // 'started': 지금 단계보다 뒤지만 이미 손댄 단계(예: 4단계 점검을 먼저 함) → 잠그지 않고 이어 보게(11/28)
+        const open = done || row.status === "started";
         return (
-          <li key={row.key} className={`path-step ${done ? "path-done" : "path-locked"}`}>
+          <li key={row.key} className={`path-step ${done ? "path-done" : open ? "path-started" : "path-locked"}`}>
             <span className="path-dot" aria-hidden="true">{done ? "✓" : row.no}</span>
             <span className="path-body">
-              {done && row.href ? (
+              {open && row.href ? (
                 <Link href={row.href} className="path-title">
-                  {row.no}. {row.title} <span className="small muted">· 다시 보기</span>
+                  {row.no}. {row.title} <span className="small muted">· {done ? "다시 보기" : "이어 보기"}</span>
                 </Link>
               ) : (
                 <button type="button" className="path-title path-title-locked" onClick={() => toast(row.lockedHint ?? "앞 단계부터 차례대로 해요")}>
