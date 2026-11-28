@@ -20,7 +20,7 @@ export interface OcrPdfResult {
 }
 
 // 글자 높이가 OCR에 알맞게(약 30px) 되도록 A4를 2.5배로 그린다
-const SCALE = 2.5;
+const SCALE = 3.5;
 // shortcut: 쪽 수 상한 10. 등기부는 보통 2–6쪽이고, 휴대폰 메모리 · 시간(쪽당 수 초)을 지키려는 값. 실제 긴 등기부가 나오면 늘린다
 export const MAX_OCR_PAGES = 10;
 

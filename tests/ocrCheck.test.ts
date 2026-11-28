@@ -45,3 +45,23 @@ describe("ocrCheck: OCR 결과 확인 돕기", () => {
     expect(linesFromBlocks(null, 0)).toEqual([]);
   });
 });
+
+describe("소유권 이전을 놓친 OCR 알아채기 (11/28 그림 예시에서 찾은 문제)", () => {
+  const head = "【 갑 구 】 (소유권에 관한 사항)\n순위번호 | 등기목적 | 접수 | 등기원인 | 권리자 및 기타사항\n";
+  const row1 = "1 | 소유권보존 | 2010년3월2일 제1001호 | | 소유자 가상건설주식회사 110111-0000001\n";
+  const row2 = "2 | 소유권이전 | 2010년4월15일 제2002호 | 2010년3월20일 매매 | 소유자 정하은 820714-*******\n거래가액 금210,000,000원\n";
+  const row3 = "3 | 소유권이전 | 2020년6월30일 제3003호 | 2020년5월10일 매매 | 소유자 윤서진 900101-*******\n";
+  const tail = "제3003호 매매 가상시 한빛구 새내동 500\n거래가액 금420,000,000원\n【 을 구 】 (소유권 이외의 권리에 관한 사항)\n";
+  it("OCR이 '3 소유권이전' 첫 줄을 빠뜨려 지금 집주인을 예전 소유자로 읽으면, 거래가액 수로 알아채고 알린다", () => {
+    const ocr = head + row1 + row2 + tail;
+    const read = readRegistry(ocr).read;
+    expect(read.current_owner).toBe("정하은");
+    expect(missedEntries(ocr, read).join(" ")).toMatch(/갑구에 소유권 이전\(거래가액\)이 2번 보이는데 읽은 건 1번/);
+  });
+  it("다 읽었으면 알리지 않는다", () => {
+    const ocr = head + row1 + row2 + row3 + tail;
+    const read = readRegistry(ocr).read;
+    expect(read.current_owner).toBe("윤서진");
+    expect(missedEntries(ocr, read).filter((m) => m.includes("거래가액"))).toEqual([]);
+  });
+});

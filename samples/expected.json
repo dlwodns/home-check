@@ -182,6 +182,48 @@
           "ratio_caution"
         ]
       }
+    },
+    {
+      "file": "E_apartment.txt",
+      "label": "예시 서류 5 (아파트)",
+      "read": {
+        "address": "가상시 한빛구 새내동 500 한빛마을아파트 제101동 제7층 제702호",
+        "building_type": "아파트",
+        "current_owner": "윤서진",
+        "previous_owners": [
+          "가상건설주식회사",
+          "정하은"
+        ],
+        "active_mortgages": [
+          {
+            "max_claim": 312000000,
+            "creditor": "주식회사다라은행"
+          }
+        ],
+        "erased_mortgages": [
+          {
+            "max_claim": 150000000,
+            "creditor": "주식회사가나은행"
+          }
+        ],
+        "jeonses": [],
+        "seizures": [],
+        "risk_records": [],
+        "erased_risk_records": [],
+        "last_ownership_transfer": "2020-06-30"
+      },
+      "inputs": {
+        "market_price": 600000000,
+        "prior_deposits": 0,
+        "my_deposit": 50000000,
+        "contract_party": "윤서진"
+      },
+      "expected": {
+        "mortgage_total": 312000000,
+        "ratio": 60.3,
+        "verdict": "safe",
+        "flags": []
+      }
     }
   ]
 }

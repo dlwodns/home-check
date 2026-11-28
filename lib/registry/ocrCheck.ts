@@ -113,6 +113,12 @@ export function missedEntries(ocrText: string, read: RegistryRead): string[] {
     압류: read.seizures.filter((x) => x.type === "압류").length,
     전세권설정: read.jeonses.length,
   };
+  // 소유권 이전을 놓치면 '지금 집주인'이 예전 소유자로 읽힌다(11/28 그림 예시에서 OCR이 '3 소유권이전' 첫 줄을 통째로 빠뜨림).
+  // 매매 이전에는 갑구에 '거래가액'이 남으므로, 갑구의 거래가액 수가 읽은 이전 수보다 많으면 알린다.
+  const gap = t.split(/【\s*갑\s*구\s*】/)[1]?.split(/【\s*을\s*구\s*】/)[0] ?? "";
+  const prices = [...gap.matchAll(/거\s*래\s*가\s*액/g)].length;
+  if (prices > read.previous_owners.length)
+    out.push(`갑구에 소유권 이전(거래가액)이 ${prices}번 보이는데 읽은 건 ${read.previous_owners.length}번이에요. 지금 집주인이 맞는지 원본 갑구 끝을 확인해 주세요.`);
   for (const r of read.risk_records) readCount[r.type] = (readCount[r.type] ?? 0) + 1;
   for (const w of ["가압류", "압류", "가처분", "경매개시결정", "가등기", "임차권등기", "전세권설정"]) {
     // 가등기에 의한 본등기가 되면 그 가등기는 끝난 것(읽기 규칙도 위험으로 치지 않음)
