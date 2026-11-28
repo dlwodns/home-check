@@ -499,14 +499,17 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
 });
 
 describe("홈 버튼", () => {
-  it("하위 화면 위쪽에 '홈으로' 로고 버튼이 있고 홈(/)으로 간다", async () => {
+  it("하위 화면은 왼쪽 위 ← 바로 옆에 홈체크 로고(홈 · 새로고침)가 있고, 오른쪽 위에는 아무것도 없다", async () => {
     seedRooms(baseRoom);
     at("room?id=r1");
-    render(<RoomDetailClient steps={steps} branches={branches} />);
-    expect((await screen.findByRole("link", { name: "홈으로" })).getAttribute("href")).toBe("/");
+    const { container } = render(<RoomDetailClient steps={steps} branches={branches} />);
+    const logo = await screen.findByRole("link", { name: "홈체크 처음으로 (새로고침)" });
+    expect(logo.getAttribute("href")).toBe("/");
+    const bar = container.querySelector(".topbar")!;
+    expect([...bar.children].map((c) => c.className || c.tagName)).toEqual(["back", "home-link", "SPAN"]);
     cleanup();
     render(<RoomAddClient />);
-    expect(screen.getByRole("link", { name: "홈으로" }).getAttribute("href")).toBe("/");
+    expect(screen.getByRole("link", { name: "홈체크 처음으로 (새로고침)" }).getAttribute("href")).toBe("/");
   });
 });
 

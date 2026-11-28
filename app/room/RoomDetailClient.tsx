@@ -65,8 +65,8 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
     <main className="container check room-detail">
       <nav className="topbar">
         <BackButton fallback={"/"} />
-        <span>내 후보 방</span>
         <HomeLink />
+        <span>내 후보 방</span>
       </nav>
       <h1 className="title">{room.label}</h1>
       <p className="muted small">

@@ -255,8 +255,8 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     <main className="container check">
       <nav className="topbar">
         <BackButton fallback={room ? withRoom("/steps/4", room.id) : "/"} />
-        <span>{room ? `${room.label} · 등기부등본 점검` : "등기부등본 점검"}</span>
         <HomeLink />
+        <span>{room ? `${room.label} · 등기부등본 점검` : "등기부등본 점검"}</span>
       </nav>
 
       <nav className="check-steps" aria-label="점검 단계">

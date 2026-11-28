@@ -22,8 +22,8 @@ export default function SourcesPage() {
     <main className="container check">
       <nav className="topbar">
         <BackButton fallback={"/check"} />
-        <span>근거 목록</span>
         <HomeLink />
+        <span>근거 목록</span>
       </nav>
       <p className="muted small">
         홈체크의 안내는 아래 근거를 바탕으로 해요. 법은 바뀔 수 있으니 계약 전에는 공식 링크에서 한 번 더 확인해 주세요.

@@ -31,8 +31,8 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
     <main className="container check">
       <nav className="topbar">
         <BackButton fallback={room ? roomHref(room.id) : "/guide"} />
-        <span>{room ? `${room.label} · 계약 진행` : "내 계약 진행"}</span>
         <HomeLink />
+        <span>{room ? `${room.label} · 계약 진행` : "내 계약 진행"}</span>
       </nav>
 
       <div className="card">

@@ -34,8 +34,8 @@ export default function WhereClient({ question }: { question: string }) {
     <main className="container check">
       <nav className="topbar">
         <BackButton fallback={room ? roomHref(room.id) : "/guide"} />
-        <span>시작하기</span>
         <HomeLink />
+        <span>시작하기</span>
       </nav>
       <h1 className="title">{question}</h1>
       <p className="muted">어디서 찾았는지에 따라 내가 챙길 것이 달라져요.</p>

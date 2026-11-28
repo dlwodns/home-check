@@ -76,8 +76,8 @@ export default function AccountClient() {
     <main className="container check">
       <nav className="topbar">
         <BackButton fallback={"/"} />
-        <span>내 계정</span>
         <HomeLink />
+        <span>내 계정</span>
       </nav>
 
       {message && (

@@ -57,8 +57,8 @@ export default function DocsClient() {
     <main className="container check docs-page">
       <nav className="topbar">
         <BackButton fallback={room ? roomHref(room.id) : "/"} />
-        <span>{room ? `${room.label} · 서류 · 준비물` : "서류 · 준비물"}</span>
         <HomeLink />
+        <span>{room ? `${room.label} · 서류 · 준비물` : "서류 · 준비물"}</span>
       </nav>
       <h1 className="title">무엇을 챙기면 되나요?</h1>
       <p className="muted" aria-live="polite">

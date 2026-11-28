@@ -110,11 +110,11 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
     <main className="container check">
       <nav className="topbar">
         <BackButton fallback={backHref} />
+        <HomeLink />
         <span>
           {room ? `${room.label} · ` : ""}
           {step.no}단계 / {total}
         </span>
-        <HomeLink />
       </nav>
       <h1 className="title">{step.title}</h1>
       <p className="muted">

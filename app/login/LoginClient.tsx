@@ -70,8 +70,8 @@ export default function LoginClient() {
     <main className="container check">
       <nav className="topbar">
         <BackButton fallback={"/"} />
-        <span>{mode === "login" ? "로그인" : "가입하기"}</span>
         <HomeLink />
+        <span>{mode === "login" ? "로그인" : "가입하기"}</span>
       </nav>
 
       {loaded && !enabled && (

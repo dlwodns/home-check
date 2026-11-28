@@ -67,8 +67,8 @@ export default function RoomAddClient() {
     <main className="container check">
       <nav className="topbar">
         <BackButton fallback={"/"} />
-        <span>후보 방 추가</span>
         <HomeLink />
+        <span>후보 방 추가</span>
       </nav>
       <h1 className="title">어떤 방인가요?</h1>
       <p className="muted">세 가지만 적으면 돼요</p>

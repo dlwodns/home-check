@@ -22,8 +22,8 @@ export default function StartClient() {
     <main className="container start">
       <nav className="topbar">
         <BackButton fallback={"/"} />
-        <span>계약 과정 미리 보기</span>
         <HomeLink />
+        <span>계약 과정 미리 보기</span>
       </nav>
       <p className="brand">
         <BrandMark />
