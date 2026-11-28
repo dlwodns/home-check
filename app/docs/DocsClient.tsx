@@ -99,6 +99,7 @@ export function DocGroup({
   return (
     <section className="docs-group" aria-labelledby={`g-${g.id}`}>
       <h2 id={`g-${g.id}`}>{g.title}</h2>
+      <p className="check-hint small muted">챙겼으면 왼쪽 네모를 눌러 체크해 주세요</p>
       <ul className="docs-list">
         {items.map(({ item, conditional }) => {
           const id = `doc-${item.id}`;
@@ -110,6 +111,7 @@ export function DocGroup({
                 <label htmlFor={id}>
                   {conditional && item.only && <span className="doc-only">{ONLY_LABEL[item.only]}</span>}
                   <strong>{item.title}</strong>
+                  {on && <span className="done-badge">✓ 챙겼어요</span>}
                 </label>
                 <span className="small muted">{item.why}</span>
                 {/* 어디서 · 얼마 · 근거는 펼쳐야 보이게(11/28 첫 화면 글자 줄이기) */}

@@ -43,6 +43,7 @@ export default function Checklist({
               <span id={`${inputId}-text`} className="check-text">
                 <TermText segments={segments[idx][0]} />
                 {item.optional && <span className="optional"> (해당 없으면 건너뛰어도 돼요)</span>}
+                {done && <span className="done-badge">✓ 했어요</span>}
               </span>
             </div>
             {(item.good || item.bad) && (

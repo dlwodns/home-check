@@ -196,7 +196,10 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .step-tag { font-size: 12px; font-weight: 700; color: var(--safe); }
 .checklist { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
 .checklist > li { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
-.checklist > li.done .check-text { color: var(--muted); text-decoration: line-through; }
+/* 체크한 항목: 줄 긋기 대신 색만 바꾸고 '✓ 했어요'를 붙인다(11/28 사용자 요청: 글이 지워진 것처럼 보이지 않게) */
+.checklist > li.done { background: var(--safe-bg); border-color: var(--safe); }
+.done-badge { display: inline-block; margin-left: 6px; padding: 0 8px; border-radius: 999px; font-size: 12px; font-weight: 800; line-height: 20px; color: var(--on-accent); background: var(--safe); white-space: nowrap; vertical-align: 1px; }
+.check-hint { margin: 4px 0 8px; }
 .check-row { display: flex; gap: 12px; align-items: flex-start; }
 .check-row input { flex: none; width: 24px; height: 24px; margin-top: 2px; }
 .check-text { font-weight: 600; line-height: 1.5; }
@@ -487,7 +490,7 @@ body { font-family: "Pretendard", system-ui, -apple-system, "Apple SD Gothic Neo
 .doc-only { font-size: 12px; font-weight: 700; color: var(--info); }
 .doc-meta { color: var(--text); }
 .doc-done { background: var(--safe-bg); border-color: transparent !important; }
-.doc-done strong { text-decoration: line-through; text-decoration-color: var(--muted); }
+.doc-done { border-color: var(--safe) !important; }
 .docs-link { display: flex; justify-content: space-between; align-items: center; gap: 12px; text-decoration: none; color: var(--text); }
 .docs-link > span:first-child { display: flex; flex-direction: column; gap: 2px; }
 .docs-count { font-size: 18px; font-weight: 800; color: var(--accent); flex-shrink: 0; }
@@ -718,3 +721,4 @@ label[data-mark="필수"]::after { color: var(--danger, #c62828); background: #f
 .art-label { fill: #7a4a00; font-size: 10px; font-weight: 800; }
 .art-label-on { fill: var(--on-accent); font-size: 10px; font-weight: 800; }
 @media (prefers-color-scheme: dark) { .art-dark { fill: #3a3f47; } .art-box { fill: #b5824f; } }
+input[type="checkbox"] { accent-color: var(--accent); }

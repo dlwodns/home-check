@@ -122,6 +122,7 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
       </p>
       {segs.some((g) => g.some((x) => x.term)) && <TermHint />}
 
+      <p className="check-hint small muted">다 했으면 왼쪽 네모를 눌러 체크해 주세요</p>
       <Checklist groupId={step.id} items={step.items} checked={progress.checked} onToggle={setChecked} segments={stepSegs} checkSlot={checkSlot} />
 
       {step.items.some((i) => i.id === "prior_deposits") && <PriorDepositGuide />}
