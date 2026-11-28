@@ -7,7 +7,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import FlowPreview from "./ui/FlowPreview";
+import ProcessPreview from "./ui/ProcessPreview";
 import { markEntered } from "./ui/entered";
 import { useProgress } from "./ui/useProgress";
 
@@ -62,11 +62,11 @@ export default function Welcome({ returning = false, hasRooms = false, onSkip }:
   if (stage === "ask")
     return (
       <main className="welcome welcome-ask">
-        <h1 className="welcome-q">{returning ? "집 구하는 과정, 다시 볼까요?" : "집 구하는 과정, 먼저 볼까요?"}</h1>
+        <h1 className="welcome-q">{returning ? "계약 과정, 다시 볼까요?" : "계약 과정, 먼저 볼까요?"}</h1>
         <p className="muted">{returning ? hasRooms ? "건너뛰면 담아 둔 방으로 바로 가요." : "건너뛰면 홈으로 가요. 관심 있는 방을 바로 담을 수 있어요." : "처음이라면 먼저 보는 걸 추천해요. 6장이면 끝나요."}</p>
         <div className="welcome-choices">
           <button type="button" className="primary" onClick={() => choose("first")}>
-            {returning ? "과정 알아보기" : "처음이에요 · 과정 먼저 보기"}
+            {returning ? "계약 과정 미리보기" : "처음이에요 · 계약 과정 미리보기"}
           </button>
           <button type="button" className="ghost welcome-skip" onClick={() => choose("experienced")}>
             {returning ? "건너뛰기" : "해 봤어요 · 바로 방 담기"}
@@ -80,22 +80,7 @@ export default function Welcome({ returning = false, hasRooms = false, onSkip }:
 
   return (
     <main className="welcome welcome-preview">
-      <h1 className="welcome-q">집 계약, 이렇게 흘러가요</h1>
-      <FlowPreview />
-      {returning ? (
-        <button type="button" className="primary" onClick={onSkip}>
-          {hasRooms ? "다음: 내 후보 방 →" : "다음: 홈 →"}
-        </button>
-      ) : (
-        <Link href="/rooms/new" className="primary-link" onClick={markEntered}>
-          다음: 방 담기 →
-        </Link>
-      )}
-      {/* 방이 아직 없으면 같은 미리보기(/guide)를 또 보여 주지 않고 1단계(준비)부터 한 길로 */}
-      <Link href="/steps/1" className="nav-btn" onClick={markEntered}>
-        다음: 방 찾기부터 →
-      </Link>
-      <p className="small muted">방을 찾았으면 &apos;방 담기&apos;, 아직이면 &apos;방 찾기부터&apos;</p>
+      <ProcessPreview returning={returning} hasRooms={hasRooms} onSkip={onSkip} />
     </main>
   );
 }

@@ -36,10 +36,6 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
       </nav>
 
       <div className="card">
-        <p className="small">
-          {loaded && progress.branch ? `방: ${BRANCH_LABEL[progress.branch]}` : "방을 어디서 찾았는지 아직 안 골랐어요"} ·{" "}
-          <Link href={r("/where")} className="nav-btn nav-btn-sm">{progress.branch ? "바꾸기" : "고르기"}</Link>
-        </p>
         <p className="small muted" aria-live="polite">
           {stats.activeSteps}단계 중 {stats.finishedSteps}단계 완료 · 할 일 {stats.done}/{stats.total}
         </p>
@@ -57,7 +53,7 @@ export default function StepsClient({ steps, branches }: { steps: Step[]; branch
       </div>
 
       <Link href={r("/check")} className={`cta${experienced ? "" : " cta-soft"}`}>
-        등기부등본 바로 점검하기
+        등기부등본만 바로 점검
       </Link>
 
 

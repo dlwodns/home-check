@@ -68,7 +68,7 @@ describe("홈 = 내 후보 방", () => {
   it("방이 없으면 '아직 담은 방이 없어요'와 추가 버튼, 방 없이 둘러보는 길도 있다", async () => {
     render(<RoomsHome />);
     expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
-    expect(screen.getByRole("link", { name: /후보 방 추가/ }).getAttribute("href")).toBe("/rooms/new");
+    expect(screen.getByRole("link", { name: /방 담기 · 주소와 보증금만/ }).getAttribute("href")).toBe("/rooms/new");
     expect(screen.getByRole("link", { name: "계약 과정 미리보기" }).getAttribute("href")).toBe("/guide");
   });
 
@@ -401,7 +401,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     const user = userEvent.setup();
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
-    expect(screen.getByRole("heading", { name: "집 구하는 과정, 먼저 볼까요?" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "계약 과정, 먼저 볼까요?" })).toBeTruthy();
     expect(screen.getByText(/처음이라면 먼저 보는 걸 추천해요/)).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "해 봤어요 · 바로 방 담기" }));
     expect(push).toHaveBeenCalledWith("/rooms/new");
@@ -414,7 +414,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     const user = userEvent.setup();
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
-    await user.click(screen.getByRole("button", { name: "처음이에요 · 과정 먼저 보기" }));
+    await user.click(screen.getByRole("button", { name: "처음이에요 · 계약 과정 미리보기" }));
     expect(screen.getByRole("region", { name: "집 계약 과정 미리보기" })).toBeTruthy();
     expect(JSON.parse(localStorage.getItem("homecheck.progress.v1")!).mode).toBe("first");
     const go = screen.getByRole("link", { name: "다음: 방 담기 →" });
@@ -428,7 +428,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     const user = userEvent.setup();
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
-    await user.click(screen.getByRole("button", { name: "처음이에요 · 과정 먼저 보기" }));
+    await user.click(screen.getByRole("button", { name: "처음이에요 · 계약 과정 미리보기" }));
     expect(screen.getByRole("link", { name: "다음: 방 찾기부터 →" }).getAttribute("href")).toBe("/steps/1");
     expect(screen.queryByText(/6단계 미리 보기/)).toBeNull();
     cleanup();
@@ -442,7 +442,7 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     localStorage.setItem("homecheck.entered.v1", "1");
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
-    expect(screen.getByRole("heading", { name: "집 구하는 과정, 다시 볼까요?" })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "계약 과정, 다시 볼까요?" })).toBeTruthy();
     expect(screen.getByText("건너뛰면 홈으로 가요. 관심 있는 방을 바로 담을 수 있어요.")).toBeTruthy(); // 담은 방이 없을 때
     await user.click(screen.getByRole("button", { name: "건너뛰기" }));
     expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
@@ -455,13 +455,13 @@ describe("처음 온 사람 입구 (로고 + 시작하기 → 해 본 적 있어
     expect(screen.getByRole("link", { name: "홈체크 소개" }).getAttribute("href")).toBe("/welcome");
   });
 
-  it("다시 온 사람: 과정 알아보기 → 미리보기 → '내 후보 방으로'", async () => {
+  it("다시 온 사람: 계약 과정 미리보기 → 미리보기 → '내 후보 방으로'", async () => {
     const { default: HomeGate } = await import("@/app/HomeGate");
     const user = userEvent.setup();
     localStorage.setItem("homecheck.entered.v1", "1");
     render(<HomeGate />);
     await user.click(await screen.findByRole("button", { name: "시작하기" }));
-    await user.click(screen.getByRole("button", { name: "과정 알아보기" }));
+    await user.click(screen.getByRole("button", { name: "계약 과정 미리보기" }));
     expect(screen.getByRole("region", { name: "집 계약 과정 미리보기" })).toBeTruthy();
     await user.click(screen.getByRole("button", { name: "다음: 홈 →" }));
     expect(await screen.findByText("아직 담은 방이 없어요")).toBeTruthy();
@@ -717,7 +717,7 @@ describe("맨 위 ←는 방금 보던 화면으로 (11/28)", () => {
 });
 
 describe("집 모양 로고는 화면마다 하나 (11/28)", () => {
-  it("계약 과정 미리 보기(/guide)는 원래 있던 홈체크 로고 하나가 처음으로(새로고침) 간다", async () => {
+  it("계약 과정 미리보기(/guide)도 집 모양 로고는 하나(← 옆)이고 처음으로(새로고침) 간다", async () => {
     const { default: StartClient } = await import("@/app/StartClient");
     const { container } = render(<StartClient />);
     expect(container.querySelectorAll(".home-link, .brand").length).toBe(1);

@@ -353,7 +353,7 @@ describe("PDF 올리기", () => {
     expect(screen.queryByText("읽은 내용 확인 · 고치기")).toBeNull(); // 위에서 맞춰 봤으니 겹치는 칸은 뺌
     // 결과 뒤에는 무엇을 이어서 할지 버튼 하나 + 이전 단계로 돌아가기
     const next = screen.getByRole("navigation", { name: "다음 단계" });
-    expect(within(next).getByRole("link", { name: /내 후보 방으로 담기/ }).getAttribute("href")).toBe("/rooms/new");
+    expect(within(next).getByRole("link", { name: "다음: 방 담기 →" }).getAttribute("href")).toBe("/rooms/new");
     await user.click(screen.getByRole("button", { name: "← 이전: 내 계약 정보" }));
     expect(screen.getByRole("button", { name: "점검하기" })).toBeTruthy();
   });

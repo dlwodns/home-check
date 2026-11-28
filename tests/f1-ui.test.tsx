@@ -6,7 +6,6 @@ import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { branches, steps } from "@/lib/content";
 import StartClient from "@/app/StartClient";
-import WhereClient from "@/app/where/WhereClient";
 import StepsClient from "@/app/steps/StepsClient";
 import StepClient from "@/app/steps/[no]/StepClient";
 
@@ -30,40 +29,14 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
-describe("시작 화면", () => {
-  it("처음이에요 → '어디서 찾았어요?'로, 선택이 저장된다", async () => {
-    const user = userEvent.setup();
+describe("계약 과정 미리보기 (/guide)", () => {
+  it("입구의 미리보기와 같은 화면: 같은 이름 · 그림 6장 · 끝에 '방 담기' / '방 찾기부터'", () => {
     render(<StartClient />);
-    await user.click(screen.getByRole("button", { name: /처음이에요/ }));
-    expect(push).toHaveBeenCalledWith("/where");
-    expect(saved().mode).toBe("first");
-  });
-
-  it("해 봤어요 → 바로 6단계 목록으로", async () => {
-    const user = userEvent.setup();
-    render(<StartClient />);
-    await user.click(screen.getByRole("button", { name: /해 봤어요/ }));
-    expect(push).toHaveBeenCalledWith("/steps");
-  });
-
-  it("하던 게 있으면 '이어서 하기'가 보인다", async () => {
-    seed({ mode: "first" });
-    render(<StartClient />);
-    expect(await screen.findByRole("link", { name: "하던 것 이어서 하기" })).toBeTruthy();
-  });
-});
-
-describe("어디서 찾았어요?", () => {
-  it("고르기 전엔 다음을 못 누르고, 직거래를 고르면 본인 확인 안내 후 저장 · 이동", async () => {
-    const user = userEvent.setup();
-    render(<WhereClient question="이 방, 어디서 찾았어요?" />);
-    const next = screen.getByRole("button", { name: "다음" }) as HTMLButtonElement;
-    expect(next.disabled).toBe(true);
-    await user.click(screen.getByRole("radio", { name: /집주인과 직접/ }));
-    expect(screen.getByText(/집주인 본인 확인/)).toBeTruthy();
-    await user.click(next);
-    expect(saved().branch).toBe("direct");
-    expect(push).toHaveBeenCalledWith("/steps");
+    expect(screen.getByRole("heading", { name: "계약 과정 미리보기" })).toBeTruthy();
+    expect(screen.getByRole("region", { name: "집 계약 과정 미리보기" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "다음: 방 담기 →" }).getAttribute("href")).toBe("/rooms/new");
+    expect(screen.getByRole("link", { name: "다음: 방 찾기부터 →" }).getAttribute("href")).toBe("/steps/1");
+    expect(screen.queryByRole("button", { name: /처음이에요|해 봤어요/ })).toBeNull(); // 갈래는 입구에서 한 번만
   });
 });
 
@@ -84,7 +57,7 @@ describe("해 봤어요(경험자) 6단계 목록", () => {
   it("경험자도 '건너뛰어도 돼요' 없이 6단계 모두, 등기부등본 바로 점검은 맨 위에", async () => {
     seed({ mode: "experienced", branch: "broker" });
     render(<StepsClient steps={steps} branches={branches} />);
-    expect((await screen.findByRole("link", { name: "등기부등본 바로 점검하기" })).getAttribute("href")).toBe("/check");
+    expect((await screen.findByRole("link", { name: "등기부등본만 바로 점검" })).getAttribute("href")).toBe("/check");
     expect(screen.queryByText(/건너뛰어도 돼요/)).toBeNull();
     expect(screen.getByText("지금 할 차례").closest("a")?.getAttribute("href")).toBe("/steps/1");
     expect(screen.getByText(/6단계 중 0단계 완료/)).toBeTruthy();

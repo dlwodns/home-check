@@ -116,14 +116,14 @@ export default function RoomsHome() {
       )}
 
       <Link href="/rooms/new" className={rooms.length ? "add-room" : "cta"}>
-        + 후보 방 추가 · 주소와 보증금만
+        + 방 담기 · 주소와 보증금만
       </Link>
 
       <nav className="home-links" aria-label="아직 방을 못 찾았어요?">
         <p className="small muted">아직 방을 못 찾았어요?</p>
         <div className="home-link-pair">
           <Link href="/guide" className="cta cta-soft">계약 과정 미리보기</Link>
-          <Link href="/check" className="cta cta-soft">등기부등본만 바로 점검하기</Link>
+          <Link href="/check" className="cta cta-soft">등기부등본만 바로 점검</Link>
         </div>
       </nav>
       <p className="small muted home-foot">

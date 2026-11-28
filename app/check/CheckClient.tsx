@@ -494,7 +494,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           ) : (
             <>
               <Link href="/rooms/new" className="primary-link">
-                다음: 내 후보 방으로 담기 →
+                다음: 방 담기 →
               </Link>
               <p className="small muted">방을 담고 그 방에서 등기부등본을 점검하면 결과 · 질문 · 계약 6단계를 이어서 챙겨 드려요.</p>
             </>

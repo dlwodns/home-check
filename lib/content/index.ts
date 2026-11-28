@@ -59,7 +59,6 @@ export interface Term {
 
 export const sources = sourcesFile.sources as Source[];
 export const steps = stepsFile.steps as Step[];
-export const branchQuestion: string = checklistsFile.question;
 export const branches = checklistsFile.branches as Branch[];
 export const terms = glossaryFile.terms as Term[];
 

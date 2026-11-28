@@ -66,7 +66,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
       <nav className="topbar">
         <BackButton fallback={"/"} />
         <HomeLink />
-        <span>내 후보 방</span>
+        <span>계약까지 가는 길</span>
       </nav>
       <h1 className="title">{room.label}</h1>
       <p className="muted small">

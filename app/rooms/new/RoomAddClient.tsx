@@ -1,5 +1,5 @@
 "use client";
-// 후보 방 추가: 주소 · 보증금/월세 · (선택) 링크 · 메모 세 칸만. 저장하면 바로 그 방 화면으로 간다.
+// 방 담기: 주소 · 보증금/월세 · (선택) 링크 · 메모 세 칸만. 저장하면 바로 그 방 화면으로 간다.
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
@@ -68,7 +68,7 @@ export default function RoomAddClient() {
       <nav className="topbar">
         <BackButton fallback={"/"} />
         <HomeLink />
-        <span>후보 방 추가</span>
+        <span>방 담기</span>
       </nav>
       <h1 className="title">어떤 방인가요?</h1>
       <p className="muted">세 가지만 적으면 돼요</p>
