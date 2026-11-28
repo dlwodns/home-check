@@ -186,12 +186,6 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
     setPane(name === "내 계약 정보" ? "info" : "doc");
     window.scrollTo?.({ top: 0 });
   };
-  const STEP_HINT: Record<string, string> = {
-    "서류 넣기": "등기부등본 PDF를 올려 주세요.",
-    "원본과 맞춰 보기": "읽은 값이 원본과 같은지 봐 주세요.",
-    "내 계약 정보": "보증금을 적고 '점검하기'를 눌러요.",
-    "결과 보기": "결과를 보고, 맨 아래 '다음 단계'로 가요.",
-  };
   const stepNo = (name: string) => stepNames.indexOf(name) + 1;
   const review =
     ocr && original ? (
@@ -284,9 +278,6 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
             </li>
           ))}
         </ol>
-        <p className="step-now" role="status">
-          <strong>지금 할 일</strong> {STEP_HINT[stepNow]}
-        </p>
       </nav>
 
       {/* 서류를 올리는 화면에서만(정보 입력 · 결과 화면에서는 같은 말 반복이라 뺌) */}
@@ -306,7 +297,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           </p>
           {savedNote}
           <button type="button" className="ghost" onClick={() => setInputsOpen(true)}>
-            고쳐서 다시 점검
+            ← 이전: 내 계약 정보
           </button>
         </section>
       )}
@@ -315,7 +306,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
       {showInputs && pane === "doc" && (
       <>
       <section className="card">
-        <h2>{stepNo("서류 넣기")}. 서류 넣기</h2>
+        <h2>서류 넣기</h2>
         <p className="get-registry">
           <a href="https://www.iros.go.kr" target="_blank" rel="noopener noreferrer">
             인터넷등기소에서 떼기 ↗
@@ -410,31 +401,31 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
         </p>
         {pdfStatus?.kind === "ok" && !ocr && <p className="small muted">{pdfStatus.message}</p>}
         <button type="button" className="ghost" onClick={() => setPane("doc")}>
-          ← 서류 바꾸기
+          ← 이전: 서류 넣기
         </button>
       </section>
       {/* 그림 PDF를 맞춰 봤으면 그 결과(고친 값)를 이 카드 위에 한 줄로 남긴다 */}
       {ocr && ocrReview !== "pending" && review}
 
       <section className="card">
-        <h2>{stepNo("내 계약 정보")}. 내 계약 정보</h2>
+        <h2>내 계약 정보</h2>
         <div className="field">
-          <label htmlFor={ids.my}>내 보증금 (원)</label>
-          <MoneyInput id={ids.my} hintId={`${ids.my}-h`} value={form.myDeposit} onChange={setMoney("myDeposit")} placeholder="예: 5,000,000" />
+          <label htmlFor={ids.my} data-mark="필수">내 보증금 (원)</label>
+          <MoneyInput id={ids.my} aria-required="true" hintId={`${ids.my}-h`} value={form.myDeposit} onChange={setMoney("myDeposit")} placeholder="예: 5,000,000" />
         </div>
         <div className="field">
-          <label htmlFor={ids.prior}>앞선 세입자 보증금 합계 (원)</label>
+          <label htmlFor={ids.prior} data-mark="선택">앞선 세입자 보증금 합계 (원)</label>
           <MoneyInput id={ids.prior} hintId={`${ids.prior}-h`} value={form.priorDeposits} onChange={setMoney("priorDeposits")} placeholder="모르면 비워 두세요" />
           <p className="hint">다가구 원룸은 등기부에 안 나와요 · 모르면 비워 두세요</p>
           <PriorDepositGuide />
         </div>
         <div className="field">
-          <label htmlFor={ids.market}>이 건물 시세 (원)</label>
+          <label htmlFor={ids.market} data-mark="선택">이 건물 시세 (원)</label>
           <MoneyInput id={ids.market} hintId={`${ids.market}-h`} value={form.marketPrice} onChange={setMoney("marketPrice")} placeholder="예: 800,000,000 또는 8억 · 모르면 비워 두세요" />
           <p className="hint">HUG 안심전세 앱에서 볼 수 있어요 · 모르면 비워 두세요</p>
         </div>
         <div className="field">
-          <label htmlFor={ids.party}>집주인 이름 (계약서에 서명할 사람)</label>
+          <label htmlFor={ids.party} data-mark="선택">집주인 이름 (계약서에 서명할 사람)</label>
           <input id={ids.party} value={form.contractParty} onChange={set("contractParty")} placeholder="예: 김도윤 · 모르면 비워 두세요" aria-describedby={`${ids.party}-h`} />
           <p className="hint" id={`${ids.party}-h`}>
             내 이름 말고, 집주인이라고 들은 이름이에요
@@ -486,7 +477,7 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           {room && !isSample ? (
             <>
               <Link href={withRoom("/steps/4", room.id)} className="primary-link">
-                4단계로 돌아가 이어 하기 →
+                다음: 계약 전 서류 확인 →
               </Link>
               <p className="small muted">이 결과에 맞춘 질문 · 특약이 4단계에 이어져요.</p>
               {/* 갈래길: 위험이면 이 방을 계속 볼지 묻는다(그만 보면 다른 방 담기로) */}
@@ -504,22 +495,11 @@ export default function CheckClient({ samples }: { samples: Sample[] }) {
           ) : (
             <>
               <Link href="/rooms/new" className="primary-link">
-                이 집을 내 후보 방으로 담기 →
+                다음: 내 후보 방으로 담기 →
               </Link>
               <p className="small muted">방을 담고 그 방에서 등기부등본을 점검하면 결과 · 질문 · 계약 6단계를 이어서 챙겨 드려요.</p>
             </>
           )}
-          <button
-            type="button"
-            className="ghost"
-            onClick={() => {
-              setInputsOpen(true);
-              setPane("info");
-              window.scrollTo?.({ top: 0 });
-            }}
-          >
-            ← 이전: 서류 · 내 계약 정보 고치기
-          </button>
         </nav>
       )}
 

@@ -79,9 +79,10 @@ export default function RoomAddClient() {
       ) : (
         <form onSubmit={save} noValidate>
           <div className="field">
-            <label htmlFor={ids.address}>주소</label>
+            <label htmlFor={ids.address} data-mark="필수">주소</label>
             <input
               id={ids.address}
+              aria-required="true"
               value={input.address}
               onChange={set("address")}
               placeholder="예: OO동 123-4"
@@ -128,9 +129,10 @@ export default function RoomAddClient() {
 
           <div className="row-2">
             <div className="field">
-              <label htmlFor={ids.deposit}>보증금 (원)</label>
+              <label htmlFor={ids.deposit} data-mark="필수">보증금 (원)</label>
               <MoneyInput
                 id={ids.deposit}
+                aria-required="true"
                 hintId={`${ids.deposit}-h`}
                 value={input.deposit}
                 onChange={(v) => setInput((x) => ({ ...x, deposit: v }))}
@@ -141,7 +143,7 @@ export default function RoomAddClient() {
               {err("deposit")}
             </div>
             <div className="field">
-              <label htmlFor={ids.rent}>월세 (원)</label>
+              <label htmlFor={ids.rent} data-mark="선택">월세 (원)</label>
               <MoneyInput
                 id={ids.rent}
                 hintId={`${ids.rent}-h`}
@@ -156,8 +158,8 @@ export default function RoomAddClient() {
           </div>
 
           <div className="field">
-            <label htmlFor={ids.note}>
-              매물 링크 · 메모 <span className="muted">(선택)</span>
+            <label htmlFor={ids.note} data-mark="선택">
+              매물 링크 · 메모
             </label>
             <input
               id={ids.note}

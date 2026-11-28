@@ -104,7 +104,7 @@ export default function LoginClient() {
 
           <form onSubmit={submit} noValidate>
             <div className="field">
-              <label htmlFor={ids.email}>이메일</label>
+              <label htmlFor={ids.email} data-mark="필수">이메일</label>
               <input
                 id={ids.email}
                 type="email"
@@ -119,7 +119,7 @@ export default function LoginClient() {
               {err("email", ids.email)}
             </div>
             <div className="field">
-              <label htmlFor={ids.pw}>비밀번호{mode === "signup" ? ` (${PASSWORD_MIN}자 이상)` : ""}</label>
+              <label htmlFor={ids.pw} data-mark="필수">비밀번호{mode === "signup" ? ` (${PASSWORD_MIN}자 이상)` : ""}</label>
               <input
                 id={ids.pw}
                 type="password"
@@ -134,7 +134,7 @@ export default function LoginClient() {
             </div>
             {mode === "signup" && (
               <div className="field">
-                <label htmlFor={ids.pw2}>비밀번호 한 번 더</label>
+                <label htmlFor={ids.pw2} data-mark="필수">비밀번호 한 번 더</label>
                 <input
                   id={ids.pw2}
                   type="password"

@@ -72,7 +72,7 @@ export default function DocsClient() {
 
       {room && (
         <Link href={withRoom("/steps", roomId)} className="nav-btn">
-          계약 과정 6단계 보기 →
+          다음: 계약 과정 6단계 →
         </Link>
       )}
       <p className="disclaimer">비용 · 기한은 법령 원문 기준(2026-11-17 확인) · 기관마다 조금 다를 수 있어요.</p>
@@ -115,7 +115,7 @@ export function DocGroup({
                 <span className="small muted">{item.why}</span>
                 {item.room && roomId && (
                   <Link href={withRoom("/steps/4", roomId)} className="nav-btn nav-btn-sm">
-                    이 방 특약 문장 보기 (4단계) →
+                    다음: 4단계 특약 문장 →
                   </Link>
                 )}
                 {/* 어디서 · 얼마 · 근거는 펼쳐야 보이게(11/28 첫 화면 글자 줄이기) */}

@@ -57,7 +57,7 @@ export default function RoomsHome() {
             </span>
           )}
           <span className="continue-go" aria-hidden="true">
-            이어하기 →
+            다음: 이어 하기 →
           </span>
         </Link>
       )}

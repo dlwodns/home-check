@@ -227,7 +227,7 @@ describe("지금 할 일 하나 (방 화면 · 홈 이어하기가 같은 답)",
   it("한 길: 방을 찾았으니 3단계부터 차례대로, 홈 '이어하기'는 방(길)으로 간다", () => {
     const fresh = room();
     const t = focusTask(fresh, null, steps, branches);
-    expect(t).toMatchObject({ kind: "step", title: "3단계 · 집 보러 가기", cta: "3단계 시작하기 →" });
+    expect(t).toMatchObject({ kind: "step", title: "3단계 · 집 보러 가기", cta: "다음: 집 보러 가기 →" });
     expect(t.href).toContain("/steps/3?room=");
     expect(nextAction(fresh, null, steps, branches)).toMatchObject({ text: "3단계 · 집 보러 가기", stepId: "visit", href: `/room?id=${fresh.id}` });
   });

@@ -6,7 +6,7 @@ import { DAY_LABEL, dayLine, icsEvent, koreanDay } from "@/lib/plan";
 import { todayKST } from "@/lib/registry/check";
 
 export default function PlanCard({ step, date, roomLabel, roomId, onSave }: { step: Step; date: string | undefined; roomLabel: string; roomId: string; onSave: (date: string) => void }) {
-  const [editing, setEditing] = useState(!date);
+  const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(date ?? "");
   const today = todayKST();
   const label = DAY_LABEL[step.id] ?? "그날";
@@ -27,6 +27,13 @@ export default function PlanCard({ step, date, roomLabel, roomId, onSave }: { st
     setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   };
 
+  // 날짜를 아직 안 정했으면 버튼 한 줄로 접어 둔다(지금 할 일 버튼보다 눈에 띄지 않게, 11/28 단순하게)
+  if (!date && !editing)
+    return (
+      <button type="button" className="ghost plan-open" onClick={() => setEditing(true)}>
+        📅 오늘은 여기까지 · 그날 정하기
+      </button>
+    );
   if (editing || !date)
     return (
       <div className="card plan-card">

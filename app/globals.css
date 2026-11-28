@@ -686,3 +686,10 @@ a.path-title { color: var(--text); }
 .step-nav > span:first-child + a { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
 .inline-q { display: flex; flex-direction: column; gap: 8px; border: 2px solid var(--accent); }
 .inline-q h2 { margin: 0; font-size: 17px; }
+/* 입력칸 표시(11/28): 꼭 적을 칸은 빨간 '필수', 비워도 되는 칸은 회색 '선택'. 글자로도 적어 색만으로 구분하지 않는다 */
+label[data-mark]::after { content: attr(data-mark); display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 6px; font-size: 12px; font-weight: 700; line-height: 18px; vertical-align: 1px; color: var(--muted); background: var(--surface-2, #f1f3f5); }
+label[data-mark="필수"]::after { color: var(--danger, #c62828); background: #fdecec; }
+.req, .opt { display: inline-block; margin-left: 4px; padding: 0 6px; border-radius: 6px; font-size: 12px; font-weight: 700; line-height: 18px; vertical-align: 1px; }
+.req { color: var(--danger, #c62828); background: #fdecec; }
+.opt { color: var(--muted); background: var(--surface-2, #f1f3f5); font-weight: 600; }
+.plan-open { align-self: flex-start; }

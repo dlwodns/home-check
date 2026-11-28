@@ -73,7 +73,7 @@ export default function Welcome({ returning = false, hasRooms = false, onSkip }:
           </button>
         </div>
         <button type="button" className="ghost" onClick={() => setStage("start")}>
-          ← 처음 화면으로
+          ← 이전: 처음 화면
         </button>
       </main>
     );
@@ -84,11 +84,11 @@ export default function Welcome({ returning = false, hasRooms = false, onSkip }:
       <FlowPreview />
       {returning ? (
         <button type="button" className="primary" onClick={onSkip}>
-          {hasRooms ? "내 후보 방으로 →" : "홈으로 →"}
+          {hasRooms ? "다음: 내 후보 방 →" : "다음: 홈 →"}
         </button>
       ) : (
         <Link href="/rooms/new" className="primary-link" onClick={markEntered}>
-          이제 방 담고 시작하기 →
+          다음: 방 담기 →
         </Link>
       )}
       <Link href="/guide" className="nav-btn" onClick={markEntered}>

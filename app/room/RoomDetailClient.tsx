@@ -9,7 +9,6 @@ import { useEffect, useState } from "react";
 import type { Branch as BranchContent, Step } from "@/lib/content";
 import { removeRoom, updateRoom, withRoom } from "@/lib/store/rooms";
 import PlanCard from "../ui/PlanCard";
-import StepBar from "../ui/StepBar";
 import { headline } from "@/lib/registry/goodPoints";
 import { focusTask, moneyLine, rememberLastRoom, roomSteps, toCheckCount, VERDICT_TEXT } from "../ui/roomView";
 import { roomsStore, useProgress } from "../ui/useProgress";
@@ -48,7 +47,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
   }
 
   const live = { ...room, branch: progress.branch, checked: progress.checked };
-  const { segs, current, stats } = roomSteps(live, progress.mode, steps, branches);
+  const { current, stats } = roomSteps(live, progress.mode, steps, branches);
   const task = focusTask(live, progress.mode, steps, branches);
   const check = room.check;
   const r = (href: string) => withRoom(href, room.id);
@@ -75,11 +74,7 @@ export default function RoomDetailClient({ steps, branches }: { steps: Step[]; b
         {room.address} · {moneyLine(room)}
       </p>
 
-      <div className="focus-progress">
-        <StepBar segs={segs} finish />
-        <span className="small muted">{current ? `6단계 중 ${current.no}단계` : "6단계를 모두 마쳤어요"}</span>
-      </div>
-
+      {/* 진행 막대는 아래 길(동그라미)과 같은 말이라 뺐다(11/28 단순하게) */}
       <ol className="path" aria-label="계약까지 가는 길">
         {skipped.length > 0 && (
           <li className="path-step path-skipped">

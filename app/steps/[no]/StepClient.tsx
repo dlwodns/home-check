@@ -98,7 +98,7 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
     </div>
   ) : (
     <Link href={checkHref} className="cta small-cta">
-      등기부등본 점검하기 →
+      다음: 등기부등본 점검 →
     </Link>
   );
   const docList = visibleDocs(progress.branch, check?.unknowns ?? null);
@@ -164,7 +164,16 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
         />
       )}
 
-      {docGroup && <DocGroup groupId={docGroup} list={docList} checked={progress.checked} onToggle={(id, v) => setChecked(docKey(id), v)} roomId={roomId} />}
+      {/* 받을 서류 · 챙길 것은 접어 둔다(지금 할 일 목록보다 앞에 나서지 않게) */}
+      {docGroup && (
+        <details className="card fold step-docs">
+          <summary>
+            <h2 className="h3">{docGroup === "receive" ? "집주인 · 중개사에게 받을 서류" : "계약하는 날 챙길 것"}</h2>
+            <span className="small muted">눌러서 보기</span>
+          </summary>
+          <DocGroup groupId={docGroup} list={docList} checked={progress.checked} onToggle={(id, v) => setChecked(docKey(id), v)} roomId={roomId} />
+        </details>
+      )}
 
       {(step.id === "contract" || (step.key && check && check.verdict !== "safe")) && <HelpCard />}
 
@@ -175,7 +184,7 @@ export default function StepClient({ step, total, branches, steps }: { step: Ste
       )}
       <nav className="step-nav" aria-label="단계 이동">
         {prev ? <Link href={r(`/steps/${prev.no}`)}>← 이전: {prev.title}</Link> : room ? <Link href={backHref}>← 방으로</Link> : <span />}
-        {next ? <Link href={r(`/steps/${next.no}`)}>다음: {next.title} →</Link> : <Link href={backHref}>{room ? "완료 · 방으로 →" : "진행 보기"}</Link>}
+        {next ? <Link href={r(`/steps/${next.no}`)}>다음: {next.title} →</Link> : <Link href={backHref}>{room ? "다음: 완료 →" : "다음: 진행 보기 →"}</Link>}
       </nav>
     </main>
   );

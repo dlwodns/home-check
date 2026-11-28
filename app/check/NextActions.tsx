@@ -80,7 +80,7 @@ function NoteBox({ value, onSave, recheckHref }: { value: string; onSave: (v: st
         </button>
         {value && recheckHref ? (
           <Link href={recheckHref} className="nav-btn nav-btn-accent">
-            이 내용으로 다시 점검하기 →
+            다시 점검하기
           </Link>
         ) : null}
       </div>

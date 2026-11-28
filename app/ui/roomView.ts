@@ -68,7 +68,7 @@ export function focusTask(room: Room, mode: Mode | null, steps: Step[], branches
       kind: "step",
       title: `${current.no}단계 · ${current.title}`,
       why: needsCheck ? "등기부등본으로 진짜 집주인과 빚을 확인해요" : current.summary,
-      cta: `${current.no}단계 시작하기 →`,
+      cta: `다음: ${current.title} →`,
       href: `/steps/${current.no}?${q}`,
       step: current,
     };

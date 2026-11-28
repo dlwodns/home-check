@@ -38,7 +38,7 @@ await step("방을 담으면 그 방(길)으로 가고, 3단계에 동네 시세
   await p.getByRole("button", { name: /저장하고/ }).click();
   await p.waitForURL(/room\?id=/);
   await expectText(p, "3단계 · 집 보러 가기"); // 방 = 한 길: 방을 찾았으니 3단계부터
-  await p.getByRole("link", { name: "3단계 시작하기 →" }).click();
+  await p.getByRole("link", { name: "다음: 집 보러 가기 →" }).click();
   await p.waitForURL(/steps\/3/);
   await expectText(p, /월세 신고 거래 \d+건/, 20000);
 });
@@ -46,7 +46,7 @@ await step("방을 담으면 그 방(길)으로 가고, 3단계에 동네 시세
 await step("샘플로 해 보면 판정은 나오지만 방에는 저장하지 않는다", async () => {
   await p.getByRole("link", { name: /다음: 계약 전 서류 확인/ }).click(); // 3단계 → 4단계(한 길)
   await p.waitForURL(/steps\/4/);
-  await p.getByRole("link", { name: "등기부등본 점검하기 →" }).click();
+  await p.getByRole("link", { name: "다음: 등기부등본 점검 →" }).click();
   await p.waitForURL(/check/);
   // 방에서 점검할 때는 예시 서류가 접혀 있다 → 펼치고 누른다
   if (!(await p.getByRole("button", { name: "예시 서류 2" }).isVisible())) await p.getByText(/예시 서류로 먼저 보기/).click();
@@ -57,14 +57,14 @@ await step("샘플로 해 보면 판정은 나오지만 방에는 저장하지 �
 });
 
 await step("서류를 올린 것처럼 점검하면 방에 저장되고 홈 카드에 신호등이 보인다", async () => {
-  await p.getByRole("button", { name: "고쳐서 다시 점검" }).click(); // 점검 뒤 접힌 입력 칸 펼치기
-  await p.getByRole("button", { name: /서류 바꾸기/ }).click(); // 한 화면에 카드 하나: 서류 카드로
+  await p.getByRole("button", { name: "← 이전: 내 계약 정보" }).click(); // 점검 뒤 접힌 입력 칸 펼치기
+  await p.getByRole("button", { name: /이전: 서류 넣기/ }).click(); // 한 화면에 카드 하나: 서류 카드로
   const box = p.getByLabel(/내용을 그대로 붙여 넣어 주세요/);
   await box.fill((await box.inputValue()) + "\n");
   await p.getByRole("button", { name: /다음: 내 계약 정보/ }).click();
   await p.getByRole("button", { name: "점검하기" }).click();
   await expectText(p, /점검용 방.*에 저장했어요|에 저장했어요/);
-  await p.getByRole("link", { name: "4단계로 돌아가 이어 하기 →" }).click(); // 점검 뒤에는 4단계로 돌아간다
+  await p.getByRole("link", { name: "다음: 계약 전 서류 확인 →" }).click(); // 점검 뒤에는 4단계로 돌아간다
   await p.waitForURL(/steps\/4/);
   await expectText(p, "계약 전에 확인할 것이 1가지 있어요");
   await p.goto(U + "/", { waitUntil: "networkidle" });

@@ -67,7 +67,7 @@ describe("등기부등본 점검 화면", () => {
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(screen.queryByRole("button", { name: "점검하기" })).toBeNull();
     expect(screen.getByLabelText("넣은 서류 · 내 계약 정보").textContent).toMatch(/예시 서류 2 · 내 보증금 500만 원 · 시세 \d+억/);
-    await user.click(screen.getByRole("button", { name: "고쳐서 다시 점검" }));
+    await user.click(screen.getByRole("button", { name: "← 이전: 내 계약 정보" }));
     expect((screen.getByLabelText("내 보증금 (원)") as HTMLInputElement).value).toBe("5,000,000");
     expect(verdictLabel()).toBe("주의"); // 펼쳐도 결과는 그대로
     await user.click(screen.getByRole("button", { name: "점검하기" }));
@@ -154,7 +154,7 @@ describe("등기부등본 점검 화면", () => {
     const user = userEvent.setup();
     render(<CheckClient samples={samples} />);
     await user.click(screen.getByRole("button", { name: "예시 서류 1" }));
-    await user.click(screen.getByRole("button", { name: /서류 바꾸기/ }));
+    await user.click(screen.getByRole("button", { name: /이전: 서류 넣기/ }));
     const box = screen.getByLabelText(/등기부등본\(등기사항전부증명서\) 내용/);
     const broken = samples[0].text.replace("채권최고액 금240,000,000원", "채권최고액 (흐림)");
     await user.clear(box);
@@ -232,7 +232,7 @@ describe("PDF 올리기", () => {
     expect(await screen.findByText(/PDF 1쪽에서 글자를 읽었어요/)).toBeTruthy();
     // 글자를 읽으면 바로 '내 계약 정보' 카드로 넘어간다. 읽은 글자는 '서류 바꾸기'에서 본다
     expect(screen.getByLabelText("내 보증금 (원)")).toBeTruthy();
-    await user.click(screen.getByRole("button", { name: /서류 바꾸기/ }));
+    await user.click(screen.getByRole("button", { name: /이전: 서류 넣기/ }));
     // 읽은 글자 칸은 접혀 있다(펼치면 고칠 수 있음)
     const raw = screen.getByLabelText(/읽은 글자\(서류와 다르면 고쳐도 돼요\)/) as HTMLTextAreaElement;
     expect(raw.closest("details")?.open).toBe(false);
@@ -314,7 +314,7 @@ describe("PDF 올리기", () => {
     await user.click(screen.getByRole("button", { name: "점검하기" }));
     expect(verdictLabel()).toBe("위험");
 
-    await user.click(screen.getByRole("button", { name: "고쳐서 다시 점검" }));
+    await user.click(screen.getByRole("button", { name: "← 이전: 내 계약 정보" }));
     await user.click(screen.getByRole("button", { name: "다시 보기" }));
     await user.click(screen.getByRole("button", { name: /원본과 달라요/ }));
     expect(screen.getAllByText(/다른 값이 있다고 표시했어요/).length).toBeGreaterThan(0);
@@ -338,23 +338,23 @@ describe("PDF 올리기", () => {
     expect(screen.getByText("✓ 원본과 맞춰 봤어요 (고친 값: 집주인)")).toBeTruthy();
   });
 
-  it("위에 지금 단계와 '지금 할 일'이 쉬운 말로 보이고, 단계마다 바뀐다", async () => {
+  it("위 단계 표시가 지금 단계를 따라가고(겹치던 '지금 할 일' 줄은 뺌), 결과 뒤에는 다음 버튼 하나", async () => {
     const user = userEvent.setup();
     await uploadOcr(user);
     const steps = screen.getByRole("navigation", { name: "점검 단계" });
     expect(within(steps).getAllByRole("listitem").map((li) => li.textContent)).toEqual(["✓서류 넣기", "2원본과 맞춰 보기", "3내 계약 정보", "4결과 보기"]);
-    expect(within(steps).getByText(/읽은 값이 원본과 같은지 봐 주세요/)).toBeTruthy();
+    expect(within(steps).getByText("원본과 맞춰 보기").closest("li")!.getAttribute("aria-current")).toBe("step");
     expect(screen.queryByRole("button", { name: "예시 서류 2" })).toBeNull(); // 진짜 서류를 넣으면 샘플은 숨김
     await user.click(screen.getByRole("button", { name: /원본과 같아요/ }));
-    expect(within(steps).getByText(/보증금을 적고 '점검하기'를 눌러요/)).toBeTruthy();
+    expect(within(steps).getByText("내 계약 정보").closest("li")!.getAttribute("aria-current")).toBe("step");
     await fillForm(user);
     await user.click(screen.getByRole("button", { name: "점검하기" }));
-    expect(within(steps).getByText(/맨 아래 '다음 단계'로 가요/)).toBeTruthy();
+    expect(within(steps).getByText("결과 보기").closest("li")!.getAttribute("aria-current")).toBe("step");
     expect(screen.queryByText("읽은 내용 확인 · 고치기")).toBeNull(); // 위에서 맞춰 봤으니 겹치는 칸은 뺌
     // 결과 뒤에는 무엇을 이어서 할지 버튼 하나 + 이전 단계로 돌아가기
     const next = screen.getByRole("navigation", { name: "다음 단계" });
     expect(within(next).getByRole("link", { name: /내 후보 방으로 담기/ }).getAttribute("href")).toBe("/rooms/new");
-    await user.click(within(next).getByRole("button", { name: /이전: 서류 · 내 계약 정보 고치기/ }));
+    await user.click(screen.getByRole("button", { name: "← 이전: 내 계약 정보" }));
     expect(screen.getByRole("button", { name: "점검하기" })).toBeTruthy();
   });
 
@@ -394,5 +394,18 @@ describe("결과: 3줄 요약 · 알 수 없는 것 · 판정 모양 (벤치마�
     expect(screen.getByText(/집주인의 국세 · 지방세 체납/)).toBeTruthy();
     expect(document.querySelector(".summary-lines")!.textContent).toContain("등기부로는 알 수 없는 것");
     expect(document.querySelector(".signal-glyph")!.textContent).toBe("✓");
+  });
+});
+
+describe("입력칸 [필수] · [선택] 표시 (11/28)", () => {
+  it("꼭 적을 칸(내 보증금)만 '필수', 나머지는 '선택'이고, 필수 칸은 화면 읽기 프로그램에도 필수로 알린다", async () => {
+    const user = userEvent.setup();
+    render(<CheckClient samples={samples} />);
+    await user.click(screen.getByRole("button", { name: "예시 서류 2" }));
+    const mark = (label: string) => document.querySelector(`label[for="${screen.getByLabelText(label).id}"]`)!.getAttribute("data-mark");
+    expect(mark("내 보증금 (원)")).toBe("필수");
+    expect(screen.getByLabelText("내 보증금 (원)").getAttribute("aria-required")).toBe("true");
+    expect(mark("이 건물 시세 (원)")).toBe("선택");
+    expect(mark("집주인 이름 (계약서에 서명할 사람)")).toBe("선택");
   });
 });
